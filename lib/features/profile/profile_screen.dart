@@ -86,10 +86,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     // Profile Editor Card
                     GlassCard(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'CHARACTER METADATA',
@@ -162,24 +161,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ],
                         ),
-                      ),
                     ),
                     const SizedBox(height: 24.0),
 
                     // Faceclaim registry Reservation checker Card
                     GlassCard(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'FACECLAIM REGISTRY REGISTRIES',
-                              style: PortalTheme.statsText.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: PortalTheme.infoSlate,
-                              ),
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'FACECLAIM REGISTRY CHECKER',
+                            style: PortalTheme.statsText.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: PortalTheme.infoSlate,
                             ),
+                          ),
                             const SizedBox(height: 24.0),
 
                             // Faceclaim Input
@@ -236,7 +233,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ],
                           ],
                         ),
-                      ),
                     ),
                   ],
                 ),

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../theme/portal_theme.dart';
 
 /// A widget that applies a highly optimized GPU-driven iridescent shimmer effect
 /// on top of its child.
@@ -97,18 +98,35 @@ class _IridescentOverlayState extends ConsumerState<IridescentOverlay> with Sing
 
   @override
   Widget build(BuildContext context) {
+    const backgroundGradient = BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          PortalTheme.creamBg,
+          Color(0xFFF3ECE1), // Premium horological warm sand tone
+        ],
+      ),
+    );
+
     // Ethereal fallback: load child directly if shader compilation fails or is loading
     if (_isLoading || _program == null) {
-      return widget.child;
+      return Container(
+        decoration: backgroundGradient,
+        child: widget.child,
+      );
     }
 
-    return CustomPaint(
-      foregroundPainter: _IridescentPainter(
-        shader: _program!.fragmentShader(),
-        time: _elapsedSeconds,
-        offset: widget.offset,
+    return Container(
+      decoration: backgroundGradient,
+      child: CustomPaint(
+        foregroundPainter: _IridescentPainter(
+          shader: _program!.fragmentShader(),
+          time: _elapsedSeconds,
+          offset: widget.offset,
+        ),
+        child: widget.child,
       ),
-      child: widget.child,
     );
   }
 }

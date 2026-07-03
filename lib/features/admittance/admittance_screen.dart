@@ -90,6 +90,7 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
                     child: SpringTapWrapper(
             onTap: () => _showApplicationDetailsBottomSheet(context, app),
             child: GlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: ListTile(
                 title: Text(app.characterName, style: PortalTheme.sectionHeader.copyWith(fontSize: 18.0)),
                 subtitle: Text('Faction: ${app.faction} • ${app.applicantEmail}', style: PortalTheme.bodyText),
@@ -119,6 +120,7 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
                 child: SpringTapWrapper(
                   onTap: () => setState(() => _selectedApplication = app),
                   child: GlassCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                     backgroundColor: isSelected
                         ? PortalTheme.tealNavyAccent.withValues(alpha: 0.1)
                         : null,
@@ -177,14 +179,13 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
                       child: SpringTapWrapper(
                         onTap: () => setState(() => _selectedApplication = app),
                         child: GlassCard(
+                          padding: const EdgeInsets.all(16.0),
                           backgroundColor: isSelected
                               ? PortalTheme.tealNavyAccent.withValues(alpha: 0.08)
                               : null,
                           hasBorder: isSelected,
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   app.characterName,
@@ -203,7 +204,6 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
                                 ),
                               ],
                             ),
-                          ),
                         ),
                       ),
                     );
