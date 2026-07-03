@@ -42,36 +42,64 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
       ),
       body: IridescentOverlay(
         child: SafeArea(
-          child: pendingAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Center(
-              child: Text(
-                'Failed to load applications: $err',
-                style: PortalTheme.bodyText.copyWith(color: PortalTheme.alertTerracotta),
-              ),
-            ),
-            data: (applications) {
-              if (applications.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No pending admittance applications.',
-                    style: PortalTheme.bodyText,
+          child: Column(
+            children: [
+              if (ref.watch(admittanceOfflineProvider))
+                Container(
+                  width: double.infinity,
+                  color: PortalTheme.alertTerracotta.withValues(alpha: 0.15),
+                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.cloud_off, color: PortalTheme.alertTerracotta, size: 16.0),
+                      const SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          'CONNECTION OFFLINE; DISPLAYING CACHED SYNC',
+                          style: PortalTheme.statsText.copyWith(
+                            fontSize: 10.0,
+                            fontWeight: FontWeight.bold,
+                            color: PortalTheme.alertTerracotta,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              }
+                ),
+              Expanded(
+                child: pendingAsync.when(
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Center(
+                    child: Text(
+                      'Failed to load applications: $err',
+                      style: PortalTheme.bodyText.copyWith(color: PortalTheme.alertTerracotta),
+                    ),
+                  ),
+                  data: (applications) {
+                    if (applications.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No pending admittance applications.',
+                          style: PortalTheme.bodyText,
+                        ),
+                      );
+                    }
 
-              // Auto-select first application if none selected or if selected is no longer pending
-              if (_selectedApplication == null ||
-                  !applications.any((a) => a.id == _selectedApplication!.id)) {
-                _selectedApplication = applications.first;
-              }
+                    // Auto-select first application if none selected or if selected is no longer pending
+                    if (_selectedApplication == null ||
+                        !applications.any((a) => a.id == _selectedApplication!.id)) {
+                      _selectedApplication = applications.first;
+                    }
 
-              return ResponsiveLayout(
-                mobile: _buildMobileLayout(context, applications),
-                tablet: _buildTabletLayout(context, applications),
-                desktop: _buildDesktopLayout(context, applications),
-              );
-            },
+                    return ResponsiveLayout(
+                      mobile: _buildMobileLayout(context, applications),
+                      tablet: _buildTabletLayout(context, applications),
+                      desktop: _buildDesktopLayout(context, applications),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

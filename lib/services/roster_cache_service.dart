@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/application.dart';
 import '../models/roster_member.dart';
 
 /// Provider exposing the SharedPreferences instance.
@@ -9,10 +10,11 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('SharedPreferences has not been initialized. Override in ProviderScope.');
 });
 
-/// Service class handling local caching of the roster.
+/// Service class handling local caching of the roster and applications.
 class RosterCacheService {
   final SharedPreferences _prefs;
   static const _cacheKey = 'roster_cache';
+  static const _applicationsCacheKey = 'applications_cache';
 
   RosterCacheService(this._prefs);
 
@@ -37,6 +39,27 @@ class RosterCacheService {
   Future<void> saveRoster(List<RosterMember> roster) async {
     final jsonStr = jsonEncode(roster.map((m) => m.toJson()).toList());
     await _prefs.setString(_cacheKey, jsonStr);
+  }
+
+  /// Loads the pending applications from the local cache.
+  List<Application> loadApplications() {
+    final jsonStr = _prefs.getString(_applicationsCacheKey);
+    if (jsonStr == null) return [];
+
+    try {
+      final decoded = jsonDecode(jsonStr) as List<dynamic>;
+      return decoded
+          .map((item) => Application.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Persists the pending applications list to local storage.
+  Future<void> saveApplications(List<Application> apps) async {
+    final jsonStr = jsonEncode(apps.map((a) => a.toJson()).toList());
+    await _prefs.setString(_applicationsCacheKey, jsonStr);
   }
 }
 
