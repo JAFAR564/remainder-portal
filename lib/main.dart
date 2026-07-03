@@ -18,8 +18,8 @@ void main() async {
 
   // Initialize Supabase with project credentials
   await Supabase.initialize(
-    url: 'https://zcyiqohokdfzzqnjwklj.supabase.co',
-    publishableKey: 'sb_publishable_0RcFEIW6hyib0VDK56HS9g_zEWz01my',
+    url: 'https://dhqvrmchdzcqwkoqunsn.supabase.co',
+    publishableKey: 'sb_publishable_nBUf8m5n_WjwG3zMNvSc3g_y4YYBSTS',
   );
 
   runApp(
