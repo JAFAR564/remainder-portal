@@ -27,13 +27,13 @@ jobs:
 
       - name: Set up Shorebird
         uses: shorebirdtech/setup-shorebird@v1
-        with:
-          shorebird-token: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: Run Shorebird Init
         run: |
           # Run initialization non-interactively
           shorebird init --verbose
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
         
       - name: Commit and Push Configuration
         run: |
