@@ -30,8 +30,8 @@ jobs:
 
       - name: Run Shorebird Init
         run: |
-          # Run initialization non-interactively
-          shorebird init --verbose
+          # Run initialization non-interactively by forcing default answers
+          shorebird init --verbose --force --display-name "Remainder Portal"
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
         
