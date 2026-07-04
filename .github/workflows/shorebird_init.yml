@@ -1,7 +1,7 @@
 name: Shorebird Cloud Init
 
 on:
-  workflow_dispatch: # Enables manual trigger from the GitHub Actions UI
+  workflow_dispatch:
 
 jobs:
   init:
@@ -19,18 +19,37 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
+      - name: Configure Flutter for Android
+        run: |
+          flutter config --enable-android
+          if [ -d "android" ]; then
+            cd android
+            # Ensure gradlew file is present (if gitignored, create it)
+            if [ ! -f "gradlew" ]; then
+              flutter create --platforms=android ..
+            fi
+            chmod +x gradlew
+            ./gradlew --version
+            cd ..
+          fi
+
       - name: Set up Shorebird
         uses: shorebirdtech/setup-shorebird@v1
 
       - name: Run Shorebird Init
         run: |
-          # Run initialization non-interactively by forcing default answers
           shorebird init --verbose --force --display-name "Remainder Portal"
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
