@@ -35,8 +35,14 @@ class AuthService {
         emailRedirectTo: kIsWeb ? null : 'com.remainder.portal://login-callback',
       );
     } on AuthException catch (e) {
-      debugPrint('Supabase OTP Sign In Auth Error: ${e.message}');
-      rethrow;
+      debugPrint('Supabase OTP Custom Redirect Auth Error: ${e.message}. Retrying with default redirect.');
+      try {
+        // Fallback: try signing in without a custom redirect URL (uses default whitelisted Site URL)
+        await _client.auth.signInWithOtp(email: email);
+      } catch (e2) {
+        debugPrint('Supabase OTP Fallback Error: $e2');
+        rethrow;
+      }
     } catch (e) {
       debugPrint('Supabase OTP Sign In Error: $e');
       rethrow;

@@ -120,7 +120,7 @@ class _IridescentOverlayState extends ConsumerState<IridescentOverlay> with Sing
     return Container(
       decoration: backgroundGradient,
       child: CustomPaint(
-        foregroundPainter: _IridescentPainter(
+        painter: _IridescentPainter(
           shader: _program!.fragmentShader(),
           time: _elapsedSeconds,
           offset: widget.offset,
