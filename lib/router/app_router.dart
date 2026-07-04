@@ -6,6 +6,7 @@ import '../features/admittance/admittance_screen.dart';
 import '../features/chronicles/chronicles_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/auth/login_screen.dart';
+import '../features/chat/chat_screen.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
 
@@ -71,6 +72,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) => const ChatScreen(),
       ),
       GoRoute(
         path: '/login',

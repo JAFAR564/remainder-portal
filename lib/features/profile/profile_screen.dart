@@ -4,6 +4,7 @@ import '../../theme/portal_theme.dart';
 import '../../ui/animations/spring_tap_wrapper.dart';
 import '../../ui/components/glass_card.dart';
 import '../../ui/components/iridescent_overlay.dart';
+import '../../services/profile_service.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +20,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isCheckingFaceclaim = false;
   String? _faceclaimStatus;
   Color? _faceclaimStatusColor;
+  bool _initialized = false;
 
   @override
   void dispose() {
@@ -57,6 +59,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final profileAsync = ref.watch(userProfileProvider);
+    profileAsync.whenData((profile) {
+      if (profile != null && !_initialized) {
+        _characterNameController.text = profile.characterName;
+        _faceclaimController.text = profile.faceclaim;
+        _selectedFaction = profile.faction;
+        _initialized = true;
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -119,6 +131,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Text('AFFILIATED FACTION', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
                             const SizedBox(height: 8.0),
                             DropdownButtonFormField<String>(
+                              key: ValueKey(_selectedFaction),
                               initialValue: _selectedFaction,
                               style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
                               dropdownColor: PortalTheme.creamBg,
@@ -138,15 +151,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             const SizedBox(height: 24.0),
 
                             // Save Button
-                            SpringTapWrapper(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Character profile successfully updated.'),
-                                    backgroundColor: PortalTheme.tealNavyAccent,
-                                  ),
-                                );
-                              },
+                             SpringTapWrapper(
+                               onTap: () async {
+                                 try {
+                                   await ref.read(userProfileProvider.notifier).updateProfile(
+                                     characterName: _characterNameController.text.trim(),
+                                     faction: _selectedFaction,
+                                     faceclaim: _faceclaimController.text.trim(),
+                                   );
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                     const SnackBar(
+                                       content: Text('Character profile successfully updated.'),
+                                       backgroundColor: PortalTheme.successMoss,
+                                     ),
+                                   );
+                                 } catch (e) {
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                     SnackBar(
+                                       content: Text('Failed to save profile: $e'),
+                                       backgroundColor: PortalTheme.alertTerracotta,
+                                     ),
+                                   );
+                                 }
+                               },
                               child: Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.symmetric(vertical: 16.0),

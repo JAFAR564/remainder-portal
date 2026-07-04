@@ -7,12 +7,12 @@ part of 'okf_models.dart';
 // **************************************************************************
 
 _LoreChunk _$LoreChunkFromJson(Map<String, dynamic> json) => _LoreChunk(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      content: json['content'] as String,
-      relevanceScore: (json['relevance_score'] as num).toDouble(),
-      metadata: json['metadata'] as Map<String, dynamic>,
-    );
+  id: json['id'] as String,
+  title: json['title'] as String,
+  content: json['content'] as String,
+  relevanceScore: (json['relevance_score'] as num).toDouble(),
+  metadata: json['metadata'] as Map<String, dynamic>,
+);
 
 Map<String, dynamic> _$LoreChunkToJson(_LoreChunk instance) =>
     <String, dynamic>{

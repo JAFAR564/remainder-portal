@@ -53,16 +53,33 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      body: IridescentOverlay(
-        child: SafeArea(
-          child: ResponsiveLayout(
-            mobile: _buildMobileLayout(context),
-            tablet: _buildTabletLayout(context),
-            desktop: _buildDesktopLayout(context, ref),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 900;
+        return Scaffold(
+          appBar: isDesktop
+              ? null
+              : AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  iconTheme: const IconThemeData(color: PortalTheme.charcoalNearBlackText),
+                ),
+          drawer: isDesktop
+              ? null
+              : Drawer(
+                  child: _buildSidebar(context, ref),
+                ),
+          body: IridescentOverlay(
+            child: SafeArea(
+              child: ResponsiveLayout(
+                mobile: _buildMobileLayout(context),
+                tablet: _buildTabletLayout(context),
+                desktop: _buildDesktopLayout(context, ref),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -351,6 +368,8 @@ class DashboardScreen extends ConsumerWidget {
           _buildSidebarLink(context, ref, 'Chronicles Timeline', route: '/chronicles'),
           const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Profile Settings', route: '/profile'),
+          const SizedBox(height: 24.0),
+          _buildSidebarLink(context, ref, 'Chat Channels', route: '/chat'),
           const Spacer(),
           // Profile Footer
           Row(
@@ -384,6 +403,9 @@ class DashboardScreen extends ConsumerWidget {
   Widget _buildSidebarLink(BuildContext context, WidgetRef ref, String label, {required String route, bool isActive = false}) {
     return SpringTapWrapper(
       onTap: () {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
         ref.read(routerProvider).go(route);
       },
       child: Row(

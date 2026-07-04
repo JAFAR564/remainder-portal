@@ -5,8 +5,18 @@ import '../../../services/sheets_service.dart';
 
 import '../../../services/roster_cache_service.dart';
 
+/// Notifier managing whether the admittance portal is running in offline fallback mode.
+class AdmittanceOfflineNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setOffline(bool val) => state = val;
+}
+
 /// Provider exposing whether the admittance portal is running in offline fallback mode.
-final admittanceOfflineProvider = StateProvider<bool>((ref) => false);
+final admittanceOfflineProvider = NotifierProvider<AdmittanceOfflineNotifier, bool>(() {
+  return AdmittanceOfflineNotifier();
+});
 
 /// Notifier driving the list of pending applications under review.
 class AdmittanceNotifier extends AsyncNotifier<List<Application>> {
@@ -16,12 +26,12 @@ class AdmittanceNotifier extends AsyncNotifier<List<Application>> {
       final networkApps = await ref.read(sheetsServiceProvider).fetchPendingApplications();
       // Silently cache successful fetch locally
       await ref.read(rosterCacheServiceProvider).saveApplications(networkApps);
-      ref.read(admittanceOfflineProvider.notifier).state = false;
+      ref.read(admittanceOfflineProvider.notifier).setOffline(false);
       return networkApps;
     } catch (e) {
       // Offline fallback: load from local cache instead of throwing error
       final cachedApps = ref.read(rosterCacheServiceProvider).loadApplications();
-      ref.read(admittanceOfflineProvider.notifier).state = true;
+      ref.read(admittanceOfflineProvider.notifier).setOffline(true);
       return cachedApps;
     }
   }
