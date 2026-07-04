@@ -10,6 +10,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -21,17 +23,39 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Configure Flutter for Android
+        run: |
+          flutter config --enable-android
+          if [ -d "android" ]; then
+            cd android
+            # Restore gradlew wrapper if missing
+            if [ ! -f "gradlew" ]; then
+              flutter create --platforms=android ..
+            fi
+            chmod +x gradlew
+            cd ..
+          fi
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Set up Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: Build Shorebird Release APK
+        run: |
+          shorebird release android --force
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
