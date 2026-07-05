@@ -58,6 +58,16 @@ class AuthService {
     }
   }
 
+  /// Sign in with email and password.
+  Future<void> signInWithPassword({required String email, required String password}) async {
+    try {
+      await _client.auth.signInWithPassword(email: email, password: password);
+    } catch (e) {
+      debugPrint('Supabase Password Sign In Error: $e');
+      rethrow;
+    }
+  }
+
   /// Explicitly handle the verification token callback (exchange the code for session)
   /// when intercepting Universal/App Link deep link redirects.
   Future<void> handleDeepLinkCallback(Uri uri) async {

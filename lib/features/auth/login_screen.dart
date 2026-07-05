@@ -15,13 +15,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isPasswordMode = false;
   String? _successMessage;
   String? _errorMessage;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -48,6 +51,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to request magic link. Please check details.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _signInWithPassword() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both email and password.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    try {
+      await ref.read(authServiceProvider).signInWithPassword(
+        email: email,
+        password: password,
+      );
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to sign in. Please check your credentials.';
       });
     } finally {
       setState(() {
@@ -106,7 +141,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 12.0),
                     Text(
-                      'Enter your registered email below to receive a passwordless authentication token.',
+                      _isPasswordMode
+                          ? 'Enter your email and password to request entry to the portal.'
+                          : 'Enter your registered email below to receive a passwordless authentication token.',
                       style: PortalTheme.bodyText,
                     ),
                     const SizedBox(height: 32.0),
@@ -145,6 +182,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                     ),
+                    
+                    if (_isPasswordMode) ...[
+                      const SizedBox(height: 20.0),
+                      Text(
+                        'PASSWORD',
+                        style: PortalTheme.statsText.copyWith(
+                          fontSize: 10.0,
+                          color: PortalTheme.warmGrayBodyText,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                        decoration: InputDecoration(
+                          hintText: '••••••••',
+                          hintStyle: PortalTheme.bodyText.copyWith(color: PortalTheme.silverGrayBorder),
+                          filled: true,
+                          fillColor: PortalTheme.creamBg,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(color: PortalTheme.silverGrayBorder, width: 1.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(color: PortalTheme.silverGrayBorder, width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 24.0),
 
                     // Success/Error Feedback Banner
@@ -163,9 +237,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       const SizedBox(height: 16.0),
                     ],
 
-                    // Magic Link Button
+                    // Sign In Button
                     SpringTapWrapper(
-                      onTap: _isLoading ? null : _requestMagicLink,
+                      onTap: _isLoading
+                          ? null
+                          : (_isPasswordMode ? _signInWithPassword : _requestMagicLink),
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -184,9 +260,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   ),
                                 )
                               : Text(
-                                  'SEND MAGIC LINK',
+                                  _isPasswordMode ? 'SIGN IN' : 'SEND MAGIC LINK',
                                   style: PortalTheme.ctaButtonText,
                                 ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16.0),
+                    Center(
+                      child: TextButton(
+                        onTap: () {
+                          setState(() {
+                            _isPasswordMode = !_isPasswordMode;
+                            _errorMessage = null;
+                            _successMessage = null;
+                          });
+                        },
+                        child: Text(
+                          _isPasswordMode
+                              ? 'Use Magic Link passwordless sign-in'
+                              : 'Sign in with password instead',
+                          style: PortalTheme.statsText.copyWith(
+                            color: PortalTheme.tealNavyAccent,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
                         ),
                       ),
                     ),
