@@ -6,24 +6,77 @@ import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import datetime
 import google.auth
+from google.oauth2 import service_account
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 PORT = int(os.environ.get("PORT", 8080))
 SPREADSHEET_ID = "1r4I_4NCkxpRCzfydGOcdcS-swOUwoT-b91CJpNvNg3Y"
 
-def get_sheets_service():
-    adc_err = None
-    # 1. First, check if running in a container with Service Account/ADC credentials
+def load_cleaned_service_account(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
     try:
-        scopes = ['https://www.googleapis.com/auth/spreadsheets']
+        # First attempt: parse normally
+        return json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"⚠️ Standard JSON parsing failed, attempting repair: {e}")
+        
+    # Repair raw newline characters inside "private_key"
+    lines = content.splitlines()
+    cleaned_lines = []
+    in_private_key = False
+    private_key_lines = []
+    
+    for line in lines:
+        stripped = line.strip()
+        if '"private_key":' in line:
+            in_private_key = True
+            # Locate value start
+            start_idx = line.find('"private_key":')
+            key_part = line[start_idx + len('"private_key":'):].strip()
+            if key_part.startswith('"'):
+                key_part = key_part[1:]
+            private_key_lines.append(key_part)
+        elif in_private_key:
+            if stripped.endswith('"') or stripped.endswith('",'):
+                in_private_key = False
+                end_part = stripped[:-2] if stripped.endswith('",') else stripped[:-1]
+                private_key_lines.append(end_part)
+                # Re-assemble using escaped newlines
+                cleaned_key = '\\n'.join(private_key_lines).replace('\\\\n', '\\n')
+                cleaned_lines.append(f'  "private_key": "{cleaned_key}",')
+            else:
+                private_key_lines.append(stripped)
+        else:
+            cleaned_lines.append(line)
+            
+    cleaned_str = '\n'.join(cleaned_lines)
+    return json.loads(cleaned_str)
+
+def get_sheets_service():
+    scopes = ['https://www.googleapis.com/auth/spreadsheets']
+    creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    
+    # 1. Try custom service account key loader if path is specified
+    if creds_path and os.path.exists(creds_path):
+        try:
+            print(f"🔑 Loading credentials from file path: {creds_path}")
+            info = load_cleaned_service_account(creds_path)
+            credentials = service_account.Credentials.from_service_account_info(info, scopes=scopes)
+            return build('sheets', 'v4', credentials=credentials)
+        except Exception as file_err:
+            print(f"⚠️ File path credentials load failed: {file_err}")
+            
+    # 2. Try default ADC (fallback)
+    try:
         credentials, _ = google.auth.default(scopes=scopes)
         return build('sheets', 'v4', credentials=credentials)
-    except Exception as err:
-        adc_err = err
-        print(f"ℹ️ ADC lookup failed/unavailable: {err}")
+    except Exception as adc_err:
+        print(f"ℹ️ ADC lookup failed/unavailable: {adc_err}")
         
-    # 2. Local development fallback: run gcloud auth print-access-token
+    # 3. Local development fallback: run gcloud auth print-access-token
     try:
         result = subprocess.run(
             ['gcloud', 'auth', 'print-access-token'],
@@ -36,8 +89,7 @@ def get_sheets_service():
         return build('sheets', 'v4', credentials=credentials)
     except Exception as e:
         print(f"❌ Error loading credentials from all sources: {e}")
-        # Raise an exception instead of crashing the entire server process
-        raise Exception(f"Google authentication failed. ADC Error: {adc_err}. Local gcloud Error: {e}")
+        raise Exception(f"Google authentication failed. File Path Error: {creds_path}. ADC Error: {adc_err}. Local gcloud Error: {e}")
 
 class SheetsProxyHandler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -51,7 +103,6 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_HEAD(self):
-        # Respond to Render's default health checks
         self.send_response(200)
         self._set_cors_headers()
         self.end_headers()
@@ -60,7 +111,6 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
         parsed_path = urllib.parse.urlparse(self.path)
         path = parsed_path.path
         
-        # Health check endpoint
         if path == '/' or path == '/health':
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
