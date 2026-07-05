@@ -18,7 +18,7 @@ final dioProvider = Provider<Dio>((ref) {
 class SheetsService {
   final Dio _dio;
   final SupabaseClient _supabase;
-  static const _baseProxyUrl = 'http://localhost:8080';
+  static const _baseProxyUrl = 'https://sheets-proxy-9gxz.onrender.com';
 
   SheetsService(this._dio, this._supabase) {
     // Dynamic token injection block
