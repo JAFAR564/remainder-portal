@@ -13,14 +13,15 @@ PORT = int(os.environ.get("PORT", 8080))
 SPREADSHEET_ID = "1r4I_4NCkxpRCzfydGOcdcS-swOUwoT-b91CJpNvNg3Y"
 
 def get_sheets_service():
-    # 1. First, check if running in a container without gcloud CLI (like Cloud Run)
-    # We try fallback to ADC first, as it is the standard production path
+    adc_err = None
+    # 1. First, check if running in a container with Service Account/ADC credentials
     try:
         scopes = ['https://www.googleapis.com/auth/spreadsheets']
         credentials, _ = google.auth.default(scopes=scopes)
         return build('sheets', 'v4', credentials=credentials)
-    except Exception as adc_err:
-        print(f"ℹ️ ADC lookup failed/unavailable, trying local gcloud auth: {adc_err}")
+    except Exception as err:
+        adc_err = err
+        print(f"ℹ️ ADC lookup failed/unavailable: {err}")
         
     # 2. Local development fallback: run gcloud auth print-access-token
     try:
@@ -35,7 +36,8 @@ def get_sheets_service():
         return build('sheets', 'v4', credentials=credentials)
     except Exception as e:
         print(f"❌ Error loading credentials from all sources: {e}")
-        sys.exit(1)
+        # Raise an exception instead of crashing the entire server process
+        raise Exception(f"Google authentication failed. ADC Error: {adc_err}. Local gcloud Error: {e}")
 
 class SheetsProxyHandler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -48,10 +50,25 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
         self._set_cors_headers()
         self.end_headers()
 
+    def do_HEAD(self):
+        # Respond to Render's default health checks
+        self.send_response(200)
+        self._set_cors_headers()
+        self.end_headers()
+
     def do_GET(self):
         parsed_path = urllib.parse.urlparse(self.path)
         path = parsed_path.path
         
+        # Health check endpoint
+        if path == '/' or path == '/health':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self._set_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': 'healthy'}).encode('utf-8'))
+            return
+
         try:
             service = get_sheets_service()
             
@@ -215,7 +232,7 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
 def run_server():
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, SheetsProxyHandler)
-    print(f"🚀 Production-ready Sheets Proxy running on port {PORT}")
+    print(f"🚀 Resilient Sheets Proxy running on port {PORT}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
