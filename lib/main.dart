@@ -154,7 +154,7 @@ class DashboardScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 8.0),
         Text(
-          'A curated sanctuary for light-ethereal luxury watch collectors.',
+          'The official administrative hub for our chronicle timeline and roleplay sanctuary.',
           style: PortalTheme.bodyText,
         ),
       ],
@@ -187,7 +187,7 @@ class DashboardScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(4.0),
                   ),
                   child: Text(
-                    'FEATURED COLLECTION',
+                    'LATEST TRANSMISSION',
                     style: PortalTheme.statsText.copyWith(
                       color: Colors.white,
                       fontSize: 10.0,
@@ -196,9 +196,9 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  'ACTIVE ROSTER',
+                  'TIMELINE SPLIT',
                   style: PortalTheme.statsText.copyWith(
-                    color: PortalTheme.successMoss,
+                    color: PortalTheme.alertTerracotta,
                     fontSize: 12.0,
                     fontWeight: FontWeight.w600,
                   ),
@@ -207,12 +207,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24.0),
             Text(
-              'The Ethereal Tourbillon',
+              'A Chronicle from the Timeworn Sanctuary',
               style: PortalTheme.sectionHeader,
             ),
             const SizedBox(height: 12.0),
             Text(
-              'Meticulously crafted with a pristine brushed titanium frame and sandblasted gold gear accents. Engineered to run quietly without visual or mechanical friction.',
+              'The temporal clockwork has ticked. We are currently recording the timeline events for the Elysium Syndicate and Aethelgard Alliance. All members must submit their chronicle updates to prevent desynchronization.',
               style: PortalTheme.bodyText,
             ),
             const SizedBox(height: 24.0),
@@ -220,13 +220,13 @@ class DashboardScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'SERIAL: #RP-8902',
+                  'SECTOR: SANCTUARY CORE',
                   style: PortalTheme.statsText,
                 ),
                 Text(
-                  'QTY: 14 AVAILABLE',
+                  'STATUS: SYNCHRONIZED',
                   style: PortalTheme.statsText.copyWith(
-                    color: PortalTheme.infoSlate,
+                    color: PortalTheme.successMoss,
                   ),
                 ),
               ],
@@ -250,17 +250,32 @@ class DashboardScreen extends ConsumerWidget {
       itemCount: 3,
       itemBuilder: (context, index) {
         final titles = [
-          'Vanguard Platinum Edition',
-          'Classic Ivory Chronograph',
-          'Moss Green Diver Reserve'
+          'Faceclaim Registrar',
+          'Timeline Sync',
+          'Sanctuary Admission'
         ];
-        final serials = ['#RP-0012', '#RP-2481', '#RP-5591'];
+        final labels = ['REGISTRATIONS', 'TIMELINE STATUS', 'GRADING ENGINE'];
         final statusColor = [
           PortalTheme.successMoss,
           PortalTheme.infoSlate,
-          PortalTheme.alertTerracotta
+          PortalTheme.successMoss
         ];
-        final statusText = ['IN STOCK', 'RESERVED', 'LOW STOCK'];
+        final statusText = ['ONLINE', 'STABLE', 'AI ROUTER ACTIVE'];
+        final details = [
+          '28 active claims registered in the database. Ensure faceclaims are unique to prevent duplicate warnings.',
+          'The chronicles timeline shows active temporal splits. Review recent history under the Chronicles section.',
+          'Admittance requests are graded under the Gemini RAG pipelines and DeepSeek verification rules.'
+        ];
+        final footerLeft = [
+          'ACTIVE CLAIMS',
+          'TEMPORAL SPLITS',
+          'PENDING QUEUE'
+        ];
+        final footerRight = [
+          '28 ACTIVE',
+          '0 WARNS',
+          'ACTIVE'
+        ];
 
         return SpringTapWrapper(
           onTap: () {
@@ -276,15 +291,15 @@ class DashboardScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      serials[index],
-                      style: PortalTheme.statsText,
+                      labels[index],
+                      style: PortalTheme.statsText.copyWith(fontSize: 9.0),
                     ),
                     Text(
                       statusText[index],
                       style: PortalTheme.statsText.copyWith(
                         color: statusColor[index],
                         fontWeight: FontWeight.bold,
-                        fontSize: 11.0,
+                        fontSize: 10.0,
                       ),
                     ),
                   ],
@@ -298,9 +313,9 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8.0),
                 Text(
-                  'Part of the limited editorial series celebrating micro-precision movement.',
+                  details[index],
                   style: PortalTheme.smallText,
-                  maxLines: 2,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 16.0),
@@ -308,16 +323,17 @@ class DashboardScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'EST. VALUE',
+                      footerLeft[index],
                       style: PortalTheme.statsText.copyWith(
-                        fontSize: 10.0,
+                        fontSize: 9.0,
                         color: PortalTheme.warmGrayBodyText,
                       ),
                     ),
                     Text(
-                      '\$28,500',
+                      footerRight[index],
                       style: PortalTheme.statsText.copyWith(
                         fontWeight: FontWeight.w600,
+                        fontSize: 11.0,
                       ),
                     ),
                   ],
