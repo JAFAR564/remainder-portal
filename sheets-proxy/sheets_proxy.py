@@ -53,6 +53,7 @@ def get_sheets_service():
     adc_error = None
     
     # 1. Try custom service account key loader if path is specified
+    file_error = None
     if creds_path and os.path.exists(creds_path):
         try:
             print(f"🔑 Loading credentials from file path: {creds_path}")
@@ -60,6 +61,7 @@ def get_sheets_service():
             credentials = service_account.Credentials.from_service_account_info(info, scopes=scopes)
             return build('sheets', 'v4', credentials=credentials)
         except Exception as file_err:
+            file_error = file_err
             print(f"⚠️ File path credentials load failed: {file_err}")
             
     # 2. Try default ADC (fallback)
@@ -83,7 +85,7 @@ def get_sheets_service():
         return build('sheets', 'v4', credentials=credentials)
     except Exception as e:
         print(f"❌ Error loading credentials from all sources: {e}")
-        raise Exception(f"Google authentication failed. File Path Error: {creds_path}. ADC Error: {adc_error}. Local gcloud Error: {e}")
+        raise Exception(f"Google authentication failed. File Path Error: {file_error}. ADC Error: {adc_error}. Local gcloud Error: {e}")
 
 class SheetsProxyHandler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
