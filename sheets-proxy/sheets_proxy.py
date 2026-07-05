@@ -17,7 +17,6 @@ def load_cleaned_service_account(path):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    # Manual key extraction to completely bypass JSON parsing vulnerabilities
     info = {}
     keys = [
         "type", "project_id", "private_key_id", "private_key", 
@@ -36,12 +35,32 @@ def load_cleaned_service_account(path):
                 if val_end != -1:
                     val = content[val_start + 1:val_end]
                     if key == "private_key":
-                        # Replace carriage returns and actual newlines with escaped \n
-                        val = val.replace('\r', '').replace('\n', '\\n')
-                        val = val.replace('\\\\n', '\\n')
+                        # 1. Normalize linebreaks
+                        val = val.replace('\\n', '\n')
+                        raw_lines = val.split('\n')
+                        
+                        # 2. Repair headers and clean base64 lines
+                        clean_lines = []
+                        for l in raw_lines:
+                            l_clean = l.strip()
+                            if not l_clean:
+                                continue
+                            
+                            if "BEGIN PRIVATE" in l_clean:
+                                clean_lines.append("-----BEGIN PRIVATE KEY-----")
+                            elif "END PRIVATE" in l_clean:
+                                clean_lines.append("-----END PRIVATE KEY-----")
+                            elif l_clean == "KEY-----":
+                                # Skip stray key suffixes from wrapped tags
+                                if clean_lines and "PRIVATE" in clean_lines[-1]:
+                                    continue
+                                clean_lines.append(l_clean)
+                            else:
+                                clean_lines.append(l_clean)
+                                
+                        val = '\n'.join(clean_lines)
                     info[key] = val
                     
-    # Validate that we successfully parsed the essential fields
     if not info.get("private_key") or not info.get("client_email"):
         raise ValueError("Essential Service Account fields ('private_key' or 'client_email') could not be parsed.")
         
