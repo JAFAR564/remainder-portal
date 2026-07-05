@@ -1,6 +1,6 @@
 name: remainder_portal
 description: "A bespoke, light ethereal platform for The Remainder Portal community."
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: '>=3.8.0 <4.0.0'
