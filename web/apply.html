@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sanctuary Admittance Claim | The Remainder Portal</title>
+  
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* Design Tokens */
+    :root {
+      --bg-dark: #090a0f;
+      --bg-card: rgba(18, 20, 29, 0.65);
+      --border-color: rgba(212, 212, 212, 0.12);
+      --border-hover: rgba(212, 212, 212, 0.28);
+      --text-primary: #f0f2f5;
+      --text-secondary: #a0a5b5;
+      --accent-teal: #4db6ac;
+      --accent-terracotta: #d9534f;
+      --accent-glow: rgba(77, 182, 172, 0.2);
+      
+      --font-display: "Jost", sans-serif;
+      --font-body: "Outfit", sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(77, 182, 172, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(217, 83, 79, 0.04) 0%, transparent 40%);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    /* Glassmorphic Container */
+    .container {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .portal-logo {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--accent-teal);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(77, 182, 172, 0.4);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 2.25rem;
+      font-weight: 300;
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 1.75rem;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent-teal);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.5;
+    }
+
+    /* Custom Faction Selector Chips */
+    .faction-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (min-width: 480px) {
+      .faction-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .faction-chip {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .faction-chip i {
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .faction-chip:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    .faction-chip.selected {
+      border-color: var(--accent-teal);
+      background: rgba(77, 182, 172, 0.08);
+      color: var(--accent-teal);
+      box-shadow: 0 0 10px rgba(77, 182, 172, 0.15);
+    }
+
+    /* Submit Button (Spring Tap Wrapped Theme) */
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-teal), #26a69a);
+      color: #090a0f;
+      border: none;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(77, 182, 172, 0.3);
+    }
+
+    .btn-submit:active {
+      transform: translateY(1px) scale(0.98);
+    }
+
+    .btn-submit:disabled {
+      background: var(--border-color);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #090a0f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Success Card States */
+    .success-card {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+      animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(77, 182, 172, 0.1);
+      border: 1px solid var(--accent-teal);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 1.5rem auto;
+      font-size: 2.5rem;
+      color: var(--accent-teal);
+      box-shadow: 0 0 20px rgba(77, 182, 172, 0.25);
+    }
+
+    .success-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .success-card p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .btn-return {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-return:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-hover);
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      display: none;
+      background: rgba(217, 83, 79, 0.1);
+      border: 1px solid var(--accent-terracotta);
+      color: #ff8a80;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Application Form state -->
+    <div id="form-container">
+      <header>
+        <div class="portal-logo">Chronomancy Terminal</div>
+        <h1>Sanctuary Admittance</h1>
+        <p class="subtitle">Submit your temporal claim. Your application will route through our cloud verification queue for timeline grading.</p>
+      </header>
+
+      <div class="alert-banner" id="error-banner"></div>
+
+      <form id="admittance-form" onsubmit="handleFormSubmit(event)">
+        
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Applicant Email</label>
+          <input type="email" id="email" required placeholder="name@domain.com">
+        </div>
+
+        <!-- Character Name -->
+        <div class="form-group">
+          <label for="char-name">Character Name</label>
+          <input type="text" id="char-name" required placeholder="e.g. Alistair Vance">
+        </div>
+
+        <!-- Faction Selector -->
+        <div class="form-group">
+          <label>Faction Affiliation</label>
+          <div class="form-desc">Select your temporal faction alignment.</div>
+          <div class="faction-grid">
+            <div class="faction-chip" onclick="selectFaction('Aethelgard Alliance', this)">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Aethelgard</span>
+            </div>
+            <div class="faction-chip" onclick="selectFaction('Elysium Chrono Syndicate', this)">
+              <i class="fa-solid fa-hourglass-half"></i>
+              <span>Elysium</span>
+            </div>
+            <div class="faction-chip" onclick="selectFaction('Vanguard Order', this)">
+              <i class="fa-solid fa-compass"></i>
+              <span>Vanguard</span>
+            </div>
+          </div>
+          <input type="hidden" id="faction" required>
+        </div>
+
+        <!-- Query 1 -->
+        <div class="form-group">
+          <label for="q1">Query #1: State Your Purpose</label>
+          <div class="form-desc">Why do you seek entry to the sanctuary of the Remainder Portal?</div>
+          <textarea id="q1" required placeholder="Describe your timeline archives..."></textarea>
+        </div>
+
+        <!-- Query 2 -->
+        <div class="form-group">
+          <label for="q2">Query #2: Chronomantic Heritage</label>
+          <div class="form-desc">Do you possess any lineage, artifacts, or histories that bind you to time-loop records?</div>
+          <textarea id="q2" required placeholder="Your heritage context..."></textarea>
+        </div>
+
+        <!-- Query 3 -->
+        <div class="form-group">
+          <label for="q3">Query #3: The Temporal Vow</label>
+          <div class="form-desc">Under what vow will you dedicate your clockwork collection to our grand clock?</div>
+          <textarea id="q3" required placeholder="Your vow..."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-submit" id="btn-submit">
+          <span>Log Transmission</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Success Card State -->
+    <div class="success-card" id="success-container">
+      <div class="success-icon">
+        <i class="fa-solid fa-fingerprint"></i>
+      </div>
+      <h2>Transmission Logged</h2>
+      <p>Your timeline admittance claim has been safely registered in the Google Sheet database. <br>The administrative portal has flagged your file for AI verification.</p>
+      <button class="btn-return" onclick="resetForm()">New Transmission</button>
+    </div>
+
+  </div>
+
+  <script>
+    let selectedFactionName = "";
+
+    function selectFaction(faction, element) {
+      // Remove selection from all chips
+      document.querySelectorAll('.faction-chip').forEach(chip => {
+        chip.classList.remove('selected');
+      });
+      
+      // Select clicked chip
+      element.classList.add('selected');
+      selectedFactionName = faction;
+      document.getElementById('faction').value = faction;
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const charName = document.getElementById('char-name').value.trim();
+      const faction = document.getElementById('faction').value;
+      const q1 = document.getElementById('q1').value.trim();
+      const q2 = document.getElementById('q2').value.trim();
+      const q3 = document.getElementById('q3').value.trim();
+      
+      const errorBanner = document.getElementById('error-banner');
+      const submitBtn = document.getElementById('btn-submit');
+      
+      errorBanner.style.display = 'none';
+
+      if (!faction) {
+        errorBanner.innerText = "Please select a faction alignment.";
+        errorBanner.style.display = 'block';
+        return;
+      }
+
+      // Enter loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span>Processing Transmission...';
+
+      const payload = {
+        applicant_email: email,
+        character_name: charName,
+        faction: faction,
+        answers: [q1, q2, q3]
+      };
+
+      try {
+        const response = await fetch('https://sheets-proxy-9gxz.onrender.com/applications/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Switch to success card state
+          document.getElementById('form-container').style.display = 'none';
+          document.getElementById('success-container').style.display = 'block';
+        } else {
+          throw new Error(result.error || "Failed to submit. Chronomancy server returned an error.");
+        }
+      } catch (err) {
+        errorBanner.innerText = `Transmission Interrupted: ${err.message}`;
+        errorBanner.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Log Transmission</span>';
+      }
+    }
+
+    function resetForm() {
+      // Clear form inputs
+      document.getElementById('admittance-form').reset();
+      document.querySelectorAll('.faction-chip').forEach(chip => {
+        chip.classList.remove('selected');
+      });
+      document.getElementById('faction').value = "";
+      selectedFactionName = "";
+      
+      // Toggle visibility
+      document.getElementById('success-container').style.display = 'none';
+      document.getElementById('form-container').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
