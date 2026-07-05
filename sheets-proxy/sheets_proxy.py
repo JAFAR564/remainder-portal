@@ -58,6 +58,7 @@ def load_cleaned_service_account(path):
 def get_sheets_service():
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
     creds_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+    adc_error = None
     
     # 1. Try custom service account key loader if path is specified
     if creds_path and os.path.exists(creds_path):
@@ -73,8 +74,9 @@ def get_sheets_service():
     try:
         credentials, _ = google.auth.default(scopes=scopes)
         return build('sheets', 'v4', credentials=credentials)
-    except Exception as adc_err:
-        print(f"ℹ️ ADC lookup failed/unavailable: {adc_err}")
+    except Exception as err:
+        adc_error = err
+        print(f"ℹ️ ADC lookup failed/unavailable: {err}")
         
     # 3. Local development fallback: run gcloud auth print-access-token
     try:
@@ -89,7 +91,7 @@ def get_sheets_service():
         return build('sheets', 'v4', credentials=credentials)
     except Exception as e:
         print(f"❌ Error loading credentials from all sources: {e}")
-        raise Exception(f"Google authentication failed. File Path Error: {creds_path}. ADC Error: {adc_err}. Local gcloud Error: {e}")
+        raise Exception(f"Google authentication failed. File Path Error: {creds_path}. ADC Error: {adc_error}. Local gcloud Error: {e}")
 
 class SheetsProxyHandler(BaseHTTPRequestHandler):
     def _set_cors_headers(self):
@@ -267,6 +269,51 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
                 self._set_cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({'success': True}).encode('utf-8'))
+                return
+
+            # POST /applications/submit
+            elif path == '/applications/submit':
+                applicant_email = body.get('applicant_email')
+                character_name = body.get('character_name')
+                faction = body.get('faction')
+                answers = body.get('answers')
+                
+                if not applicant_email or not character_name or not faction or not answers:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self._set_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'error': 'Missing required fields'}).encode('utf-8'))
+                    return
+                
+                # Generate new application ID and submission timestamp
+                app_id = f"app-{int(datetime.datetime.now().timestamp())}"
+                submitted_at = datetime.datetime.now().isoformat() + "Z"
+                
+                # Create row content
+                new_app = [
+                    app_id,
+                    submitted_at,
+                    applicant_email,
+                    character_name,
+                    faction,
+                    json.dumps(answers), # Serialize answers array
+                    'Pending'
+                ]
+                
+                # Append to applications sheet
+                service.spreadsheets().values().append(
+                    spreadsheetId=SPREADSHEET_ID,
+                    range='applications!A2',
+                    valueInputOption='RAW',
+                    body={'values': [new_app]}
+                ).execute()
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self._set_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': True, 'app_id': app_id}).encode('utf-8'))
                 return
                 
             else:
