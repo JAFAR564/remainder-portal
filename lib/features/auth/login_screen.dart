@@ -270,7 +270,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 16.0),
                     Center(
                       child: TextButton(
-                        onTap: () {
+                        onPressed: () {
                           setState(() {
                             _isPasswordMode = !_isPasswordMode;
                             _errorMessage = null;
