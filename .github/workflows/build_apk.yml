@@ -53,7 +53,7 @@ jobs:
 
       - name: Build Shorebird Release APK
         run: |
-          shorebird release android --force
+          shorebird release android --artifact apk --force
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
@@ -61,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: remainder-portal-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/**/*.apk
