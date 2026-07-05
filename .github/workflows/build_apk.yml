@@ -25,9 +25,6 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: '34.0.0'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -53,7 +50,7 @@ jobs:
 
       - name: Build Shorebird Release APK
         run: |
-          shorebird release android --artifact apk --force
+          shorebird release android --artifact apk
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
