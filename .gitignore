@@ -46,3 +46,7 @@ app.*.map.json
 
 # Graphify knowledge graph outputs
 /graphify-out/
+
+# Virtual environments and private keys
+.agents/scripts/venv/
+/sheets-proxy/service-account.json
