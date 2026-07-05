@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/auth_service.dart';
 import '../../theme/portal_theme.dart';
 import '../../ui/animations/spring_tap_wrapper.dart';
@@ -285,6 +286,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             color: PortalTheme.tealNavyAccent,
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Divider(color: PortalTheme.silverGrayBorder, height: 1.0),
+                    ),
+                    Center(
+                      child: TextButton(
+                        onPressed: () async {
+                          final url = Uri.parse('https://jafar564.github.io/remainder-portal/apply.html');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        child: Text(
+                          'New Applicant? Submit Admittance Claim',
+                          style: PortalTheme.statsText.copyWith(
+                            color: PortalTheme.charcoalNearBlackText,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
                         ),
                       ),
