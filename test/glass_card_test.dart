@@ -108,7 +108,7 @@ void main() {
   });
 
   group('Roster Caching & Serialization Tests', () {
-    test('Loads empty list when cache is empty', () async {
+    test('Loads seeded list when cache is empty', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
 
@@ -119,7 +119,7 @@ void main() {
       );
 
       final cacheService = container.read(rosterCacheServiceProvider);
-      expect(cacheService.loadRoster(), isEmpty);
+      expect(cacheService.loadRoster(), hasLength(2));
     });
 
     test('Saves and loads roster correctly', () async {

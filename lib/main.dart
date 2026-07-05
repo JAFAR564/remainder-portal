@@ -365,6 +365,8 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Admittance Portal', route: '/admittance'),
           const SizedBox(height: 24.0),
+          _buildSidebarLink(context, ref, 'Community Roster', route: '/roster'),
+          const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Chronicles Timeline', route: '/chronicles'),
           const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Profile Settings', route: '/profile'),
