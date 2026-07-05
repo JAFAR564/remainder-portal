@@ -17,43 +17,35 @@ def load_cleaned_service_account(path):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    try:
-        # First attempt: parse normally
-        return json.loads(content)
-    except json.JSONDecodeError as e:
-        print(f"⚠️ Standard JSON parsing failed, attempting repair: {e}")
-        
-    # Repair raw newline characters inside "private_key"
-    lines = content.splitlines()
-    cleaned_lines = []
-    in_private_key = False
-    private_key_lines = []
+    # Manual key extraction to completely bypass JSON parsing vulnerabilities
+    info = {}
+    keys = [
+        "type", "project_id", "private_key_id", "private_key", 
+        "client_email", "client_id", "auth_uri", "token_uri", 
+        "auth_provider_x509_cert_url", "client_x509_cert_url", "universe_domain"
+    ]
     
-    for line in lines:
-        stripped = line.strip()
-        if '"private_key":' in line:
-            in_private_key = True
-            # Locate value start
-            start_idx = line.find('"private_key":')
-            key_part = line[start_idx + len('"private_key":'):].strip()
-            if key_part.startswith('"'):
-                key_part = key_part[1:]
-            private_key_lines.append(key_part)
-        elif in_private_key:
-            if stripped.endswith('"') or stripped.endswith('",'):
-                in_private_key = False
-                end_part = stripped[:-2] if stripped.endswith('",') else stripped[:-1]
-                private_key_lines.append(end_part)
-                # Re-assemble using escaped newlines
-                cleaned_key = '\\n'.join(private_key_lines).replace('\\\\n', '\\n')
-                cleaned_lines.append(f'  "private_key": "{cleaned_key}",')
-            else:
-                private_key_lines.append(stripped)
-        else:
-            cleaned_lines.append(line)
-            
-    cleaned_str = '\n'.join(cleaned_lines)
-    return json.loads(cleaned_str)
+    for key in keys:
+        key_pattern = f'"{key}":'
+        idx = content.find(key_pattern)
+        if idx != -1:
+            start_idx = idx + len(key_pattern)
+            val_start = content.find('"', start_idx)
+            if val_start != -1:
+                val_end = content.find('"', val_start + 1)
+                if val_end != -1:
+                    val = content[val_start + 1:val_end]
+                    if key == "private_key":
+                        # Replace carriage returns and actual newlines with escaped \n
+                        val = val.replace('\r', '').replace('\n', '\\n')
+                        val = val.replace('\\\\n', '\\n')
+                    info[key] = val
+                    
+    # Validate that we successfully parsed the essential fields
+    if not info.get("private_key") or not info.get("client_email"):
+        raise ValueError("Essential Service Account fields ('private_key' or 'client_email') could not be parsed.")
+        
+    return info
 
 def get_sheets_service():
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
@@ -286,22 +278,19 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
                     self.wfile.write(json.dumps({'error': 'Missing required fields'}).encode('utf-8'))
                     return
                 
-                # Generate new application ID and submission timestamp
                 app_id = f"app-{int(datetime.datetime.now().timestamp())}"
                 submitted_at = datetime.datetime.now().isoformat() + "Z"
                 
-                # Create row content
                 new_app = [
                     app_id,
                     submitted_at,
                     applicant_email,
                     character_name,
                     faction,
-                    json.dumps(answers), # Serialize answers array
+                    json.dumps(answers),
                     'Pending'
                 ]
                 
-                # Append to applications sheet
                 service.spreadsheets().values().append(
                     spreadsheetId=SPREADSHEET_ID,
                     range='applications!A2',
