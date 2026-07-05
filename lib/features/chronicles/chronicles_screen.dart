@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/portal_theme.dart';
 import '../../ui/animations/spring_tap_wrapper.dart';
 import '../../ui/components/glass_card.dart';
@@ -75,7 +76,7 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: PortalTheme.charcoalNearBlackText),
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
       ),
       body: IridescentOverlay(

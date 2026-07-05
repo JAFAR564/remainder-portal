@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/application.dart';
 import '../../theme/portal_theme.dart';
@@ -37,7 +38,7 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: PortalTheme.charcoalNearBlackText),
-          onPressed: () => Navigator.of(context).maybePop(),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
       ),
       body: IridescentOverlay(

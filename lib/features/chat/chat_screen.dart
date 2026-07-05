@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/portal_theme.dart';
 import '../../ui/animations/spring_tap_wrapper.dart';
@@ -94,7 +95,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   )
                 : IconButton(
                     icon: const Icon(Icons.arrow_back, color: PortalTheme.charcoalNearBlackText),
-                    onPressed: () => Navigator.of(context).maybePop(),
+                    onPressed: () => context.canPop() ? context.pop() : context.go('/'),
                   ),
           ),
           body: IridescentOverlay(
