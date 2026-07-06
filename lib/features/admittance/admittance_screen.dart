@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -313,43 +314,225 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
   }
 
   Widget _buildApplicantInfoCard(Application app) {
+    final answers = app.answers;
+
+    if (answers.length < 10) {
+      // Fallback for old 3-query form format
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(app.characterName, style: PortalTheme.displayHeadline.copyWith(fontSize: 28.0)),
+          const SizedBox(height: 8.0),
+          Text('FACTION: ${app.faction.toUpperCase()}', style: PortalTheme.statsText.copyWith(color: PortalTheme.infoSlate)),
+          Text('APPLICANT: ${app.applicantEmail}', style: PortalTheme.bodyText),
+          const SizedBox(height: 24.0),
+          Text('ANSWER SHEET PROTOCOLS', style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16.0),
+          ...List.generate(answers.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'QUERY #${index + 1}',
+                    style: PortalTheme.statsText.copyWith(
+                      fontSize: 10.0,
+                      color: PortalTheme.warmGrayBodyText,
+                    ),
+                  ),
+                  const SizedBox(height: 6.0),
+                  Text(
+                    answers[index],
+                    style: PortalTheme.bodyText.copyWith(
+                      color: PortalTheme.charcoalNearBlackText,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      );
+    }
+
+    // New detailed multi-step form parser
+    final preferredName = answers[0];
+    final characterAlias = answers[1].isNotEmpty ? answers[1] : "None";
+    final experience = answers[2];
+    final genres = answers[3];
+    final responseLength = answers[4];
+    final timezone = answers[5];
+    final intro = answers[7];
+    final sample = answers[8];
+    final rulesAgreement = answers[9];
+    
+    // Parse faceclaim details
+    final faceclaimName = answers.length > 11 && answers[11].isNotEmpty ? answers[11] : "None";
+    final faceclaimImg = answers.length > 12 ? answers[12] : "";
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(app.characterName, style: PortalTheme.displayHeadline.copyWith(fontSize: 28.0)),
-        const SizedBox(height: 8.0),
-        Text('FACTION: ${app.faction.toUpperCase()}', style: PortalTheme.statsText.copyWith(color: PortalTheme.infoSlate)),
-        Text('APPLICANT: ${app.applicantEmail}', style: PortalTheme.bodyText),
-        const SizedBox(height: 24.0),
-        Text('ANSWER SHEET PROTOCOLS', style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16.0),
-        ...List.generate(app.answers.length, (index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'QUERY #${index + 1}',
-                  style: PortalTheme.statsText.copyWith(
-                    fontSize: 10.0,
-                    color: PortalTheme.warmGrayBodyText,
+        // Character Profile Title Card
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (faceclaimImg.isNotEmpty && faceclaimImg.startsWith('http'))
+              Container(
+                width: 70.0,
+                height: 70.0,
+                margin: const EdgeInsets.only(right: 16.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  image: DecorationImage(
+                    image: NetworkImage(faceclaimImg),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                const SizedBox(height: 6.0),
-                Text(
-                  app.answers[index],
-                  style: PortalTheme.bodyText.copyWith(
-                    color: PortalTheme.charcoalNearBlackText,
-                    height: 1.5,
-                  ),
+              )
+            else
+              Container(
+                width: 70.0,
+                height: 70.0,
+                margin: const EdgeInsets.only(right: 16.0),
+                decoration: BoxDecoration(
+                  color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
-              ],
+                child: const Center(
+                  child: Icon(Icons.person_outline, color: PortalTheme.tealNavyAccent, size: 32),
+                ),
+              ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(app.characterName, style: PortalTheme.displayHeadline.copyWith(fontSize: 24.0)),
+                  Text(
+                    'Alias: $characterAlias',
+                    style: PortalTheme.bodyText.copyWith(color: PortalTheme.infoSlate, fontSize: 13.0),
+                  ),
+                  Text(
+                    'Faction: ${app.faction.toUpperCase()}',
+                    style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 10.0),
+                  ),
+                ],
+              ),
             ),
-          );
-        }),
+          ],
+        ),
+        const SizedBox(height: 24.0),
+
+        // SECTION 1: Player Information
+        Text('PLAYER DATA', style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold, fontSize: 12.0)),
+        const SizedBox(height: 12.0),
+        _buildDetailRow('Preferred Name', preferredName),
+        _buildDetailRow('Applicant Email', app.applicantEmail),
+        _buildDetailRow('Time Zone & Activity', timezone),
+        _buildDetailRow('Experience Level', experience),
+        _buildDetailRow('Writing Style', responseLength),
+        _buildDetailRow('Preferred Genres', genres),
+        _buildDetailRow('Rules Agreement Verified', rulesAgreement),
+        const SizedBox(height: 24.0),
+
+        // SECTION 2: Character Narrative Info
+        Text('CHARACTER CONCEPT', style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold, fontSize: 12.0)),
+        const SizedBox(height: 12.0),
+        _buildDetailBlock('Character Introduction', intro),
+        _buildDetailBlock('Writing Sample', sample),
+        _buildDetailRow('Faceclaim Actor Name', faceclaimName),
+        const SizedBox(height: 24.0),
+
+        // SECTION 3: Advanced Character Settings (if present)
+        if (answers.length > 10 && answers[10].isNotEmpty && answers[10] != "{}") ...[
+          Text('ADVANCED PROFILE ATTRIBUTES', style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold, fontSize: 12.0)),
+          const SizedBox(height: 12.0),
+          _buildAdvancedInfoBlock(answers[10]),
+        ],
       ],
     );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: PortalTheme.statsText.copyWith(fontSize: 11.0, color: PortalTheme.warmGrayBodyText),
+          ),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: PortalTheme.bodyText.copyWith(fontSize: 12.5, color: PortalTheme.charcoalNearBlackText, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailBlock(String label, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText),
+          ),
+          const SizedBox(height: 4.0),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(6.0),
+              border: Border.all(color: PortalTheme.silverGrayBorder.withValues(alpha: 0.3)),
+            ),
+            child: Text(
+              text,
+              style: PortalTheme.bodyText.copyWith(fontSize: 13.0, height: 1.45, color: PortalTheme.charcoalNearBlackText),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvancedInfoBlock(String jsonStr) {
+    try {
+      final Map<String, dynamic> advanced = Map<String, dynamic>.from(
+        json.decode(jsonStr) as Map<String, dynamic>
+      );
+      
+      final List<Widget> children = [];
+      advanced.forEach((key, val) {
+        if (val != null && val.toString().isNotEmpty) {
+          final formattedKey = key[0].toUpperCase() + key.substring(1);
+          if (key == 'biography') {
+            children.add(_buildDetailBlock('Biography', val.toString()));
+          } else {
+            children.add(_buildDetailRow(formattedKey, val.toString()));
+          }
+        }
+      });
+
+      if (children.isEmpty) {
+        return const Text('No advanced attributes supplied.', style: PortalTheme.bodyText);
+      }
+      return Column(children: children);
+    } catch (_) {
+      return Text('Raw Metadata: $jsonStr', style: PortalTheme.bodyText);
+    }
   }
 
   Widget _buildAIDiagnosticCard(Application app) {

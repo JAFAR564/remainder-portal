@@ -27,20 +27,20 @@ void main() async {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
       ],
-      child: const RemainderPortalApp(),
+      child: const EnnoiaApp(),
     ),
   );
 }
 
-class RemainderPortalApp extends ConsumerWidget {
-  const RemainderPortalApp({super.key});
+class EnnoiaApp extends ConsumerWidget {
+  const EnnoiaApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'The Remainder Portal',
+      title: 'Ennoia',
       theme: PortalTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
@@ -146,7 +146,7 @@ class DashboardScreen extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'THE REMAINDER PORTAL',
+          'ENNOIA',
           style: PortalTheme.displayHeadline.copyWith(
             fontSize: isMobile ? 32.0 : 48.0,
             letterSpacing: 0.04 * (isMobile ? 32.0 : 48.0),

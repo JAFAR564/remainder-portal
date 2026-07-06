@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sanctuary Admittance Claim | The Remainder Portal</title>
+  <title>Admittance Claim | Ennoia Roleplay Platform</title>
   
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,15 +12,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* Design Tokens */
+    /* Design Tokens matching PortalTheme */
     :root {
       --bg-dark: #090a0f;
-      --bg-card: rgba(18, 20, 29, 0.65);
+      --bg-card: rgba(18, 20, 29, 0.7);
       --border-color: rgba(212, 212, 212, 0.12);
       --border-hover: rgba(212, 212, 212, 0.28);
       --text-primary: #f0f2f5;
       --text-secondary: #a0a5b5;
       --accent-teal: #4db6ac;
+      --accent-navy: #1C2B3A;
       --accent-terracotta: #d9534f;
       --accent-glow: rgba(77, 182, 172, 0.2);
       
@@ -39,7 +40,7 @@
       background-color: var(--bg-dark);
       background-image: 
         radial-gradient(circle at 10% 20%, rgba(77, 182, 172, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(217, 83, 79, 0.04) 0%, transparent 40%);
+        radial-gradient(circle at 90% 80%, rgba(28, 43, 58, 0.4) 0%, transparent 50%);
       color: var(--text-primary);
       font-family: var(--font-body);
       min-height: 100vh;
@@ -59,20 +60,20 @@
       border-radius: 16px;
       padding: 3rem 2.5rem;
       width: 100%;
-      max-width: 650px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 700px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(15px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     header {
       text-align: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
     }
 
     .portal-logo {
@@ -83,7 +84,7 @@
       color: var(--accent-teal);
       margin-bottom: 0.75rem;
       text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(77, 182, 172, 0.4);
+      text-shadow: 0 0 10px rgba(77, 182, 172, 0.3);
     }
 
     h1 {
@@ -101,9 +102,107 @@
       line-height: 1.5;
     }
 
+    /* Progress Indicator */
+    .progress-bar-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2.5rem;
+      position: relative;
+      padding: 0 10px;
+    }
+
+    .progress-line {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      right: 10px;
+      height: 2px;
+      background: var(--border-color);
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+
+    .progress-line-fill {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      height: 2px;
+      width: 0%;
+      background: var(--accent-teal);
+      transform: translateY(-50%);
+      z-index: 2;
+      transition: width 0.3s ease;
+    }
+
+    .step-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-dark);
+      border: 2px solid var(--border-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--text-secondary);
+      z-index: 3;
+      transition: all 0.3s ease;
+    }
+
+    .step-indicator.active {
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+      box-shadow: 0 0 12px rgba(77, 182, 172, 0.3);
+    }
+
+    .step-indicator.completed {
+      background: var(--accent-teal);
+      border-color: var(--accent-teal);
+      color: var(--bg-dark);
+    }
+
+    /* Wizard Steps */
+    .wizard-step {
+      display: none;
+    }
+
+    .wizard-step.active {
+      display: block;
+      animation: stepFade 0.4s ease;
+    }
+
+    @keyframes stepFade {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--accent-teal);
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
     /* Form Fields */
     .form-group {
       margin-bottom: 1.75rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     label {
@@ -121,10 +220,12 @@
       font-size: 0.8rem;
       color: var(--text-secondary);
       margin-bottom: 0.5rem;
+      line-height: 1.4;
     }
 
     input[type="text"],
     input[type="email"],
+    select,
     textarea {
       width: 100%;
       background: rgba(255, 255, 255, 0.03);
@@ -138,7 +239,13 @@
       outline: none;
     }
 
+    select option {
+      background: var(--bg-dark);
+      color: #ffffff;
+    }
+
     input:focus,
+    select:focus,
     textarea:focus {
       border-color: var(--accent-teal);
       background: rgba(255, 255, 255, 0.05);
@@ -147,8 +254,29 @@
 
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 110px;
       line-height: 1.5;
+    }
+
+    /* Checkbox & Options grid */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+    }
+
+    .checkbox-group input {
+      margin-top: 0.25rem;
+      accent-color: var(--accent-teal);
+    }
+
+    .checkbox-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      user-select: none;
     }
 
     /* Custom Faction Selector Chips */
@@ -169,7 +297,7 @@
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 0.75rem 0.5rem;
+      padding: 0.85rem 0.5rem;
       text-align: center;
       cursor: pointer;
       font-family: var(--font-display);
@@ -185,7 +313,7 @@
     }
 
     .faction-chip i {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       margin-bottom: 0.25rem;
     }
 
@@ -201,36 +329,111 @@
       box-shadow: 0 0 10px rgba(77, 182, 172, 0.15);
     }
 
-    /* Submit Button (Spring Tap Wrapped Theme) */
-    .btn-submit {
-      width: 100%;
-      background: linear-gradient(135deg, var(--accent-teal), #26a69a);
-      color: #090a0f;
-      border: none;
+    /* Genres Checkboxes grid */
+    .genres-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (min-width: 480px) {
+      .genres-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Advanced Section */
+    .advanced-toggle {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1rem;
+      margin-top: 2rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .advanced-toggle:hover {
+      border-color: var(--border-hover);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .advanced-toggle span {
       font-family: var(--font-display);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .advanced-toggle i {
+      transition: transform 0.3s ease;
+      color: var(--text-secondary);
+    }
+
+    .advanced-toggle.open i {
+      transform: rotate(180deg);
+      color: var(--accent-teal);
+    }
+
+    .advanced-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, padding 0.4s ease;
+      padding: 0 1rem;
+    }
+
+    .advanced-content.open {
+      max-height: 1200px;
+      padding: 1.5rem 1rem;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      border-radius: 0 0 8px 8px;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Navigation Buttons */
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .btn {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
       font-weight: 700;
       letter-spacing: 1px;
       text-transform: uppercase;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      position: relative;
-      overflow: hidden;
-      margin-top: 1rem;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: none;
+      outline: none;
     }
 
-    .btn-submit:hover {
+    .btn-primary {
+      flex: 2;
+      background: linear-gradient(135deg, var(--accent-teal), #26a69a);
+      color: #090a0f;
+    }
+
+    .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(77, 182, 172, 0.3);
     }
 
-    .btn-submit:active {
+    .btn-primary:active {
       transform: translateY(1px) scale(0.98);
     }
 
-    .btn-submit:disabled {
+    .btn-primary:disabled {
       background: var(--border-color);
       color: var(--text-secondary);
       cursor: not-allowed;
@@ -238,33 +441,41 @@
       box-shadow: none;
     }
 
-    /* Loading Spinner */
-    .spinner {
-      display: inline-block;
-      width: 1.25rem;
-      height: 1.25rem;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      border-left-color: #090a0f;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 0.5rem;
-      vertical-align: middle;
+    .btn-secondary {
+      flex: 1;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-hover);
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+      display: none;
+      background: rgba(217, 83, 79, 0.1);
+      border: 1px solid var(--accent-terracotta);
+      color: #ff8a80;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
     }
 
     /* Success Card States */
     .success-card {
       display: none;
       text-align: center;
-      padding: 2rem 0;
+      padding: 2.5rem 0 1rem 0;
       animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     @keyframes zoomIn {
-      from { opacity: 0; transform: scale(0.9); }
+      from { opacity: 0; transform: scale(0.92); }
       to { opacity: 1; transform: scale(1); }
     }
 
@@ -277,24 +488,62 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0 auto 1.5rem auto;
+      margin: 0 auto 1.75rem auto;
       font-size: 2.5rem;
       color: var(--accent-teal);
-      box-shadow: 0 0 20px rgba(77, 182, 172, 0.25);
+      box-shadow: 0 0 22px rgba(77, 182, 172, 0.25);
     }
 
     .success-card h2 {
       font-family: var(--font-display);
-      font-size: 1.75rem;
+      font-size: 1.85rem;
       font-weight: 300;
       margin-bottom: 1rem;
+      color: #ffffff;
     }
 
     .success-card p {
       color: var(--text-secondary);
       font-size: 0.95rem;
       line-height: 1.6;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .instructions-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .instructions-panel h3 {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .instructions-list {
+      list-style-type: none;
+    }
+
+    .instructions-list li {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .instructions-list li i {
+      color: var(--accent-teal);
+      margin-top: 0.2rem;
     }
 
     .btn-return {
@@ -316,17 +565,21 @@
       border-color: var(--border-hover);
     }
 
-    /* Alert Banner */
-    .alert-banner {
-      display: none;
-      background: rgba(217, 83, 79, 0.1);
-      border: 1px solid var(--accent-terracotta);
-      color: #ff8a80;
-      padding: 0.85rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-bottom: 1.5rem;
-      text-align: center;
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 1.2rem;
+      height: 1.2rem;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      border-left-color: #090a0f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -334,136 +587,466 @@
 
   <div class="container">
     
-    <!-- Application Form state -->
     <div id="form-container">
       <header>
-        <div class="portal-logo">Chronomancy Terminal</div>
+        <div class="portal-logo">Ennoia Social Engine</div>
         <h1>Sanctuary Admittance</h1>
-        <p class="subtitle">Submit your temporal claim. Your application will route through our cloud verification queue for timeline grading.</p>
+        <p class="subtitle">Log your admittance claim. Administrators will verify your writing compatibility and character background for compliance.</p>
       </header>
+
+      <!-- Wizard Progress Indicators -->
+      <div class="progress-bar-container">
+        <div class="progress-line"></div>
+        <div class="progress-line-fill" id="progress-line-fill"></div>
+        <div class="step-indicator active" id="step-dot-1">1</div>
+        <div class="step-indicator" id="step-dot-2">2</div>
+      </div>
 
       <div class="alert-banner" id="error-banner"></div>
 
-      <form id="admittance-form" onsubmit="handleFormSubmit(event)">
+      <form id="admittance-form" onsubmit="event.preventDefault()">
         
-        <!-- Email -->
-        <div class="form-group">
-          <label for="email">Applicant Email</label>
-          <input type="email" id="email" required placeholder="name@domain.com">
-        </div>
-
-        <!-- Character Name -->
-        <div class="form-group">
-          <label for="char-name">Character Name</label>
-          <input type="text" id="char-name" required placeholder="e.g. Alistair Vance">
-        </div>
-
-        <!-- Faction Selector -->
-        <div class="form-group">
-          <label>Faction Affiliation</label>
-          <div class="form-desc">Select your temporal faction alignment.</div>
-          <div class="faction-grid">
-            <div class="faction-chip" onclick="selectFaction('Aethelgard Alliance', this)">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Aethelgard</span>
+        <!-- ================== STEP 1: PLAYER PROFILE ================== -->
+        <div class="wizard-step active" id="step-1">
+          <div class="section-title">Step 1: Player Information</div>
+          
+          <div class="form-row">
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <div class="form-desc">For administrator notifications and account identity.</div>
+              <input type="email" id="email" required placeholder="name@domain.com">
             </div>
-            <div class="faction-chip" onclick="selectFaction('Elysium Chrono Syndicate', this)">
-              <i class="fa-solid fa-hourglass-half"></i>
-              <span>Elysium</span>
-            </div>
-            <div class="faction-chip" onclick="selectFaction('Vanguard Order', this)">
-              <i class="fa-solid fa-compass"></i>
-              <span>Vanguard</span>
+            
+            <!-- Preferred Name -->
+            <div class="form-group">
+              <label for="preferred-name">Display or Preferred Name</label>
+              <div class="form-desc">What the community should call you out-of-character (OOC).</div>
+              <input type="text" id="preferred-name" required placeholder="e.g. Lorna">
             </div>
           </div>
-          <input type="hidden" id="faction" required>
+
+          <div class="form-row">
+            <!-- Time Zone -->
+            <div class="form-group">
+              <label for="timezone">Time Zone & Activity</label>
+              <div class="form-desc">Your typical hours and offset (e.g. EST / evenings).</div>
+              <input type="text" id="timezone" required placeholder="e.g. GMT+2 / Evenings">
+            </div>
+            
+            <!-- User Profile Image -->
+            <div class="form-group">
+              <label for="profile-img-url">Player Profile Image URL</label>
+              <div class="form-desc">Optional link to your OOC profile picture.</div>
+              <input type="text" id="profile-img-url" placeholder="https://unsplash.com/example-profile.jpg">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Experience -->
+            <div class="form-group">
+              <label for="experience">Roleplay Experience</label>
+              <div class="form-desc">How long have you participated in text-based roleplaying?</div>
+              <select id="experience">
+                <option value="Beginner">Beginner (Under 1 year)</option>
+                <option value="Intermediate" selected>Intermediate (1-3 years)</option>
+                <option value="Advanced">Advanced (3+ years)</option>
+              </select>
+            </div>
+            
+            <!-- Response Length -->
+            <div class="form-group">
+              <label for="writing-style">Preferred Response Length</label>
+              <div class="form-desc">Your normal post structure length.</div>
+              <select id="writing-style">
+                <option value="One-liners">One-liners (Casual)</option>
+                <option value="Paragraphs" selected>Paragraphs (1-2 paragraphs)</option>
+                <option value="Multi-para">Multi-paragraph (Detailed)</option>
+                <option value="Novella">Novella (Long narrative)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Genres Checkboxes -->
+          <div class="form-group">
+            <label>Preferred Genres / Story Themes</label>
+            <div class="form-desc">Select all genres you enjoy writing.</div>
+            <div class="genres-grid">
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Fantasy">
+                <span class="checkbox-label">Fantasy</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Sci-Fi">
+                <span class="checkbox-label">Sci-Fi</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Slice of Life">
+                <span class="checkbox-label">Slice of Life</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Mystery">
+                <span class="checkbox-label">Mystery</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Horror">
+                <span class="checkbox-label">Horror</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" name="genre" value="Romance">
+                <span class="checkbox-label">Romance</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rules agreement -->
+          <div class="form-group" style="margin-top: 2rem;">
+            <label class="checkbox-group">
+              <input type="checkbox" id="rules-agreement" required>
+              <span class="checkbox-label" style="font-weight: 500; color: var(--text-primary);">
+                I agree to uphold the community rules, write in third-person, and respect OOC boundaries.
+              </span>
+            </label>
+          </div>
         </div>
 
-        <!-- Query 1 -->
-        <div class="form-group">
-          <label for="q1">Query #1: State Your Purpose</label>
-          <div class="form-desc">Why do you seek entry to the sanctuary of the Remainder Portal?</div>
-          <textarea id="q1" required placeholder="Describe your timeline archives..."></textarea>
+        <!-- ================== STEP 2: CHARACTER PROFILE ================== -->
+        <div class="wizard-step" id="step-2">
+          <div class="section-title">Step 2: Character Details</div>
+
+          <div class="form-row">
+            <!-- Character Name -->
+            <div class="form-group">
+              <label for="character-name">Character Name</label>
+              <div class="form-desc">In-character (IC) identity that will be registered.</div>
+              <input type="text" id="character-name" placeholder="e.g. Alistair Vance">
+            </div>
+
+            <!-- Alias -->
+            <div class="form-group">
+              <label for="character-alias">Alias / Title / Nickname</label>
+              <div class="form-desc">Optional titles or short indicators (e.g. The Iron Scholar).</div>
+              <input type="text" id="character-alias" placeholder="e.g. The Obsidian Sovereign">
+            </div>
+          </div>
+
+          <!-- Faction Selector -->
+          <div class="form-group">
+            <label>Faction Affiliation</label>
+            <div class="form-desc">Select your initial narrative faction alignment.</div>
+            <div class="faction-grid">
+              <div class="faction-chip" onclick="selectFaction('Aethelgard Alliance', this)">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Aethelgard</span>
+              </div>
+              <div class="faction-chip" onclick="selectFaction('Elysium Chrono Syndicate', this)">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span>Elysium</span>
+              </div>
+              <div class="faction-chip" onclick="selectFaction('Vanguard Order', this)">
+                <i class="fa-solid fa-compass"></i>
+                <span>Vanguard</span>
+              </div>
+            </div>
+            <input type="hidden" id="faction">
+          </div>
+
+          <div class="form-row">
+            <!-- Faceclaim Name -->
+            <div class="form-group">
+              <label for="faceclaim-name">Faceclaim Name</label>
+              <div class="form-desc">Name of the celebrity, character, or model used for visual representation.</div>
+              <input type="text" id="faceclaim-name" placeholder="e.g. Cillian Murphy">
+            </div>
+
+            <!-- Faceclaim Image URL -->
+            <div class="form-group">
+              <label for="faceclaim-img-url">Faceclaim Image URL</label>
+              <div class="form-desc">Link to character reference image. Will display on the public roster.</div>
+              <input type="text" id="faceclaim-img-url" placeholder="https://unsplash.com/example-char.jpg">
+            </div>
+          </div>
+
+          <!-- Character Introduction -->
+          <div class="form-group">
+            <label for="character-intro">Short Character Introduction</label>
+            <div class="form-desc">A brief 1-2 sentence description of who your character is at first glance.</div>
+            <textarea id="character-intro" placeholder="A quiet investigator traversing the unmapped outer zones..."></textarea>
+          </div>
+
+          <!-- Writing Sample -->
+          <div class="form-group">
+            <label for="writing-sample">Writing Sample</label>
+            <div class="form-desc">Provide a post demonstrating your style (min 50 chars, written in third-person).</div>
+            <textarea id="writing-sample" placeholder="Rain hammered against the rusted pipes of the lower deck as Vance adjusted his collar..."></textarea>
+          </div>
+
+          <!-- Expandable Advanced Section -->
+          <div class="advanced-toggle" onclick="toggleAdvancedSection()" id="adv-toggle">
+            <span>Advanced Character Information (Optional)</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          
+          <div class="advanced-content" id="adv-content">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="adv-age">Age / Apparent Age</label>
+                <input type="text" id="adv-age" placeholder="e.g. 28">
+              </div>
+              <div class="form-group">
+                <label for="adv-pronouns">Pronouns</label>
+                <input type="text" id="adv-pronouns" placeholder="e.g. he/him">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="adv-species">Species / Origin</label>
+                <input type="text" id="adv-species" placeholder="e.g. Human">
+              </div>
+              <div class="form-group">
+                <label for="adv-occupation">Occupation / Rank</label>
+                <input type="text" id="adv-occupation" placeholder="e.g. Lead Archivist">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="adv-abilities">Abilities & Limitations</label>
+              <div class="form-desc">List special traits, capabilities, and weaknesses.</div>
+              <input type="text" id="adv-abilities" placeholder="e.g. Thermal sight, weak physical strength">
+            </div>
+
+            <div class="form-group">
+              <label for="adv-relationships">Relationship Preferences</label>
+              <input type="text" id="adv-relationships" placeholder="e.g. Open to platonic or romantic arcs">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="adv-explore">Themes to Explore</label>
+                <input type="text" id="adv-explore" placeholder="e.g. Mystery, political intrigue">
+              </div>
+              <div class="form-group">
+                <label for="adv-avoid">Themes to Avoid (Triggers)</label>
+                <input type="text" id="adv-avoid" placeholder="e.g. Gore, violence">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="adv-bio">Full Character Biography</label>
+              <textarea id="adv-bio" placeholder="Provide background history, personality details, and historical goals..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="adv-links">External Profile Link</label>
+              <input type="text" id="adv-links" placeholder="e.g. Toyhouse, Carrd link">
+            </div>
+          </div>
         </div>
 
-        <!-- Query 2 -->
-        <div class="form-group">
-          <label for="q2">Query #2: Chronomantic Heritage</label>
-          <div class="form-desc">Do you possess any lineage, artifacts, or histories that bind you to time-loop records?</div>
-          <textarea id="q2" required placeholder="Your heritage context..."></textarea>
+        <!-- Navigation buttons -->
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" id="btn-back" onclick="navigateStep(-1)" style="display: none;">Back</button>
+          <button type="button" class="btn btn-primary" id="btn-next" onclick="navigateStep(1)">Next Step</button>
         </div>
 
-        <!-- Query 3 -->
-        <div class="form-group">
-          <label for="q3">Query #3: The Temporal Vow</label>
-          <div class="form-desc">Under what vow will you dedicate your clockwork collection to our grand clock?</div>
-          <textarea id="q3" required placeholder="Your vow..."></textarea>
-        </div>
-
-        <!-- Submit -->
-        <button type="submit" class="btn-submit" id="btn-submit">
-          <span>Log Transmission</span>
-        </button>
       </form>
     </div>
 
-    <!-- Success Card State -->
+    <!-- ================== SUCCESS SCREEN ================== -->
     <div class="success-card" id="success-container">
       <div class="success-icon">
         <i class="fa-solid fa-fingerprint"></i>
       </div>
-      <h2>Transmission Logged</h2>
-      <p>Your timeline admittance claim has been safely registered in the Google Sheet database. <br>The administrative portal has flagged your file for AI verification.</p>
-      <button class="btn-return" onclick="resetForm()">New Transmission</button>
+      <h2>Claim Registered</h2>
+      <p>Your admittance claim has been transmitted to the Ennoia administration database.</p>
+      
+      <div class="instructions-panel">
+        <h3>What Happens Next?</h3>
+        <ul class="instructions-list">
+          <li>
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span><strong>Administrative Review:</strong> An administrator will review your character introduction, writing sample, and compliance guidelines.</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-shield-halved"></i>
+            <span><strong>Status Log:</strong> Once processed, your account status will transition to Approved, exposing your character on the community roster.</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-lock"></i>
+            <span><strong>Restricted Access:</strong> Until approved, access to active timeline threads and community spaces remains locked.</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span><strong>Checking Status:</strong> You can enter the web app and log in at any time to monitor your application state.</span>
+          </li>
+        </ul>
+      </div>
+
+      <button class="btn btn-return" onclick="resetForm()">New Transmission</button>
     </div>
 
   </div>
 
   <script>
+    let currentStep = 1;
     let selectedFactionName = "";
 
+    function toggleAdvancedSection() {
+      const content = document.getElementById('adv-content');
+      const toggle = document.getElementById('adv-toggle');
+      content.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
     function selectFaction(faction, element) {
-      // Remove selection from all chips
       document.querySelectorAll('.faction-chip').forEach(chip => {
         chip.classList.remove('selected');
       });
-      
-      // Select clicked chip
       element.classList.add('selected');
       selectedFactionName = faction;
       document.getElementById('faction').value = faction;
     }
 
-    async function handleFormSubmit(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value.trim();
-      const charName = document.getElementById('char-name').value.trim();
-      const faction = document.getElementById('faction').value;
-      const q1 = document.getElementById('q1').value.trim();
-      const q2 = document.getElementById('q2').value.trim();
-      const q3 = document.getElementById('q3').value.trim();
-      
+    function navigateStep(direction) {
       const errorBanner = document.getElementById('error-banner');
-      const submitBtn = document.getElementById('btn-submit');
-      
       errorBanner.style.display = 'none';
 
-      if (!faction) {
-        errorBanner.innerText = "Please select a faction alignment.";
+      // Validation logic for Step 1
+      if (direction === 1 && currentStep === 1) {
+        const email = document.getElementById('email').value.trim();
+        const preferredName = document.getElementById('preferred-name').value.trim();
+        const timezone = document.getElementById('timezone').value.trim();
+        const rules = document.getElementById('rules-agreement').checked;
+
+        if (!email || !preferredName || !timezone) {
+          errorBanner.innerText = "Please fill out all required fields in Step 1.";
+          errorBanner.style.display = 'block';
+          return;
+        }
+        if (!rules) {
+          errorBanner.innerText = "You must agree to uphold the community rules to proceed.";
+          errorBanner.style.display = 'block';
+          return;
+        }
+
+        // Advance to Step 2
+        document.getElementById('step-1').classList.remove('active');
+        document.getElementById('step-2').classList.add('active');
+        document.getElementById('step-dot-2').classList.add('active');
+        document.getElementById('step-dot-1').classList.add('completed');
+        document.getElementById('progress-line-fill').style.width = '100%';
+        document.getElementById('btn-back').style.display = 'block';
+        document.getElementById('btn-next').innerText = "Submit Claim";
+        currentStep = 2;
+      }
+      // Validation and Submit logic for Step 2
+      else if (direction === 1 && currentStep === 2) {
+        submitApplication();
+      }
+      // Go Back logic
+      else if (direction === -1 && currentStep === 2) {
+        document.getElementById('step-2').classList.remove('active');
+        document.getElementById('step-1').classList.add('active');
+        document.getElementById('step-dot-2').classList.remove('active');
+        document.getElementById('step-dot-1').classList.remove('completed');
+        document.getElementById('progress-line-fill').style.width = '0%';
+        document.getElementById('btn-back').style.display = 'none';
+        document.getElementById('btn-next').innerText = "Next Step";
+        currentStep = 1;
+      }
+    }
+
+    async function submitApplication() {
+      const errorBanner = document.getElementById('error-banner');
+      const submitBtn = document.getElementById('btn-next');
+      
+      const email = document.getElementById('email').value.trim();
+      const preferredName = document.getElementById('preferred-name').value.trim();
+      const timezone = document.getElementById('timezone').value.trim();
+      const profileImg = document.getElementById('profile-img-url').value.trim();
+      const experience = document.getElementById('experience').value;
+      const writingStyle = document.getElementById('writing-style').value;
+      
+      // Collect genres
+      const genres = [];
+      document.querySelectorAll('input[name="genre"]:checked').forEach(cb => {
+        genres.push(cb.value);
+      });
+
+      const characterName = document.getElementById('character-name').value.trim();
+      const characterAlias = document.getElementById('character-alias').value.trim();
+      const faction = document.getElementById('faction').value;
+      const faceclaimName = document.getElementById('faceclaim-name').value.trim();
+      const faceclaimImg = document.getElementById('faceclaim-img-url').value.trim();
+      const characterIntro = document.getElementById('character-intro').value.trim();
+      const writingSample = document.getElementById('writing-sample').value.trim();
+
+      // Form validation Step 2
+      if (!characterName || !faction || !characterIntro || !writingSample) {
+        errorBanner.innerText = "Please fill out the Character Name, Faction, Introduction, and Writing Sample.";
         errorBanner.style.display = 'block';
         return;
       }
 
+      if (writingSample.length < 50) {
+        errorBanner.innerText = "Your writing sample must be at least 50 characters long.";
+        errorBanner.style.display = 'block';
+        return;
+      }
+
+      // Collect advanced info
+      const advAge = document.getElementById('adv-age').value.trim();
+      const advPronouns = document.getElementById('adv-pronouns').value.trim();
+      const advSpecies = document.getElementById('adv-species').value.trim();
+      const advOccupation = document.getElementById('adv-occupation').value.trim();
+      const advAbilities = document.getElementById('adv-abilities').value.trim();
+      const advRelationships = document.getElementById('adv-relationships').value.trim();
+      const advExplore = document.getElementById('adv-explore').value.trim();
+      const advAvoid = document.getElementById('adv-avoid').value.trim();
+      const advBio = document.getElementById('adv-bio').value.trim();
+      const advLinks = document.getElementById('adv-links').value.trim();
+
+      const advancedObj = {
+        age: advAge,
+        pronouns: advPronouns,
+        species: advSpecies,
+        occupation: advOccupation,
+        abilities: advAbilities,
+        relationships: advRelationships,
+        explore: advExplore,
+        avoid: advAvoid,
+        biography: advBio,
+        links: advLinks
+      };
+
       // Enter loading state
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner"></span>Processing Transmission...';
+      submitBtn.innerHTML = '<span class="spinner"></span>Transmitting Claim...';
+
+      // Package responses into index-based answers list compatible with Application schema
+      const answersList = [
+        preferredName,          // Index 0
+        characterAlias,         // Index 1
+        experience,             // Index 2
+        genres.join(', '),      // Index 3
+        writingStyle,           // Index 4
+        timezone,               // Index 5
+        genres.length > 0 ? "Interested in story arcs" : "General member", // Index 6
+        characterIntro,         // Index 7
+        writingSample,          // Index 8
+        "Yes",                  // Index 9 (rules agreement)
+        JSON.stringify(advancedObj), // Index 10
+        faceclaimName,          // Index 11
+        faceclaimImg,           // Index 12
+        profileImg              // Index 13
+      ];
 
       const payload = {
         applicant_email: email,
-        character_name: charName,
+        character_name: characterName,
         faction: faction,
-        answers: [q1, q2, q3]
+        answers: answersList
       };
 
       try {
@@ -489,12 +1072,11 @@
         errorBanner.style.display = 'block';
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>Log Transmission</span>';
+        submitBtn.innerText = "Submit Claim";
       }
     }
 
     function resetForm() {
-      // Clear form inputs
       document.getElementById('admittance-form').reset();
       document.querySelectorAll('.faction-chip').forEach(chip => {
         chip.classList.remove('selected');
@@ -502,7 +1084,22 @@
       document.getElementById('faction').value = "";
       selectedFactionName = "";
       
-      // Toggle visibility
+      // Collapse advanced
+      const content = document.getElementById('adv-content');
+      const toggle = document.getElementById('adv-toggle');
+      content.classList.remove('open');
+      toggle.classList.remove('open');
+
+      // Go back to step 1 UI
+      document.getElementById('step-2').classList.remove('active');
+      document.getElementById('step-1').classList.add('active');
+      document.getElementById('step-dot-2').classList.remove('active');
+      document.getElementById('step-dot-1').classList.remove('completed');
+      document.getElementById('progress-line-fill').style.width = '0%';
+      document.getElementById('btn-back').style.display = 'none';
+      document.getElementById('btn-next').innerText = "Next Step";
+      currentStep = 1;
+
       document.getElementById('success-container').style.display = 'none';
       document.getElementById('form-container').style.display = 'block';
     }

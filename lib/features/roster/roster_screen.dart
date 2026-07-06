@@ -83,7 +83,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'COLLECTORS COMMUNITY ROSTER',
+          'ENNOIA COMMUNITY ROSTER',
           style: PortalTheme.statsText.copyWith(
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
@@ -272,17 +272,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
             child: Row(
               children: [
                 // Portrait Image
-                Container(
-                  width: 90.0,
-                  height: 90.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    image: DecorationImage(
-                      image: NetworkImage(member.faceclaimImgUrl),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
+                _buildPortrait(member.faceclaimImgUrl, member.characterName, size: 90.0, circle: false),
                 const SizedBox(width: 16.0),
                 // Text Attributes
                 Expanded(
@@ -361,18 +351,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Profile Avatar/Portrait
-                Container(
-                  width: 140.0,
-                  height: 140.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: NetworkImage(member.faceclaimImgUrl),
-                      fit: BoxFit.cover,
-                    ),
-                    border: Border.all(color: PortalTheme.tealNavyAccent, width: 2.0),
-                  ),
-                ),
+                _buildPortrait(member.faceclaimImgUrl, member.characterName, size: 140.0, circle: true),
                 const SizedBox(height: 24.0),
                 Text(
                   member.characterName,
@@ -432,6 +411,33 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
     );
   }
 
+  Widget _buildPortrait(String url, String characterName, {double size = 90.0, bool circle = false}) {
+    final bool hasImage = url.isNotEmpty && url.startsWith('http');
+    
+    if (!hasImage) {
+      return EnnoiaProfilePlaceholder(label: characterName, size: size, isCircle: circle);
+    }
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(8.0),
+      ),
+      child: ClipRRect(
+        borderRadius: circle ? BorderRadius.circular(size / 2) : BorderRadius.circular(8.0),
+        child: Image.network(
+          url,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return EnnoiaProfilePlaceholder(label: characterName, size: size, isCircle: circle);
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatRow(String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -455,3 +461,81 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
     );
   }
 }
+
+class EnnoiaProfilePlaceholder extends StatelessWidget {
+  final String label;
+  final double size;
+  final bool isCircle;
+
+  const EnnoiaProfilePlaceholder({
+    super.key,
+    required this.label,
+    this.size = 90.0,
+    this.isCircle = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: PortalTheme.tealNavyAccent.withValues(alpha: 0.08),
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: isCircle ? null : BorderRadius.circular(8.0),
+        border: Border.all(color: PortalTheme.silverGrayBorder.withValues(alpha: 0.3), width: 1.0),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CustomPaint(
+              size: Size(size * 0.32, size * 0.32),
+              painter: _EnnoiaSigilPainter(),
+            ),
+            if (size > 60) ...[
+              const SizedBox(height: 6.0),
+              Text(
+                label.isNotEmpty ? label[0].toUpperCase() : 'E',
+                style: PortalTheme.statsText.copyWith(
+                  fontSize: size * 0.12,
+                  fontWeight: FontWeight.bold,
+                  color: PortalTheme.tealNavyAccent,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EnnoiaSigilPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = PortalTheme.tealNavyAccent.withValues(alpha: 0.5)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    // Draw vertical bisecting line
+    canvas.drawLine(
+      Offset(size.width / 2, 0),
+      Offset(size.width / 2, size.height),
+      paint,
+    );
+
+    // Draw left broken circle
+    final rectLeft = Rect.fromLTWH(0, size.height * 0.1, size.width * 0.7, size.height * 0.7);
+    canvas.drawArc(rectLeft, 0.5, 5.0, false, paint);
+
+    // Draw right broken circle
+    final rectRight = Rect.fromLTWH(size.width * 0.3, size.height * 0.2, size.width * 0.7, size.height * 0.7);
+    canvas.drawArc(rectRight, 3.5, 5.0, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+

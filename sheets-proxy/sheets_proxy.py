@@ -256,16 +256,33 @@ class SheetsProxyHandler(BaseHTTPRequestHandler):
                     email = target_app[2]
                     faction = target_app[4]
                     
+                    # Attempt to extract detailed fields from answers payload
+                    player_display_name = email.split('@')[0]
+                    faceclaim_name = char_name
+                    faceclaim_img_url = ""
+                    
+                    try:
+                        answers = json.loads(target_app[5])
+                        if isinstance(answers, list):
+                            if len(answers) > 0 and answers[0]:
+                                player_display_name = answers[0]
+                            if len(answers) > 11 and answers[11]:
+                                faceclaim_name = answers[11]
+                            if len(answers) > 12 and answers[12]:
+                                faceclaim_img_url = answers[12]
+                    except Exception as e:
+                        print(f"Error parsing answers JSON during approval: {e}")
+                    
                     roster_id = f"member-{int(datetime.datetime.now().timestamp())}"
                     joined_date = datetime.date.today().strftime('%Y-%m-%d')
                     
                     new_member = [
                         roster_id,
                         char_name,
-                        email.split('@')[0],
+                        player_display_name,
                         faction,
-                        char_name,
-                        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+                        faceclaim_name,
+                        faceclaim_img_url, # Empty string leads to placeholder sigil in Flutter UI
                         "Active",
                         joined_date
                     ]

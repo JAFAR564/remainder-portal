@@ -126,7 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const SizedBox(width: 8.0),
                         Text(
-                          'THE REMAINDER PORTAL',
+                          'ENNOIA',
                           style: PortalTheme.statsText.copyWith(
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
@@ -303,11 +303,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           }
                         },
                         child: Text(
-                          'New Applicant? Submit Admittance Claim',
+                          'New to Ennoia? Begin your admittance claim.',
                           style: PortalTheme.statsText.copyWith(
-                            color: PortalTheme.charcoalNearBlackText,
+                            color: PortalTheme.tealNavyAccent,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
+                            fontSize: 12.0,
                           ),
                         ),
                       ),
