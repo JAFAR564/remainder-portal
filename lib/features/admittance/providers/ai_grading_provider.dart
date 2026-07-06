@@ -141,7 +141,7 @@ class AIGradingNotifier extends AsyncNotifier<Map<String, AIGradingResult>> {
             
         groqReport = "Groq-Llama-4 (Prose Audit):\n"
             "• Metrics: Prose structure meets guidelines. Detachment check verified (no first-person tags). Rules agreement confirmed.\n"
-            "• Moderator Question suggestion: 'Ask $preferredName how $characterName plans to reconcile their background with the faction leadership.'\n"
+            "• Moderator Question suggestion: 'Ask $preferredName how ${app.characterName} plans to reconcile their background with the faction leadership.'\n"
             "• Confidence Score: ${(score * 10).toInt()}% | Status: Clear Approve";
       } else if (score >= 5.0) {
         deepseekReport = "DeepSeek-V4-Pro (Lore Audit):\n"

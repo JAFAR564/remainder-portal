@@ -527,7 +527,7 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
       });
 
       if (children.isEmpty) {
-        return const Text('No advanced attributes supplied.', style: PortalTheme.bodyText);
+        return Text('No advanced attributes supplied.', style: PortalTheme.bodyText);
       }
       return Column(children: children);
     } catch (_) {
