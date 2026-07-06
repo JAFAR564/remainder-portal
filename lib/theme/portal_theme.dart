@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class PortalTheme {
-  // Color Palette constants from DESIGN.md
-  static const Color creamBg = Color(0xFFFCFAFA);
-  static const Color lightGraySurface = Color(0xFFF5F5F5);
-  static const Color tealNavyAccent = Color(0xFF294056);
-  static const Color charcoalNearBlackText = Color(0xFF2C2C2C);
-  static const Color warmGrayBodyText = Color(0xFF6B6B6B);
-  static const Color silverGrayBorder = Color(0xFFE0E0E0);
+  // Color Palette constants from DESIGN.md / Ennoia brand migration
+  static const Color creamBg = Color(0xFF080B11); // Deep Prussian Blue / Obsidian Background
+  static const Color lightGraySurface = Color(0xFF101622); // Obsidian Surface Card
+  static const Color tealNavyAccent = Color(0xFF4DB6AC); // Glowing Teal Accent
+  static const Color charcoalNearBlackText = Color(0xFFF5F6F8); // Bone White Title text
+  static const Color warmGrayBodyText = Color(0xFF8E96AA); // Muted Silver-Gray Body text
+  static const Color silverGrayBorder = Color(0xFF222E3E); // Subtle Border Navy
   
   // Functional States
   static const Color successMoss = Color(0xFF10B981);
@@ -71,7 +71,7 @@ class PortalTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: creamBg,
-      colorScheme: ColorScheme.light(
+      colorScheme: ColorScheme.dark(
         primary: tealNavyAccent,
         surface: lightGraySurface,
         onSurface: charcoalNearBlackText,

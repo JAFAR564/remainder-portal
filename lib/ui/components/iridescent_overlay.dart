@@ -104,7 +104,7 @@ class _IridescentOverlayState extends ConsumerState<IridescentOverlay> with Sing
         end: Alignment.bottomRight,
         colors: [
           PortalTheme.creamBg,
-          Color(0xFFF3ECE1), // Premium horological warm sand tone
+          Color(0xFF05070B), // Deep space navy/black tone
         ],
       ),
     );

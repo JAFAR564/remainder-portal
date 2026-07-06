@@ -268,15 +268,24 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
         return SpringTapWrapper(
           onTap: () => _showMemberDetailsDialog(context, member),
           child: GlassCard(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.zero,
             child: Row(
               children: [
+                // Faction Accent Stripe
+                Container(
+                  width: 4.0,
+                  height: 140.0,
+                  color: _getFactionColor(member.faction),
+                ),
+                const SizedBox(width: 12.0),
                 // Portrait Image
                 _buildPortrait(member.faceclaimImgUrl, member.characterName, size: 90.0, circle: false),
                 const SizedBox(width: 16.0),
                 // Text Attributes
                 Expanded(
-                  child: Column(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -329,6 +338,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
                     ],
                   ),
                 ),
+              ),
               ],
             ),
           ),
@@ -409,6 +419,14 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
         ),
       ),
     );
+  }
+
+  Color _getFactionColor(String faction) {
+    final f = faction.toLowerCase();
+    if (f.contains('aethelgard')) return const Color(0xFFFFD700); // Gold
+    if (f.contains('elysium')) return const Color(0xFFB388FF); // Violet
+    if (f.contains('vanguard')) return const Color(0xFF66BB6A); // Emerald
+    return PortalTheme.tealNavyAccent;
   }
 
   Widget _buildPortrait(String url, String characterName, {double size = 90.0, bool circle = false}) {

@@ -672,58 +672,117 @@ class _AdmittanceScreenState extends ConsumerState<AdmittanceScreen> {
                 const SizedBox(height: 32.0),
 
                 // Decision Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: SpringTapWrapper(
-                        onTap: () => _submitDecision(app.id, 'Approved', result.deepseekScore, result.groqFlags),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          decoration: BoxDecoration(
-                            color: PortalTheme.successMoss,
-                            borderRadius: BorderRadius.circular(8.0),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isMobile = constraints.maxWidth < 400.0;
+                    if (isMobile) {
+                      return Column(
+                        children: [
+                          SpringTapWrapper(
+                            onTap: () => _submitDecision(app.id, 'Approved', result.deepseekScore, result.groqFlags),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              decoration: BoxDecoration(
+                                color: PortalTheme.successMoss,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'APPROVE ENTRY',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Jost',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          child: const Center(
-                            child: Text(
-                              'APPROVE ENTRY',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Jost',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.0,
-                                letterSpacing: 1.0,
+                          const SizedBox(height: 12.0),
+                          SpringTapWrapper(
+                            onTap: () => _submitDecision(app.id, 'Rejected', result.deepseekScore, result.groqFlags),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              decoration: BoxDecoration(
+                                color: PortalTheme.alertTerracotta,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'REJECT CLAIM',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Jost',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: SpringTapWrapper(
+                            onTap: () => _submitDecision(app.id, 'Approved', result.deepseekScore, result.groqFlags),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              decoration: BoxDecoration(
+                                color: PortalTheme.successMoss,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'APPROVE ENTRY',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Jost',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: SpringTapWrapper(
-                        onTap: () => _submitDecision(app.id, 'Rejected', result.deepseekScore, result.groqFlags),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          decoration: BoxDecoration(
-                            color: PortalTheme.alertTerracotta,
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'REJECT CLAIM',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Jost',
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13.0,
-                                letterSpacing: 1.0,
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: SpringTapWrapper(
+                            onTap: () => _submitDecision(app.id, 'Rejected', result.deepseekScore, result.groqFlags),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              decoration: BoxDecoration(
+                                color: PortalTheme.alertTerracotta,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'REJECT CLAIM',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Jost',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13.0,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                      ],
+                    );
+                  },
                 )
               ],
             );
