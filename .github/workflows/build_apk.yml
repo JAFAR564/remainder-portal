@@ -48,9 +48,18 @@ jobs:
       - name: Set up Shorebird
         uses: shorebirdtech/setup-shorebird@v1
 
-      - name: Build Shorebird Release APK
+      - name: Build Android APK
         run: |
-          shorebird release android --artifact apk
+          if [ -n "${{ secrets.SHOREBIRD_TOKEN }}" ]; then
+            echo "Shorebird token detected. Compiling Shorebird release..."
+            shorebird release android --artifact apk || {
+              echo "Shorebird release failed. Falling back to standard Flutter build..."
+              flutter build apk --release
+            }
+          else
+            echo "No Shorebird token detected. Falling back to standard Flutter build..."
+            flutter build apk --release
+          fi
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
