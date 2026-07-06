@@ -367,7 +367,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 12.0),
               Text(
-                'RP PORTAL',
+                'ENNOIA',
                 style: PortalTheme.statsText.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
@@ -402,11 +402,11 @@ class DashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Collector #01',
+                    'Member #01',
                     style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Premium Tier',
+                    'Storyteller',
                     style: PortalTheme.statsText.copyWith(fontSize: 11.0, color: PortalTheme.infoSlate),
                   ),
                 ],
