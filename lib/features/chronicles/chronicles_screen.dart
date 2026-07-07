@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import '../../ui/animations/spring_tap_wrapper.dart';
 import '../../ui/components/glass_card.dart';
 import '../../ui/components/iridescent_overlay.dart';
 import '../../services/okf_service.dart';
+import '../../services/roster_cache_service.dart';
 
 class ChronicleNode {
   final String dateStamp;
@@ -27,24 +29,58 @@ class ChronicleNode {
     required this.factionShifts,
     required this.transcriptLogs,
   });
+
+  Map<String, dynamic> toJson() => {
+        'dateStamp': dateStamp,
+        'title': title,
+        'description': description,
+        'faction': faction,
+        'characterRelations': characterRelations,
+        'expandedSummary': expandedSummary,
+        'factionShifts': factionShifts,
+        'transcriptLogs': transcriptLogs,
+      };
+
+  factory ChronicleNode.fromJson(Map<String, dynamic> json) => ChronicleNode(
+        dateStamp: json['dateStamp'] ?? '',
+        title: json['title'] ?? '',
+        description: json['description'] ?? '',
+        faction: json['faction'] ?? '',
+        characterRelations: List<String>.from(json['characterRelations'] ?? []),
+        expandedSummary: json['expandedSummary'] ?? '',
+        factionShifts: (json['factionShifts'] as Map<dynamic, dynamic>?)?.map(
+              (k, v) => MapEntry<String, double>(k.toString(), (v as num).toDouble()),
+            ) ??
+            {},
+        transcriptLogs: (json['transcriptLogs'] as List<dynamic>?)
+                ?.map((item) => Map<String, String>.from(item as Map))
+                .toList() ??
+            [],
+      );
 }
 
-class ChroniclesScreen extends ConsumerStatefulWidget {
-  const ChroniclesScreen({super.key});
-
+class ChroniclesNotifier extends Notifier<List<ChronicleNode>> {
   @override
-  ConsumerState<ChroniclesScreen> createState() => _ChroniclesScreenState();
-}
+  List<ChronicleNode> build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final cachedJson = prefs.getString('cached_chronicle_nodes');
+    if (cachedJson != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(cachedJson);
+        return decoded.map((item) => ChronicleNode.fromJson(Map<String, dynamic>.from(item as Map))).toList();
+      } catch (_) {
+        // Fallback to initial
+      }
+    }
+    return List.from(_initialNodes);
+  }
 
-class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
-  ChronicleNode? _expandedNode;
-  late final List<ChronicleNode> _nodes;
-  bool _isGeneratingDraft = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nodes = List.from(_initialNodes);
+  void addNode(ChronicleNode node) {
+    final updated = [...state, node];
+    state = updated;
+    final prefs = ref.read(sharedPreferencesProvider);
+    final encoded = jsonEncode(updated.map((n) => n.toJson()).toList());
+    prefs.setString('cached_chronicle_nodes', encoded);
   }
 
   static const List<ChronicleNode> _initialNodes = [
@@ -67,8 +103,8 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
     ),
     ChronicleNode(
       dateStamp: 'ERA 3 • YEAR 145',
-      title: 'Erecting the Celestial Spire',
-      description: 'Architects align the iridescent spire to capture harmonic energies, creating the RAG feedback loops.',
+      title: 'Celestial Spire Alignment',
+      description: 'Architects align the Celestial Spire to capture harmonic energies, creating the RAG feedback loops.',
       faction: 'Chronicles',
       characterRelations: ['Jacob Vance (Spire Overseer)'],
       expandedSummary: 'The Spire channels real-time lore caches directly to the admin councils. High-frequency compiler compilation check prevents any memory fragmentation.',
@@ -100,9 +136,31 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
       ],
     ),
   ];
+}
+
+final chroniclesProvider = NotifierProvider<ChroniclesNotifier, List<ChronicleNode>>(() {
+  return ChroniclesNotifier();
+});
+
+class ChroniclesScreen extends ConsumerStatefulWidget {
+  const ChroniclesScreen({super.key});
+
+  @override
+  ConsumerState<ChroniclesScreen> createState() => _ChroniclesScreenState();
+}
+
+class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
+  ChronicleNode? _expandedNode;
+  bool _isGeneratingDraft = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final nodes = ref.watch(chroniclesProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -120,34 +178,27 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
           onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
         actions: [
-          if (_isGeneratingDraft)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: SizedBox(
-                  width: 16.0,
-                  height: 16.0,
-                  child: CircularProgressIndicator(strokeWidth: 2.0, color: PortalTheme.tealNavyAccent),
-                ),
-              ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: SpringTapWrapper(
-                onTap: () => _triggerAICronDraft(),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                  decoration: BoxDecoration(
-                    color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
-                    border: Border.all(color: PortalTheme.tealNavyAccent.withValues(alpha: 0.3)),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.auto_awesome, size: 12.0, color: PortalTheme.tealNavyAccent),
-                      const SizedBox(width: 4.0),
-                      Text(
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Row(
+              children: [
+                if (_isGeneratingDraft)
+                  const SizedBox(
+                    width: 16.0,
+                    height: 16.0,
+                    child: CircularProgressIndicator(strokeWidth: 2.0, color: PortalTheme.tealNavyAccent),
+                  )
+                else
+                  SpringTapWrapper(
+                    onTap: _triggerAICronDraft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: PortalTheme.tealNavyAccent),
+                        borderRadius: BorderRadius.circular(4.0),
+                        color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
+                      ),
+                      child: Text(
                         'AI DRAFT',
                         style: PortalTheme.statsText.copyWith(
                           color: PortalTheme.tealNavyAccent,
@@ -155,11 +206,11 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+              ],
             ),
+          ),
         ],
       ),
       body: IridescentOverlay(
@@ -171,9 +222,9 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
                 flex: 6,
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-                  itemCount: _nodes.length,
+                  itemCount: nodes.length,
                   itemBuilder: (context, index) {
-                    final node = _nodes[index];
+                    final node = nodes[index];
                     final isExpanded = _expandedNode == node;
 
                     return IntrinsicHeight(
@@ -197,7 +248,7 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
                                   ]
                                 ),
                               ),
-                              if (index != _nodes.length - 1)
+                              if (index != nodes.length - 1)
                                 Expanded(
                                   child: Container(
                                     width: 2.0,
@@ -580,28 +631,27 @@ class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
   }
 
   void _addSimulationDraftNode() {
-    setState(() {
-      final year = 149 + _nodes.length - 2;
-      _nodes.add(
-        ChronicleNode(
-          dateStamp: 'ERA 3 • YEAR $year',
-          title: 'AI Synthesis: Sector Convergence',
-          description: 'A structural alignment shift is detected across active sectors. Factions deploy scouts to coordinate boundary nodes.',
-          faction: 'Vanguard Order & Elysium Syndicate',
-          characterRelations: ['Jacob Vance ↔ Lorna Stern (Grid Coordinates Calibration)'],
-          expandedSummary: 'Recent roleplay logs indicate collaborative mapping actions between Vanguard scouts and Elysium archivists. System checks confirm database sync with local cache.',
-          factionShifts: {
-            'Aethelgard Alliance': -5.0,
-            'Elysium Syndicate': 15.0,
-            'Vanguard Order': 10.0,
-          },
-          transcriptLogs: [
-            {'author': 'Jacob Vance', 'msg': 'Scout coordinates received. Adjusting the Spire array feedback parameters.'},
-            {'author': 'Lorna Stern', 'msg': 'Sync holding. RAG pipelines showing zero discrepancies with the cache.'},
-          ],
-        ),
-      );
-    });
+    final nodes = ref.read(chroniclesProvider);
+    final year = 149 + nodes.length - 2;
+    ref.read(chroniclesProvider.notifier).addNode(
+      ChronicleNode(
+        dateStamp: 'ERA 3 • YEAR $year',
+        title: 'AI Synthesis: Sector Convergence',
+        description: 'A structural alignment shift is detected across active sectors. Factions deploy scouts to coordinate boundary nodes.',
+        faction: 'Vanguard Order & Elysium Syndicate',
+        characterRelations: ['Jacob Vance ↔ Lorna Stern (Grid Coordinates Calibration)'],
+        expandedSummary: 'Recent roleplay logs indicate collaborative mapping actions between Vanguard scouts and Elysium archivists. System checks confirm database sync with local cache.',
+        factionShifts: {
+          'Aethelgard Alliance': -5.0,
+          'Elysium Syndicate': 15.0,
+          'Vanguard Order': 10.0,
+        },
+        transcriptLogs: [
+          {'author': 'Jacob Vance', 'msg': 'Scout coordinates received. Adjusting the Spire array feedback parameters.'},
+          {'author': 'Lorna Stern', 'msg': 'Sync holding. RAG pipelines showing zero discrepancies with the cache.'},
+        ],
+      ),
+    );
   }
 
   void _showOriginalTranscriptDialog(BuildContext context, ChronicleNode node) {
