@@ -118,7 +118,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     final matched = rooms.firstWhere((r) => r.id == overrideRoomId, orElse: () => rooms.first);
                     _selectedRoom = matched;
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ref.read(selectedChatRoomIdProvider.notifier).state = null;
+                      ref.read(selectedChatRoomIdProvider.notifier).selectRoom(null);
                     });
                   } else if (_selectedRoom == null) {
                     _selectedRoom = rooms.first;

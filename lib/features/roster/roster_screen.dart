@@ -11,6 +11,7 @@ import '../../ui/components/responsive_layout.dart';
 import '../../services/chat_service.dart';
 import '../../models/chat_room.dart';
 import '../../router/app_router.dart';
+import '../profile/providers/active_character_provider.dart';
 import 'roster_notifier.dart';
 
 class RosterScreen extends ConsumerStatefulWidget {
@@ -248,6 +249,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
                     },
                   ),
                 );
+              },
             ),
           ),
           const SizedBox(height: 16.0),
@@ -362,7 +364,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
                             onTap: room == null
                                 ? null
                                 : () {
-                                    ref.read(selectedChatRoomIdProvider.notifier).state = room.id;
+                                    ref.read(selectedChatRoomIdProvider.notifier).selectRoom(room.id);
                                     ref.read(routerProvider).go('/chat');
                                   },
                             child: Container(

@@ -41,6 +41,10 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Run Flutter Analyze
+        run: flutter analyze
+        continue-on-error: true
+
       - name: Build Flutter Web
         run: flutter build web --base-href "/remainder-portal/" --release
 
