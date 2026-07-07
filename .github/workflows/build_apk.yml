@@ -32,6 +32,10 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Run Flutter Analyze
+        run: flutter analyze
+        continue-on-error: true
+
       - name: Configure Flutter for Android
         run: |
           flutter config --enable-android
