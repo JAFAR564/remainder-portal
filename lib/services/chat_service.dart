@@ -175,3 +175,6 @@ class RoomMessagesNotifier extends AsyncNotifier<List<ChatMessage>> {
     }
   }
 }
+
+/// Provider managing the currently selected chat room ID across screens.
+final selectedChatRoomIdProvider = StateProvider<String?>((ref) => null);

@@ -112,8 +112,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     );
                   }
 
-                  // Default selection
-                  if (_selectedRoom == null) {
+                  // Default selection or cross-screen override
+                  final overrideRoomId = ref.watch(selectedChatRoomIdProvider);
+                  if (overrideRoomId != null) {
+                    final matched = rooms.firstWhere((r) => r.id == overrideRoomId, orElse: () => rooms.first);
+                    _selectedRoom = matched;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(selectedChatRoomIdProvider.notifier).state = null;
+                    });
+                  } else if (_selectedRoom == null) {
                     _selectedRoom = rooms.first;
                   }
 
