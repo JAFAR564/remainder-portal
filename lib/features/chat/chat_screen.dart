@@ -7,7 +7,6 @@ import '../../ui/components/glass_card.dart';
 import '../../ui/components/iridescent_overlay.dart';
 import '../../services/chat_service.dart';
 import '../../services/profile_service.dart';
-import '../../services/auth_service.dart';
 import '../../models/chat_room.dart';
 import '../../models/chat_message.dart';
 import '../../models/profile.dart';

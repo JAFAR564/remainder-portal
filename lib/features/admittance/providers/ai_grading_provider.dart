@@ -141,6 +141,7 @@ class AIGradingNotifier extends AsyncNotifier<Map<String, AIGradingResult>> {
             
         groqReport = "Groq-Llama-4 (Prose Audit):\n"
             "• Metrics: Prose structure meets guidelines. Detachment check verified (no first-person tags). Rules agreement confirmed.\n"
+            "• Metadata: Timezone: $timezone | Preferred Genres: $genres\n"
             "• Moderator Question suggestion: 'Ask $preferredName how ${app.characterName} plans to reconcile their background with the faction leadership.'\n"
             "• Confidence Score: ${(score * 10).toInt()}% | Status: Clear Approve";
       } else if (score >= 5.0) {
@@ -151,6 +152,7 @@ class AIGradingNotifier extends AsyncNotifier<Map<String, AIGradingResult>> {
             
         groqReport = "Groq-Llama-4 (Prose Audit):\n"
             "• Verification: ${hasFirstPerson ? "FAILED detachment check. Writing sample contains personal pronouns (I/me/my)." : "Prose quality is thin."} Faceclaim status: ${faceclaimImg.isEmpty ? "Missing image URL." : "Image URL parsed."}\n"
+            "• Metadata: Timezone: $timezone | Genres: $genres\n"
             "• Moderator Action: Clarify guidelines or request revised writing sample.";
       } else {
         deepseekReport = "DeepSeek-V4-Pro (Lore Audit):\n"
@@ -160,6 +162,7 @@ class AIGradingNotifier extends AsyncNotifier<Map<String, AIGradingResult>> {
             
         groqReport = "Groq-Llama-4 (Prose Audit):\n"
             "• Failures: Sentence length is insufficient ($wordCount words). ${hasRulesAgreement ? "" : "Rules agreement was not checked."} High rate of colloquial modern slang.\n"
+            "• Metadata: Timezone: $timezone | Genres: $genres\n"
             "• Confidence Score: 30% | Recommendation: Manual Reject";
       }
 

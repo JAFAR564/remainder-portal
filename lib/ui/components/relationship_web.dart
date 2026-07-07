@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../theme/portal_theme.dart';
-import '../../ui/animations/spring_tap_wrapper.dart';
 import '../../ui/components/glass_card.dart';
 
 class FactionNode {
