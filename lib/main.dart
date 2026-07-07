@@ -418,6 +418,8 @@ class DashboardScreen extends ConsumerWidget {
           _buildSidebarLink(context, ref, 'Profile Settings', route: '/profile'),
           const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Chat Channels', route: '/chat'),
+          const SizedBox(height: 24.0),
+          _buildSidebarLink(context, ref, 'Playbook Codex', route: '/guide'),
           const Spacer(),
           // Interactive Identity Swapper Profile Footer
           Consumer(
