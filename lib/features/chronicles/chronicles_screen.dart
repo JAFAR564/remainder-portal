@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/portal_theme.dart';
 import '../../ui/animations/spring_tap_wrapper.dart';
 import '../../ui/components/glass_card.dart';
 import '../../ui/components/iridescent_overlay.dart';
+import '../../services/okf_service.dart';
 
 class ChronicleNode {
   final String dateStamp;
@@ -12,6 +14,8 @@ class ChronicleNode {
   final String faction;
   final List<String> characterRelations;
   final String expandedSummary;
+  final Map<String, double> factionShifts;
+  final List<Map<String, String>> transcriptLogs;
 
   const ChronicleNode({
     required this.dateStamp,
@@ -20,20 +24,30 @@ class ChronicleNode {
     required this.faction,
     required this.characterRelations,
     required this.expandedSummary,
+    required this.factionShifts,
+    required this.transcriptLogs,
   });
 }
 
-class ChroniclesScreen extends StatefulWidget {
+class ChroniclesScreen extends ConsumerStatefulWidget {
   const ChroniclesScreen({super.key});
 
   @override
-  State<ChroniclesScreen> createState() => _ChroniclesScreenState();
+  ConsumerState<ChroniclesScreen> createState() => _ChroniclesScreenState();
 }
 
-class _ChroniclesScreenState extends State<ChroniclesScreen> {
+class _ChroniclesScreenState extends ConsumerState<ChroniclesScreen> {
   ChronicleNode? _expandedNode;
+  late final List<ChronicleNode> _nodes;
+  bool _isGeneratingDraft = false;
 
-  final List<ChronicleNode> _nodes = const [
+  @override
+  void initState() {
+    super.initState();
+    _nodes = List.from(_initialNodes);
+  }
+
+  static const List<ChronicleNode> _initialNodes = [
     ChronicleNode(
       dateStamp: 'ERA 3 • YEAR 142',
       title: 'The Great Rift Pact',
@@ -41,6 +55,15 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
       faction: 'Obsidian Guild & Golden Shield',
       characterRelations: ['Alistair Vance ↔ Clara Oswald (Covenant Witnesses)'],
       expandedSummary: 'Following negotiations at the summit of Obsidian, the peace accord establishes mutual trading bounds. The pact enforces absolute non-aggression under fragment checks.',
+      factionShifts: {
+        'Aethelgard Alliance': 15.0,
+        'Elysium Syndicate': 10.0,
+        'Vanguard Order': -10.0,
+      },
+      transcriptLogs: [
+        {'author': 'Alistair Vance', 'msg': 'Let the parchment seal the borders of the Rift. We write our future in ink, not blood.'},
+        {'author': 'Clara Oswald', 'msg': 'Obsidian remembers, Alistair. But for the sake of the chronicle, Elysium signs.'},
+      ],
     ),
     ChronicleNode(
       dateStamp: 'ERA 3 • YEAR 145',
@@ -49,6 +72,15 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
       faction: 'Chronicles',
       characterRelations: ['Jacob Vance (Spire Overseer)'],
       expandedSummary: 'The Spire channels real-time lore caches directly to the admin councils. High-frequency compiler compilation check prevents any memory fragmentation.',
+      factionShifts: {
+        'Aethelgard Alliance': -5.0,
+        'Elysium Syndicate': 20.0,
+        'Vanguard Order': 5.0,
+      },
+      transcriptLogs: [
+        {'author': 'Jacob Vance', 'msg': 'The alignment shifts. The RAG feedback loop is anchoring to the cache.'},
+        {'author': 'Lorna Stern', 'msg': 'The compiler checks are holding. No thread fragmentation detected on Impeller.'},
+      ],
     ),
     ChronicleNode(
       dateStamp: 'ERA 3 • YEAR 149',
@@ -57,6 +89,15 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
       faction: 'Obsidian Guild',
       characterRelations: ['Unknown Claimant ↔ Alistair Vance (Disputed Lineage)'],
       expandedSummary: 'A rogue application bypasses standard compliance checks, claiming alignment with House Vance. DeepSeek-V4 audits highlight chronological contradictions.',
+      factionShifts: {
+        'Aethelgard Alliance': -10.0,
+        'Elysium Syndicate': -15.0,
+        'Vanguard Order': 25.0,
+      },
+      transcriptLogs: [
+        {'author': 'Unknown Claimant', 'msg': 'I bear the Vance signature fragment. The gate must admit my claim.'},
+        {'author': 'Alistair Vance', 'msg': 'This is a contradiction. The lineage record has no space for your token.'},
+      ],
     ),
   ];
 
@@ -78,6 +119,48 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
           icon: const Icon(Icons.arrow_back, color: PortalTheme.charcoalNearBlackText),
           onPressed: () => context.canPop() ? context.pop() : context.go('/'),
         ),
+        actions: [
+          if (_isGeneratingDraft)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: SizedBox(
+                  width: 16.0,
+                  height: 16.0,
+                  child: CircularProgressIndicator(strokeWidth: 2.0, color: PortalTheme.tealNavyAccent),
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: SpringTapWrapper(
+                onTap: () => _triggerAICronDraft(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                  decoration: BoxDecoration(
+                    color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
+                    border: Border.all(color: PortalTheme.tealNavyAccent.withValues(alpha: 0.3)),
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.auto_awesome, size: 12.0, color: PortalTheme.tealNavyAccent),
+                      const SizedBox(width: 4.0),
+                      Text(
+                        'AI DRAFT',
+                        style: PortalTheme.statsText.copyWith(
+                          color: PortalTheme.tealNavyAccent,
+                          fontSize: 9.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
       body: IridescentOverlay(
         child: SafeArea(
@@ -151,6 +234,37 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
                                             color: PortalTheme.infoSlate,
                                             fontWeight: FontWeight.bold,
                                           ),
+                                        ),
+                                        const SizedBox(height: 6.0),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 24.0,
+                                              height: 2.0,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFFFD700),
+                                                borderRadius: BorderRadius.circular(1.0),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 3.0),
+                                            Container(
+                                              width: 24.0,
+                                              height: 2.0,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFB388FF),
+                                                borderRadius: BorderRadius.circular(1.0),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 3.0),
+                                            Container(
+                                              width: 24.0,
+                                              height: 2.0,
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF66BB6A),
+                                                borderRadius: BorderRadius.circular(1.0),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                         const SizedBox(height: 8.0),
                                         Text(
@@ -227,6 +341,87 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
                                 child: Text(rel, style: PortalTheme.bodyText),
                               );
                             }),
+                            const SizedBox(height: 24.0),
+                            const Divider(),
+                            const SizedBox(height: 24.0),
+                            Text(
+                              'FACTION INFLUENCE SHIFTS',
+                              style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText),
+                            ),
+                            const SizedBox(height: 12.0),
+                            ..._expandedNode!.factionShifts.entries.map((entry) {
+                              final factionName = entry.key;
+                              final shiftVal = entry.value;
+                              final isPositive = shiftVal >= 0;
+                              final color = isPositive ? const Color(0xFF66BB6A) : PortalTheme.alertTerracotta;
+                              final shiftText = '${isPositive ? "+" : ""}${shiftVal.toInt()}%';
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(factionName, style: PortalTheme.bodyText.copyWith(fontSize: 11.0)),
+                                        Text(shiftText, style: PortalTheme.statsText.copyWith(fontSize: 11.0, color: color, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4.0),
+                                    Container(
+                                      height: 4.0,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        color: PortalTheme.silverGrayBorder.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(2.0),
+                                      ),
+                                      child: FractionallySizedBox(
+                                        alignment: Alignment.centerLeft,
+                                        widthFactor: (shiftVal.abs() / 30.0).clamp(0.0, 1.0),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius: BorderRadius.circular(2.0),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 24.0),
+                            const Divider(),
+                            const SizedBox(height: 24.0),
+                            SpringTapWrapper(
+                              onTap: () => _showOriginalTranscriptDialog(context, _expandedNode!),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                decoration: BoxDecoration(
+                                  color: PortalTheme.tealNavyAccent.withValues(alpha: 0.15),
+                                  border: Border.all(color: PortalTheme.tealNavyAccent.withValues(alpha: 0.3)),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.history_edu, size: 16.0, color: PortalTheme.tealNavyAccent),
+                                    const SizedBox(width: 8.0),
+                                    Text(
+                                      'VIEW ORIGINAL SCENE LOGS',
+                                      style: PortalTheme.statsText.copyWith(
+                                        color: PortalTheme.tealNavyAccent,
+                                        fontSize: 10.0,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -238,6 +433,266 @@ class _ChroniclesScreenState extends State<ChroniclesScreen> {
                       ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _triggerAICronDraft() async {
+    setState(() => _isGeneratingDraft = true);
+    bool apiWorks = false;
+    String errorLog = '';
+
+    try {
+      final okf = ref.read(okfServiceProvider);
+      // Execute the query check to verify if the Cloud Run AI proxy responds
+      await okf.queryLoreContext(
+        answerText: 'Assemble chronological timeline updates from sector activity logs.',
+        queryIntent: 'Synthesize recent chronicle nodes from active play rooms.',
+      ).timeout(const Duration(seconds: 4));
+      apiWorks = true;
+    } catch (e) {
+      errorLog = e.toString();
+    }
+
+    setState(() => _isGeneratingDraft = false);
+
+    if (!mounted) return;
+
+    // Show connection diagnostic and options to generate simulation draft
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400.0),
+          child: GlassCard(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      apiWorks ? Icons.check_circle_outline : Icons.warning_amber_rounded,
+                      color: apiWorks ? const Color(0xFF66BB6A) : PortalTheme.alertTerracotta,
+                      size: 20.0,
+                    ),
+                    const SizedBox(width: 8.0),
+                    Text(
+                      apiWorks ? 'AI ROUTER: ONLINE' : 'AI ROUTER: OFFLINE',
+                      style: PortalTheme.statsText.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: apiWorks ? const Color(0xFF66BB6A) : PortalTheme.alertTerracotta,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12.0),
+                Text(
+                  apiWorks
+                      ? 'Gemini 1.5 Pro narrative synthesis engine connected and operating successfully.'
+                      : 'The remote AI Proxy service is currently unreachable (using fallback simulation).',
+                  style: PortalTheme.bodyText.copyWith(fontSize: 12.0),
+                ),
+                if (!apiWorks) ...[
+                  const SizedBox(height: 12.0),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    child: Text(
+                      'Diagnostic Log:\n$errorLog',
+                      style: const TextStyle(
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: 10.0,
+                        color: PortalTheme.alertTerracotta,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SpringTapWrapper(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: PortalTheme.silverGrayBorder),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'CANCEL',
+                              style: TextStyle(
+                                fontFamily: 'Jost',
+                                fontSize: 11.0,
+                                fontWeight: FontWeight.bold,
+                                color: PortalTheme.charcoalNearBlackText,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12.0),
+                    Expanded(
+                      child: SpringTapWrapper(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          _addSimulationDraftNode();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          decoration: BoxDecoration(
+                            color: PortalTheme.tealNavyAccent,
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'DRAFT EVENT',
+                              style: TextStyle(
+                                fontFamily: 'Jost',
+                                fontSize: 11.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addSimulationDraftNode() {
+    setState(() {
+      final year = 149 + _nodes.length - 2;
+      _nodes.add(
+        ChronicleNode(
+          dateStamp: 'ERA 3 • YEAR $year',
+          title: 'AI Synthesis: Sector Convergence',
+          description: 'A structural alignment shift is detected across active sectors. Factions deploy scouts to coordinate boundary nodes.',
+          faction: 'Vanguard Order & Elysium Syndicate',
+          characterRelations: ['Jacob Vance ↔ Lorna Stern (Grid Coordinates Calibration)'],
+          expandedSummary: 'Recent roleplay logs indicate collaborative mapping actions between Vanguard scouts and Elysium archivists. System checks confirm database sync with local cache.',
+          factionShifts: {
+            'Aethelgard Alliance': -5.0,
+            'Elysium Syndicate': 15.0,
+            'Vanguard Order': 10.0,
+          },
+          transcriptLogs: [
+            {'author': 'Jacob Vance', 'msg': 'Scout coordinates received. Adjusting the Spire array feedback parameters.'},
+            {'author': 'Lorna Stern', 'msg': 'Sync holding. RAG pipelines showing zero discrepancies with the cache.'},
+          ],
+        ),
+      );
+    });
+  }
+
+  void _showOriginalTranscriptDialog(BuildContext context, ChronicleNode node) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500.0),
+          child: GlassCard(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ORIGINAL CHRONICLE SCENE LOGS',
+                  style: PortalTheme.statsText.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: PortalTheme.tealNavyAccent,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  'Immutable narrative records captured during play convergence.',
+                  style: PortalTheme.smallText.copyWith(color: PortalTheme.warmGrayBodyText),
+                ),
+                const SizedBox(height: 16.0),
+                const Divider(),
+                const SizedBox(height: 16.0),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 250.0),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: node.transcriptLogs.length,
+                    itemBuilder: (context, idx) {
+                      final log = node.transcriptLogs[idx];
+                      final author = log['author'] ?? 'Unknown';
+                      final msg = log['msg'] ?? '';
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              author.toUpperCase(),
+                              style: PortalTheme.statsText.copyWith(
+                                fontSize: 9.0,
+                                fontWeight: FontWeight.bold,
+                                color: PortalTheme.infoSlate,
+                              ),
+                            ),
+                            const SizedBox(height: 2.0),
+                            Text(
+                              msg,
+                              style: PortalTheme.bodyText.copyWith(fontSize: 12.0),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                const Divider(),
+                const SizedBox(height: 16.0),
+                SpringTapWrapper(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    decoration: BoxDecoration(
+                      color: PortalTheme.tealNavyAccent,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'CLOSE LOGS ARCHIVE',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'Jost',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.0,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
