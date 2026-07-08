@@ -19,6 +19,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _characterNameController = TextEditingController(text: 'Clara Oswald');
   final _faceclaimController = TextEditingController(text: 'Jenna Coleman');
+  final _geminiApiKeyController = TextEditingController();
   String _selectedFaction = 'Chronicles';
   bool _isCheckingFaceclaim = false;
   String? _faceclaimStatus;
@@ -46,6 +47,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void dispose() {
     _characterNameController.dispose();
     _faceclaimController.dispose();
+    _geminiApiKeyController.dispose();
     super.dispose();
   }
 
@@ -57,6 +59,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _lookingForScenes = prefs.getBool('profile_pref_openness') ?? true;
       _factionVisibility = prefs.getString('profile_visibility_faction') ?? 'Public';
       _faceclaimVisibility = prefs.getString('profile_visibility_faceclaim') ?? 'Public';
+      _geminiApiKeyController.text = prefs.getString('google_gemini_api_key') ?? '';
     });
   }
 
@@ -67,6 +70,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     await prefs.setBool('profile_pref_openness', _lookingForScenes);
     await prefs.setString('profile_visibility_faction', _factionVisibility);
     await prefs.setString('profile_visibility_faceclaim', _faceclaimVisibility);
+    await prefs.setString('google_gemini_api_key', _geminiApiKeyController.text.trim());
   }
 
   Future<void> _checkFaceclaimAvailability() async {
@@ -463,6 +467,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 },
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 20.0),
+                          const Divider(),
+                          const SizedBox(height: 20.0),
+                          Text('GOOGLE GEMINI API KEY (LOCAL FALLBACK)', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                          const SizedBox(height: 8.0),
+                          TextField(
+                            controller: _geminiApiKeyController,
+                            obscureText: true,
+                            style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: PortalTheme.creamBg,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                              hintText: 'Enter Gemini API key for direct query fallback...',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
+                            ),
                           ),
                         ],
                       ),
