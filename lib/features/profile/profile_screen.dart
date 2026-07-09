@@ -20,6 +20,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _characterNameController = TextEditingController(text: 'Clara Oswald');
   final _faceclaimController = TextEditingController(text: 'Jenna Coleman');
   final _geminiApiKeyController = TextEditingController();
+  final _openRouterApiKeyController = TextEditingController();
+  final _groqApiKeyController = TextEditingController();
   String _selectedFaction = 'Chronicles';
   bool _isCheckingFaceclaim = false;
   String? _faceclaimStatus;
@@ -34,6 +36,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   // Visibility keys
   String _factionVisibility = 'Public';
   String _faceclaimVisibility = 'Public';
+  String _selectedAiProvider = 'Gemini';
 
   @override
   void initState() {
@@ -48,6 +51,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _characterNameController.dispose();
     _faceclaimController.dispose();
     _geminiApiKeyController.dispose();
+    _openRouterApiKeyController.dispose();
+    _groqApiKeyController.dispose();
     super.dispose();
   }
 
@@ -59,7 +64,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _lookingForScenes = prefs.getBool('profile_pref_openness') ?? true;
       _factionVisibility = prefs.getString('profile_visibility_faction') ?? 'Public';
       _faceclaimVisibility = prefs.getString('profile_visibility_faceclaim') ?? 'Public';
+      _selectedAiProvider = prefs.getString('profile_pref_ai_provider') ?? 'Gemini';
       _geminiApiKeyController.text = prefs.getString('google_gemini_api_key') ?? '';
+      _openRouterApiKeyController.text = prefs.getString('openrouter_api_key') ?? '';
+      _groqApiKeyController.text = prefs.getString('groq_api_key') ?? '';
     });
   }
 
@@ -70,7 +78,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     await prefs.setBool('profile_pref_openness', _lookingForScenes);
     await prefs.setString('profile_visibility_faction', _factionVisibility);
     await prefs.setString('profile_visibility_faceclaim', _faceclaimVisibility);
+    await prefs.setString('profile_pref_ai_provider', _selectedAiProvider);
     await prefs.setString('google_gemini_api_key', _geminiApiKeyController.text.trim());
+    await prefs.setString('openrouter_api_key', _openRouterApiKeyController.text.trim());
+    await prefs.setString('groq_api_key', _groqApiKeyController.text.trim());
   }
 
   Future<void> _checkFaceclaimAvailability() async {
@@ -563,21 +574,74 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           const SizedBox(height: 20.0),
                           const Divider(),
                           const SizedBox(height: 20.0),
-                          Text('GOOGLE GEMINI API KEY (LOCAL FALLBACK)', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
-                          const SizedBox(height: 8.0),
-                          TextField(
-                            controller: _geminiApiKeyController,
-                            obscureText: true,
-                            style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: PortalTheme.creamBg,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                              hintText: 'Enter Gemini API key for direct query fallback...',
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
-                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('LOCAL AI PROVIDER', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                              DropdownButton<String>(
+                                value: _selectedAiProvider,
+                                dropdownColor: PortalTheme.creamBg,
+                                style: PortalTheme.statsText.copyWith(fontSize: 10.0, fontWeight: FontWeight.bold, color: PortalTheme.tealNavyAccent),
+                                underline: const SizedBox(),
+                                onChanged: (val) {
+                                  if (val != null) setState(() => _selectedAiProvider = val);
+                                },
+                                items: ['Gemini', 'OpenRouter', 'Groq'].map((provider) {
+                                  return DropdownMenuItem(value: provider, child: Text(provider.toUpperCase()));
+                                }).toList(),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 12.0),
+                          if (_selectedAiProvider == 'Gemini') ...[
+                            Text('GOOGLE GEMINI API KEY', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                            const SizedBox(height: 8.0),
+                            TextField(
+                              controller: _geminiApiKeyController,
+                              obscureText: true,
+                              style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: PortalTheme.creamBg,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                                hintText: 'Enter Gemini API key...',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
+                              ),
+                            ),
+                          ] else if (_selectedAiProvider == 'OpenRouter') ...[
+                            Text('OPENROUTER API KEY', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                            const SizedBox(height: 8.0),
+                            TextField(
+                              controller: _openRouterApiKeyController,
+                              obscureText: true,
+                              style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: PortalTheme.creamBg,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                                hintText: 'Enter OpenRouter API key...',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
+                              ),
+                            ),
+                          ] else if (_selectedAiProvider == 'Groq') ...[
+                            Text('GROQ API KEY', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                            const SizedBox(height: 8.0),
+                            TextField(
+                              controller: _groqApiKeyController,
+                              obscureText: true,
+                              style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: PortalTheme.creamBg,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                                hintText: 'Enter Groq API key...',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

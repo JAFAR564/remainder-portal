@@ -926,34 +926,80 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _triggerAIFandomReaction(String title, String faction) async {
     final prefs = ref.read(sharedPreferencesProvider);
-    final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+    final provider = prefs.getString('profile_pref_ai_provider') ?? 'Gemini';
 
     String reactionText = 'New timeline convergence published: "$title" registered across $faction sectors. Core stability holding.';
+    final promptText = 'You are a citizen living in the universe of the Remainder Portal. Write a single, highly in-character social reaction post (under 180 characters) reacting to this newly published historical chronicle: Title: "$title", Faction: "$faction". Use sci-fi terminology (like timeline shifts, core sync, sector metrics). Respond with ONLY the raw message text.';
 
-    if (apiKey.isNotEmpty) {
-      try {
-        final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
-        final promptText = 'You are a citizen living in the universe of the Remainder Portal. Write a single, highly in-character social reaction post (under 180 characters) reacting to this newly published historical chronicle: Title: "$title", Faction: "$faction". Use sci-fi terminology (like timeline shifts, core sync, sector metrics). Respond with ONLY the raw message text.';
-        final payload = {
-          'contents': [
-            {
-              'parts': [
-                {'text': promptText}
-              ]
+    try {
+      if (provider == 'Gemini') {
+        final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+        if (apiKey.isNotEmpty) {
+          final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
+          final payload = {
+            'contents': [
+              {
+                'parts': [
+                  {'text': promptText}
+                ]
+              }
+            ]
+          };
+          final response = await Dio().post(url, data: payload);
+          if (response.statusCode == 200) {
+            final candidates = response.data['candidates'] as List;
+            if (candidates.isNotEmpty) {
+              reactionText = (candidates[0]['content']['parts'][0]['text'] as String).trim();
             }
-          ]
-        };
-        final response = await Dio().post(url, data: payload);
-        if (response.statusCode == 200) {
-          final candidates = response.data['candidates'] as List;
-          if (candidates.isNotEmpty) {
-            final text = candidates[0]['content']['parts'][0]['text'] as String;
-            reactionText = text.trim();
           }
         }
-      } catch (e) {
-        debugPrint('Fandom reaction bot query failed, falling back: $e');
+      } else if (provider == 'OpenRouter') {
+        final apiKey = prefs.getString('openrouter_api_key') ?? '';
+        if (apiKey.isNotEmpty) {
+          const url = 'https://openrouter.ai/api/v1/chat/completions';
+          final payload = {
+            'model': 'meta-llama/llama-3-8b-instruct:free',
+            'messages': [
+              {'role': 'user', 'content': promptText}
+            ]
+          };
+          final response = await Dio().post(
+            url,
+            data: payload,
+            options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+          );
+          if (response.statusCode == 200) {
+            final choices = response.data['choices'] as List;
+            if (choices.isNotEmpty) {
+              reactionText = (choices[0]['message']['content'] as String).trim();
+            }
+          }
+        }
+      } else if (provider == 'Groq') {
+        final apiKey = prefs.getString('groq_api_key') ?? '';
+        if (apiKey.isNotEmpty) {
+          const url = 'https://api.groq.com/openai/v1/chat/completions';
+          final payload = {
+            'model': 'llama3-8b-8192',
+            'messages': [
+              {'role': 'user', 'content': promptText}
+            ]
+          };
+          final response = await Dio().post(
+            url,
+            data: payload,
+            options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+          );
+          if (response.statusCode == 200) {
+            final choices = response.data['choices'] as List;
+            if (choices.isNotEmpty) {
+              reactionText = (choices[0]['message']['content'] as String).trim();
+            }
+          }
+        }
       }
+    } catch (e) {
+      debugPrint('Fandom reaction bot query failed, falling back: $e');
     }
 
     ref.read(feedProvider.notifier).addPost(

@@ -56,48 +56,119 @@ class OKFService {
       ).timeout(const Duration(seconds: 4));
       return OKFQueryResult.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
-      debugPrint('Proxy query failed, trying direct Gemini API fallback: $e');
-      return _queryGeminiDirect(answerText, queryIntent);
+      debugPrint('Proxy query failed, trying direct AI API fallback: $e');
+      return _queryLocalAiDirect(answerText, queryIntent);
     }
   }
 
-  Future<OKFQueryResult> _queryGeminiDirect(String answerText, String queryIntent) async {
+  Future<OKFQueryResult> _queryLocalAiDirect(String answerText, String queryIntent) async {
     final prefs = _ref.read(sharedPreferencesProvider);
-    final apiKey = prefs.getString('google_gemini_api_key') ?? '';
-    if (apiKey.isEmpty) {
-      throw Exception('Gemini local API key is not configured in Profile settings.');
-    }
-    
-    final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
-    final payload = {
-      'contents': [
-        {
-          'parts': [
-            {'text': 'Analyze these sector activity logs for narrative alignment:\nIntent: $queryIntent\nText: $answerText'}
-          ]
-        }
-      ]
-    };
+    final provider = prefs.getString('profile_pref_ai_provider') ?? 'Gemini';
 
-    final client = Dio();
-    final response = await client.post(url, data: payload);
-    if (response.statusCode == 200) {
-      return const OKFQueryResult(
-        chunks: [
-          LoreChunk(
-            id: 'direct-gemini',
-            title: 'Direct Gemini Analysis',
-            content: 'Successfully analyzed content locally via gemini-2.5-flash.',
-            relevanceScore: 1.0,
-            metadata: {},
-          )
-        ],
-        relevanceScore: 1.0,
-        citationSources: ['gemini-2.5-flash'],
+    if (provider == 'Gemini') {
+      final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+      if (apiKey.isEmpty) {
+        throw Exception('Gemini local API key is not configured in Profile settings.');
+      }
+      
+      final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
+      final payload = {
+        'contents': [
+          {
+            'parts': [
+              {'text': 'Analyze these sector activity logs for narrative alignment:\nIntent: $queryIntent\nText: $answerText'}
+            ]
+          }
+        ]
+      };
+
+      final response = await Dio().post(url, data: payload);
+      if (response.statusCode == 200) {
+        return const OKFQueryResult(
+          chunks: [
+            LoreChunk(
+              id: 'direct-gemini',
+              title: 'Direct Gemini Analysis',
+              content: 'Successfully analyzed content locally via gemini-2.5-flash.',
+              relevanceScore: 1.0,
+              metadata: {},
+            )
+          ],
+          relevanceScore: 1.0,
+          citationSources: ['gemini-2.5-flash'],
+        );
+      }
+    } else if (provider == 'OpenRouter') {
+      final apiKey = prefs.getString('openrouter_api_key') ?? '';
+      if (apiKey.isEmpty) {
+        throw Exception('OpenRouter API key is not configured in Profile settings.');
+      }
+
+      const url = 'https://openrouter.ai/api/v1/chat/completions';
+      final payload = {
+        'model': 'meta-llama/llama-3-8b-instruct:free',
+        'messages': [
+          {'role': 'user', 'content': 'Analyze these sector activity logs for narrative alignment:\nIntent: $queryIntent\nText: $answerText'}
+        ]
+      };
+
+      final response = await Dio().post(
+        url,
+        data: payload,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
       );
-    } else {
-      throw Exception('Gemini Direct API status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return const OKFQueryResult(
+          chunks: [
+            LoreChunk(
+              id: 'direct-openrouter',
+              title: 'OpenRouter Llama-3 Analysis',
+              content: 'Successfully analyzed content locally via OpenRouter (Llama 3).',
+              relevanceScore: 1.0,
+              metadata: {},
+            )
+          ],
+          relevanceScore: 1.0,
+          citationSources: ['openrouter-llama-3'],
+        );
+      }
+    } else if (provider == 'Groq') {
+      final apiKey = prefs.getString('groq_api_key') ?? '';
+      if (apiKey.isEmpty) {
+        throw Exception('Groq API key is not configured in Profile settings.');
+      }
+
+      const url = 'https://api.groq.com/openai/v1/chat/completions';
+      final payload = {
+        'model': 'llama3-8b-8192',
+        'messages': [
+          {'role': 'user', 'content': 'Analyze these sector activity logs for narrative alignment:\nIntent: $queryIntent\nText: $answerText'}
+        ]
+      };
+
+      final response = await Dio().post(
+        url,
+        data: payload,
+        options: Options(headers: {'Authorization': 'Bearer $apiKey'}),
+      );
+      if (response.statusCode == 200) {
+        return const OKFQueryResult(
+          chunks: [
+            LoreChunk(
+              id: 'direct-groq',
+              title: 'Groq Llama-3 Analysis',
+              content: 'Successfully analyzed content locally via Groq (Llama 3).',
+              relevanceScore: 1.0,
+              metadata: {},
+            )
+          ],
+          relevanceScore: 1.0,
+          citationSources: ['groq-llama-3'],
+        );
+      }
     }
+
+    throw Exception('Unsupported AI provider selection or query execution failure.');
   }
 }
 
