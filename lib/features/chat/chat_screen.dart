@@ -11,6 +11,8 @@ import '../../models/chat_room.dart';
 import '../../models/chat_message.dart';
 import '../../models/profile.dart';
 import '../chronicles/chronicles_screen.dart';
+import '../feed/feed_screen.dart';
+import 'package:dio/dio.dart';
 import '../../services/roster_cache_service.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -882,6 +884,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
                           ref.read(chroniclesProvider.notifier).addNode(node);
 
+                          _triggerAIFandomReaction(node.title, node.faction);
+
                           setState(() {
                             _sceneSessionActive = false;
                           });
@@ -917,6 +921,46 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _triggerAIFandomReaction(String title, String faction) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+    final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+
+    String reactionText = 'New timeline convergence published: "$title" registered across $faction sectors. Core stability holding.';
+
+    if (apiKey.isNotEmpty) {
+      try {
+        final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
+        final promptText = 'You are a citizen living in the universe of the Remainder Portal. Write a single, highly in-character social reaction post (under 180 characters) reacting to this newly published historical chronicle: Title: "$title", Faction: "$faction". Use sci-fi terminology (like timeline shifts, core sync, sector metrics). Respond with ONLY the raw message text.';
+        final payload = {
+          'contents': [
+            {
+              'parts': [
+                {'text': promptText}
+              ]
+            }
+          ]
+        };
+        final response = await Dio().post(url, data: payload);
+        if (response.statusCode == 200) {
+          final candidates = response.data['candidates'] as List;
+          if (candidates.isNotEmpty) {
+            final text = candidates[0]['content']['parts'][0]['text'] as String;
+            reactionText = text.trim();
+          }
+        }
+      } catch (e) {
+        debugPrint('Fandom reaction bot query failed, falling back: $e');
+      }
+    }
+
+    ref.read(feedProvider.notifier).addPost(
+      reactionText,
+      'Sanctuary News Network',
+      'Neutral Sector',
+      'https://images.unsplash.com/photo-1546074177-3de1c64dfc82?auto=format&fit=crop&q=80&w=200',
     );
   }
 }

@@ -176,17 +176,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 final char = myCharacters[idx];
                                 final isActive = char.id == activeChar?.id;
 
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8.0),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: isActive ? PortalTheme.tealNavyAccent : PortalTheme.silverGrayBorder.withValues(alpha: 0.3),
-                                      width: isActive ? 1.5 : 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    color: isActive ? PortalTheme.tealNavyAccent.withValues(alpha: 0.05) : Colors.transparent,
-                                  ),
-                                  child: ListTile(
+                                // Deterministic character stats based on name hash code for gameplay depth
+                                final hash = char.characterName.hashCode;
+                                final aura = (hash % 40) + 60; // 60 - 99 range
+                                final influence = (hash % 50) + 40; // 40 - 89 range
+                                final alignment = (hash % 100); // 0 - 100 range
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12.0),
+                                  child: SpringTapWrapper(
                                     onTap: () async {
                                       if (!isActive) {
                                         await ref.read(activeCharacterProvider.notifier).switchCharacter(char.id);
@@ -200,24 +198,118 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                         }
                                       }
                                     },
-                                    leading: CircleAvatar(
-                                      backgroundColor: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
-                                      child: Text(
-                                        char.characterName[0].toUpperCase(),
-                                        style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold, color: PortalTheme.tealNavyAccent),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: isActive ? PortalTheme.tealNavyAccent : PortalTheme.silverGrayBorder.withValues(alpha: 0.3),
+                                          width: isActive ? 1.5 : 1.0,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12.0),
+                                        color: isActive ? PortalTheme.tealNavyAccent.withValues(alpha: 0.03) : Colors.transparent,
+                                      ),
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Title row
+                                          Row(
+                                            children: [
+                                              CircleAvatar(
+                                                backgroundColor: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
+                                                radius: 16.0,
+                                                child: Text(
+                                                  char.characterName[0].toUpperCase(),
+                                                  style: PortalTheme.statsText.copyWith(fontWeight: FontWeight.bold, color: PortalTheme.tealNavyAccent, fontSize: 12.0),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12.0),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      char.characterName,
+                                                      style: PortalTheme.bodyText.copyWith(fontWeight: FontWeight.bold, fontSize: 13.0),
+                                                    ),
+                                                    Text(
+                                                      char.faction.toUpperCase(),
+                                                      style: PortalTheme.statsText.copyWith(fontSize: 8.5, color: PortalTheme.infoSlate),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              if (isActive)
+                                                const Icon(Icons.check_circle, color: PortalTheme.tealNavyAccent, size: 20.0),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12.0),
+                                          const Divider(),
+                                          const SizedBox(height: 8.0),
+
+                                          // Aura stats
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('AURA & REPUTATION', style: PortalTheme.statsText.copyWith(fontSize: 8.0, color: PortalTheme.warmGrayBodyText)),
+                                              Text('$aura / 100', style: PortalTheme.statsText.copyWith(fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4.0),
+                                          LinearProgressIndicator(
+                                            value: aura / 100.0,
+                                            backgroundColor: PortalTheme.silverGrayBorder.withValues(alpha: 0.3),
+                                            valueColor: const AlwaysStoppedAnimation<Color>(PortalTheme.tealNavyAccent),
+                                            minHeight: 3.0,
+                                          ),
+                                          const SizedBox(height: 10.0),
+
+                                          // Faction Influence stats
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('FACTION INFLUENCE', style: PortalTheme.statsText.copyWith(fontSize: 8.0, color: PortalTheme.warmGrayBodyText)),
+                                              Text('$influence%', style: PortalTheme.statsText.copyWith(fontSize: 9.5, fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4.0),
+                                          LinearProgressIndicator(
+                                            value: influence / 100.0,
+                                            backgroundColor: PortalTheme.silverGrayBorder.withValues(alpha: 0.3),
+                                            valueColor: const AlwaysStoppedAnimation<Color>(PortalTheme.infoSlate),
+                                            minHeight: 3.0,
+                                          ),
+                                          const SizedBox(height: 10.0),
+
+                                          // Alignment slider
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('ALIGNMENT BIAS', style: PortalTheme.statsText.copyWith(fontSize: 8.0, color: PortalTheme.warmGrayBodyText)),
+                                              Text(
+                                                alignment < 45 ? 'AETHELGARD' : (alignment > 55 ? 'ELYSIUM' : 'NEUTRAL'),
+                                                style: PortalTheme.statsText.copyWith(fontSize: 9.0, fontWeight: FontWeight.bold, color: PortalTheme.tealNavyAccent),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4.0),
+                                          SliderTheme(
+                                            data: SliderTheme.of(context).copyWith(
+                                              trackHeight: 2.0,
+                                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.0),
+                                              activeTrackColor: PortalTheme.tealNavyAccent,
+                                              inactiveTrackColor: PortalTheme.silverGrayBorder.withValues(alpha: 0.2),
+                                              overlayColor: Colors.transparent,
+                                            ),
+                                            child: Slider(
+                                              value: alignment.toDouble(),
+                                              min: 0.0,
+                                              max: 100.0,
+                                              onChanged: null,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    title: Text(
-                                      char.characterName,
-                                      style: PortalTheme.bodyText.copyWith(fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Text(
-                                      char.faction.toUpperCase(),
-                                      style: PortalTheme.statsText.copyWith(fontSize: 9.0, color: PortalTheme.infoSlate),
-                                    ),
-                                    trailing: isActive
-                                        ? const Icon(Icons.check_circle, color: PortalTheme.tealNavyAccent)
-                                        : null,
                                   ),
                                 );
                               },
