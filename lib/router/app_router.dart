@@ -9,6 +9,7 @@ import '../features/auth/login_screen.dart';
 import '../features/chat/chat_screen.dart';
 import '../features/roster/roster_screen.dart';
 import '../features/guide/guide_screen.dart';
+import '../features/feed/feed_screen.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
 
@@ -95,6 +96,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guide',
         builder: (context, state) => const GuideScreen(),
+      ),
+      GoRoute(
+        path: '/feed',
+        builder: (context, state) => const FeedScreen(),
       ),
       GoRoute(
         path: '/login',
