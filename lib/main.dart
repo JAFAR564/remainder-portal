@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'router/app_router.dart';
 import 'services/roster_cache_service.dart';
 import 'services/chat_service.dart';
+import 'services/auth_service.dart';
 import 'theme/portal_theme.dart';
 import 'ui/animations/spring_tap_wrapper.dart';
 import 'ui/components/glass_card.dart';
@@ -409,8 +410,18 @@ class DashboardScreen extends ConsumerWidget {
           // Links
           _buildSidebarLink(context, ref, 'Dashboard', route: '/', isActive: true),
           const SizedBox(height: 24.0),
-          _buildSidebarLink(context, ref, 'Admittance Portal', route: '/admittance'),
-          const SizedBox(height: 24.0),
+          Consumer(
+            builder: (context, ref, child) {
+              final user = ref.watch(currentUserProvider);
+              final email = (user?.email ?? '').toLowerCase().trim();
+              final isAdmin = email.contains('admin') || email.contains('dev');
+              if (!isAdmin) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: _buildSidebarLink(context, ref, 'Admittance Portal', route: '/admittance'),
+              );
+            },
+          ),
           _buildSidebarLink(context, ref, 'Community Roster', route: '/roster'),
           const SizedBox(height: 24.0),
           _buildSidebarLink(context, ref, 'Chronicles Timeline', route: '/chronicles'),

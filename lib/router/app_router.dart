@@ -36,6 +36,15 @@ class AppRouterHelper {
       return '/';
     }
 
+    // Role-based security check for Admittance Portal
+    if (state.matchedLocation == '/admittance') {
+      final email = (user.email ?? '').toLowerCase().trim();
+      final isAdmin = email.contains('admin') || email.contains('dev');
+      if (!isAdmin) {
+        return '/'; // Deny entry, redirect back to homepage
+      }
+    }
+
     return null; // Keep route unchanged
   }
 }
