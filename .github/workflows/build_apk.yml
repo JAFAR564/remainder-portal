@@ -56,13 +56,13 @@ jobs:
         run: |
           if [ -n "${{ secrets.SHOREBIRD_TOKEN }}" ]; then
             echo "Shorebird token detected. Compiling Shorebird release..."
-            shorebird release android --artifact apk || {
+            shorebird release android --artifact apk -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} || {
               echo "Shorebird release failed. Falling back to standard Flutter build..."
-              flutter build apk --release
+              flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             }
           else
             echo "No Shorebird token detected. Falling back to standard Flutter build..."
-            flutter build apk --release
+            flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           fi
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}

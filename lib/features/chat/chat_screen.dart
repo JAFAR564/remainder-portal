@@ -933,7 +933,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     try {
       if (provider == 'Gemini') {
-        final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+        String apiKey = prefs.getString('google_gemini_api_key') ?? '';
+        if (apiKey.isEmpty) {
+          apiKey = const String.fromEnvironment('GEMINI_API_KEY');
+        }
         if (apiKey.isNotEmpty) {
           final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
           final payload = {

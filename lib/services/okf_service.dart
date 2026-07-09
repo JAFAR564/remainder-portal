@@ -66,9 +66,12 @@ class OKFService {
     final provider = prefs.getString('profile_pref_ai_provider') ?? 'Gemini';
 
     if (provider == 'Gemini') {
-      final apiKey = prefs.getString('google_gemini_api_key') ?? '';
+      String apiKey = prefs.getString('google_gemini_api_key') ?? '';
       if (apiKey.isEmpty) {
-        throw Exception('Gemini local API key is not configured in Profile settings.');
+        apiKey = const String.fromEnvironment('GEMINI_API_KEY');
+      }
+      if (apiKey.isEmpty) {
+        throw Exception('Gemini local API key is not configured in Profile settings or build environment.');
       }
       
       final url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey';
