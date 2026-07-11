@@ -10,6 +10,7 @@ import '../features/chat/chat_screen.dart';
 import '../features/roster/roster_screen.dart';
 import '../features/guide/guide_screen.dart';
 import '../features/feed/feed_screen.dart';
+import '../features/debug/debug_hub_screen.dart';
 import '../main.dart';
 import '../services/auth_service.dart';
 
@@ -37,8 +38,8 @@ class AppRouterHelper {
       return '/';
     }
 
-    // Role-based security check for Admittance Portal
-    if (state.matchedLocation == '/admittance') {
+    // Role-based security check for Admittance Portal & Debug Hub
+    if (state.matchedLocation == '/admittance' || state.matchedLocation == '/debug-hub') {
       final email = (user.email ?? '').toLowerCase().trim();
       final isAdmin = email.contains('admin') || email.contains('dev');
       if (!isAdmin) {
@@ -100,6 +101,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/feed',
         builder: (context, state) => const FeedScreen(),
+      ),
+      GoRoute(
+        path: '/debug-hub',
+        builder: (context, state) => const DebugHubScreen(),
       ),
       GoRoute(
         path: '/login',

@@ -13,6 +13,7 @@ import 'ui/components/iridescent_overlay.dart';
 import 'ui/components/responsive_layout.dart';
 import 'features/profile/providers/active_character_provider.dart';
 import 'ui/components/relationship_web.dart';
+import 'ui/components/global_feedback_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,9 @@ class EnnoiaApp extends ConsumerWidget {
       theme: PortalTheme.lightTheme,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
+      builder: (context, child) {
+        return GlobalFeedbackOverlay(child: child!);
+      },
     );
   }
 }
@@ -416,9 +420,15 @@ class DashboardScreen extends ConsumerWidget {
               final email = (user?.email ?? '').toLowerCase().trim();
               final isAdmin = email.contains('admin') || email.contains('dev');
               if (!isAdmin) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: _buildSidebarLink(context, ref, 'Admittance Portal', route: '/admittance'),
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSidebarLink(context, ref, 'Admittance Portal', route: '/admittance'),
+                  const SizedBox(height: 24.0),
+                  _buildSidebarLink(context, ref, 'Developer Debug Hub', route: '/debug-hub'),
+                  const SizedBox(height: 24.0),
+                ],
               );
             },
           ),
