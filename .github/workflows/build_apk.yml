@@ -62,7 +62,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.SHOREBIRD_TOKEN }}" ]; then
             echo "Shorebird token detected. Attempting to push Shorebird patch..."
-            shorebird patch android --force -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} || {
+            shorebird patch android --allow-asset-diffs -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} || {
               echo "Shorebird patch failed. Compiling a new base Shorebird release..."
               shorebird release android --artifact apk -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             }
