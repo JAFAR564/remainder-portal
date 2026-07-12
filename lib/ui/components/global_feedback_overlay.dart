@@ -46,45 +46,34 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
       _isCapturing = true;
     });
 
+    String? base64Image;
+    final routePath = ref.read(routerProvider).routeInformationProvider.value.uri.path;
+
     try {
       // Give Flutter one frame to resolve layout
       await Future.delayed(const Duration(milliseconds: 100));
 
       final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary == null) {
-        throw Exception('RepaintBoundary context not found.');
-      }
-
-      final image = await boundary.toImage(pixelRatio: 1.5);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) {
-        throw Exception('Failed to convert image to bytes.');
-      }
-
-      final pngBytes = byteData.buffer.asUint8List();
-      final base64Image = base64Encode(pngBytes);
-
-      final routePath = ref.read(routerProvider).routeInformationProvider.value.uri.path;
-
-      if (mounted) {
-        _showFeedbackDialog(base64Image, routePath);
+      if (boundary != null) {
+        final image = await boundary.toImage(pixelRatio: 1.5);
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData != null) {
+          final pngBytes = byteData.buffer.asUint8List();
+          base64Image = base64Encode(pngBytes);
+        }
       }
     } catch (e) {
-      debugPrint('Failed to capture screenshot: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Screenshot capture failed: $e'),
-            backgroundColor: PortalTheme.alertTerracotta,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isCapturing = false;
-        });
-      }
+      debugPrint('Screen capture bypassed (Browser CORS/Renderer constraint): $e');
+    }
+
+    if (mounted) {
+      _showFeedbackDialog(base64Image ?? '', routePath);
+    }
+
+    if (mounted) {
+      setState(() {
+        _isCapturing = false;
+      });
     }
   }
 
@@ -125,20 +114,44 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
                       const SizedBox(height: 16.0),
 
                       // Screen Capture Thumbnail
-                      Center(
-                        child: Container(
-                          height: 120.0,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: PortalTheme.silverGrayBorder),
-                            borderRadius: BorderRadius.circular(8.0),
-                            image: DecorationImage(
-                              image: MemoryImage(base64Decode(base64Image)),
-                              fit: BoxFit.cover,
+                      if (base64Image.isNotEmpty)
+                        Center(
+                          child: Container(
+                            height: 120.0,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: PortalTheme.silverGrayBorder),
+                              borderRadius: BorderRadius.circular(8.0),
+                              image: DecorationImage(
+                                image: MemoryImage(base64Decode(base64Image)),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        Center(
+                          child: Container(
+                            height: 120.0,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: PortalTheme.lightGraySurface.withValues(alpha: 0.15),
+                              border: Border.all(color: PortalTheme.silverGrayBorder.withValues(alpha: 0.2)),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.broken_image_outlined, color: PortalTheme.warmGrayBodyText, size: 32.0),
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  'SCREENSHOT BYPASSED (BROWSER CONFIG)',
+                                  style: PortalTheme.statsText.copyWith(fontSize: 8.0, color: PortalTheme.warmGrayBodyText),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 8.0),
                       Center(
                         child: Text(

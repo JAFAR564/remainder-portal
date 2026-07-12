@@ -37,10 +37,12 @@ class DebugReportsService {
       debugPrint('Discord Webhook URL not configured. Bypassing push notification.');
     } else {
       try {
-        final rawBytes = base64Decode(screenshotBase64);
+        final hasImage = screenshotBase64.isNotEmpty;
+        final rawBytes = hasImage ? base64Decode(screenshotBase64) : null;
         
         final formData = FormData.fromMap({
-          'files[0]': MultipartFile.fromBytes(rawBytes, filename: 'screenshot.png'),
+          if (hasImage && rawBytes != null)
+            'files[0]': MultipartFile.fromBytes(rawBytes, filename: 'screenshot.png'),
           'payload_json': jsonEncode({
             'content': '📡 **NEW PORTAL LOG RECEIVED**',
             'embeds': [
@@ -56,8 +58,11 @@ class DebugReportsService {
                   {'name': 'Submitter Email', 'value': applicantEmail, 'inline': true},
                   {'name': 'Character Identity', 'value': characterName, 'inline': true},
                   {'name': 'Active Sector Route', 'value': routePath, 'inline': true},
+                  if (!hasImage)
+                    {'name': 'Attachment Warning', 'value': '⚠️ Screenshot capture bypassed due to browser security/CORS.', 'inline': false},
                 ],
-                'image': {'url': 'attachment://screenshot.png'}
+                if (hasImage)
+                  'image': {'url': 'attachment://screenshot.png'}
               }
             ]
           }),
