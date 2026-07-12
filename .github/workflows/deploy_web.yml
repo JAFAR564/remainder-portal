@@ -49,7 +49,7 @@ jobs:
         continue-on-error: true
 
       - name: Build Flutter Web
-        run: flutter build web --base-href "/remainder-portal/" --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+        run: flutter build web --base-href "/remainder-portal/" --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

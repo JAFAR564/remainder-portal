@@ -62,18 +62,18 @@ jobs:
         run: |
           if [ -n "${{ secrets.SHOREBIRD_TOKEN }}" ]; then
             echo "Shorebird token detected. Attempting to push Shorebird patch..."
-            shorebird patch android --allow-asset-diffs -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} || {
+            shorebird patch android --allow-asset-diffs -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }} || {
               echo "Shorebird patch failed. Compiling a new base Shorebird release..."
-              shorebird release android --artifact apk -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+              shorebird release android --artifact apk -- --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
             }
             # Always ensure a downloadable APK is produced for fresh installs
             if [ ! -f "build/app/outputs/flutter-apk/app-release.apk" ] && [ ! -f "build/app/outputs/apk/release/app-release.apk" ]; then
               echo "Compiling fallback release APK for downloadable artifacts..."
-              flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+              flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
             fi
           else
             echo "No Shorebird token detected. Falling back to standard Flutter build..."
-            flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+            flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
           fi
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}

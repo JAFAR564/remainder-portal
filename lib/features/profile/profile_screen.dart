@@ -22,6 +22,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _geminiApiKeyController = TextEditingController();
   final _openRouterApiKeyController = TextEditingController();
   final _groqApiKeyController = TextEditingController();
+  final _discordWebhookController = TextEditingController();
   String _selectedFaction = 'Chronicles';
   bool _isCheckingFaceclaim = false;
   String? _faceclaimStatus;
@@ -53,6 +54,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _geminiApiKeyController.dispose();
     _openRouterApiKeyController.dispose();
     _groqApiKeyController.dispose();
+    _discordWebhookController.dispose();
     super.dispose();
   }
 
@@ -68,6 +70,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _geminiApiKeyController.text = prefs.getString('google_gemini_api_key') ?? '';
       _openRouterApiKeyController.text = prefs.getString('openrouter_api_key') ?? '';
       _groqApiKeyController.text = prefs.getString('groq_api_key') ?? '';
+      _discordWebhookController.text = prefs.getString('discord_webhook_url') ?? '';
     });
   }
 
@@ -82,6 +85,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     await prefs.setString('google_gemini_api_key', _geminiApiKeyController.text.trim());
     await prefs.setString('openrouter_api_key', _openRouterApiKeyController.text.trim());
     await prefs.setString('groq_api_key', _groqApiKeyController.text.trim());
+    await prefs.setString('discord_webhook_url', _discordWebhookController.text.trim());
   }
 
   Future<void> _checkFaceclaimAvailability() async {
@@ -642,6 +646,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                             ),
                           ],
+                          const SizedBox(height: 20.0),
+                          const Divider(),
+                          const SizedBox(height: 20.0),
+                          Text('DISCORD WEBHOOK URL (DEBUGGING ALERTS)', style: PortalTheme.statsText.copyWith(fontSize: 10.0, color: PortalTheme.warmGrayBodyText)),
+                          const SizedBox(height: 8.0),
+                          TextField(
+                            controller: _discordWebhookController,
+                            obscureText: true,
+                            style: PortalTheme.bodyText.copyWith(color: PortalTheme.charcoalNearBlackText),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: PortalTheme.creamBg,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+                              hintText: 'Enter Discord Webhook URL...',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.silverGrayBorder)),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0), borderSide: const BorderSide(color: PortalTheme.tealNavyAccent, width: 1.5)),
+                            ),
+                          ),
                         ],
                       ),
                     ),

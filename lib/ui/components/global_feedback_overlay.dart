@@ -91,6 +91,7 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
   void _showFeedbackDialog(String base64Image, String routePath) {
     final commentController = TextEditingController();
     bool isSubmitting = false;
+    String selectedCategory = 'UI Bug';
 
     showDialog(
       context: context,
@@ -146,6 +147,34 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
                         ),
                       ),
                       const SizedBox(height: 16.0),
+
+                      // Category selection Dropdown
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'ISSUE CATEGORY',
+                            style: PortalTheme.statsText.copyWith(fontSize: 8.5, color: PortalTheme.warmGrayBodyText),
+                          ),
+                          DropdownButton<String>(
+                            value: selectedCategory,
+                            dropdownColor: PortalTheme.creamBg,
+                            style: PortalTheme.statsText.copyWith(fontSize: 9.5, fontWeight: FontWeight.bold, color: PortalTheme.tealNavyAccent),
+                            underline: const SizedBox(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setDialogState(() {
+                                  selectedCategory = val;
+                                });
+                              }
+                            },
+                            items: ['UI Bug', 'Database / Auth', 'Lore / Story', 'Other'].map((cat) {
+                              return DropdownMenuItem(value: cat, child: Text(cat.toUpperCase()));
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12.0),
 
                       // Comment Textfield
                       Text(
@@ -204,6 +233,7 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
                                             comment: commentController.text.trim(),
                                             screenshotBase64: base64Image,
                                             routePath: routePath,
+                                            category: selectedCategory,
                                           );
 
                                       if (context.mounted) {

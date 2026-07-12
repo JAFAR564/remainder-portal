@@ -13,6 +13,7 @@ abstract class DebugReport with _$DebugReport {
     String? comment,
     @JsonKey(name: 'screenshot_base64') String? screenshotBase64,
     @JsonKey(name: 'route_path') String? routePath,
+    String? category,
   }) = _DebugReport;
 
   factory DebugReport.fromJson(Map<String, dynamic> json) =>

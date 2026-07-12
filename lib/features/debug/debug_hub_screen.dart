@@ -71,20 +71,42 @@ class DebugHubScreen extends ConsumerWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-                                      decoration: BoxDecoration(
-                                        color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(4.0),
-                                      ),
-                                      child: Text(
-                                        report.routePath?.toUpperCase() ?? 'UNKNOWN PATH',
-                                        style: PortalTheme.statsText.copyWith(
-                                          fontSize: 9.0,
-                                          fontWeight: FontWeight.bold,
-                                          color: PortalTheme.tealNavyAccent,
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                          decoration: BoxDecoration(
+                                            color: PortalTheme.tealNavyAccent.withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(4.0),
+                                          ),
+                                          child: Text(
+                                            report.routePath?.toUpperCase() ?? 'UNKNOWN PATH',
+                                            style: PortalTheme.statsText.copyWith(
+                                              fontSize: 9.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: PortalTheme.tealNavyAccent,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        if (report.category != null) ...[
+                                          const SizedBox(width: 8.0),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                                            decoration: BoxDecoration(
+                                              color: (report.category == 'UI Bug' ? PortalTheme.alertTerracotta : PortalTheme.infoSlate).withValues(alpha: 0.1),
+                                              borderRadius: BorderRadius.circular(4.0),
+                                            ),
+                                            child: Text(
+                                              report.category!.toUpperCase(),
+                                              style: PortalTheme.statsText.copyWith(
+                                                fontSize: 9.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: report.category == 'UI Bug' ? PortalTheme.alertTerracotta : PortalTheme.infoSlate,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                     Text(
                                       report.createdAt?.substring(0, 10) ?? '',
