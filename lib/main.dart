@@ -609,7 +609,7 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
               ],
             ),
           ),

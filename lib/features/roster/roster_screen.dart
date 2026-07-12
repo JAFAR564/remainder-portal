@@ -793,7 +793,7 @@ class _RosterScreenState extends ConsumerState<RosterScreen> {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                 const SizedBox(height: 16.0),
                 SpringTapWrapper(
                   onTap: () => Navigator.of(context).pop(),

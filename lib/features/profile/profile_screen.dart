@@ -203,7 +203,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                     onTap: () async {
                                       if (!isActive) {
                                         await ref.read(activeCharacterProvider.notifier).switchCharacter(char.id);
-                                        if (mounted) {
+                                        if (context.mounted) {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text('Active identity switched to ${char.characterName}!'),
@@ -680,7 +680,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           );
                           await _savePreferences();
 
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Collector profile & settings successfully saved.'),
@@ -689,7 +689,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             );
                           }
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Failed to save settings: $e'),

@@ -71,7 +71,7 @@ class PortalTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: creamBg,
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: tealNavyAccent,
         surface: lightGraySurface,
         onSurface: charcoalNearBlackText,

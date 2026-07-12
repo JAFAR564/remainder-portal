@@ -128,8 +128,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       ref.read(selectedChatRoomIdProvider.notifier).selectRoom(null);
                     });
-                  } else if (_selectedRoom == null) {
-                    _selectedRoom = rooms.first;
+                  } else {
+                    _selectedRoom ??= rooms.first;
                   }
 
                   if (isDesktop || isTablet) {
