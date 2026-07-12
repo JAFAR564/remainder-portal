@@ -40,3 +40,9 @@ This file serves as the system's "AI Constitution" and project-scoped rules. It 
 ## Code Style
 - Use freezed for ALL data models
 - Write widget tests for ALL GlassCard component variations
+
+## Build & Compilation Constraints
+- NEVER execute local native builds (e.g., `flutter build apk`) on the local WSL2 host to prevent terminal lockups and hardware freezes.
+- Delegate all compilations to the GitHub Actions cloud runner pipeline.
+- Commit current changes and push directly to git remote (`jafar` on `main`) to trigger compilation.
+- Direct the user to monitor and fetch artifacts from the [Actions Dashboard](https://github.com/JAFAR564/remainder-portal/actions).
