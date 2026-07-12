@@ -42,8 +42,8 @@ class GlassCard extends ConsumerWidget {
       'sigma_y must be tuned within strict performance parameters [6.0, 12.0] to prevent GPU bottlenecks.'
     );
 
-    final resolvedBorderRadius = borderRadius ?? BorderRadius.circular(12.0); // 12px corners from DESIGN.md
-    final resolvedBg = backgroundColor ?? PortalTheme.creamBg.withValues(alpha: 0.35);
+    final resolvedBorderRadius = borderRadius ?? BorderRadius.circular(20.0);
+    final resolvedBg = backgroundColor ?? PortalTheme.lightGraySurface.withValues(alpha: 0.45);
 
     return Container(
       decoration: BoxDecoration(
@@ -61,8 +61,8 @@ class GlassCard extends ConsumerWidget {
               borderRadius: resolvedBorderRadius,
               border: hasBorder
                   ? Border.all(
-                      color: PortalTheme.silverGrayBorder.withValues(alpha: 0.4),
-                      width: 1.0, // 1px hairline border from DESIGN.md
+                      color: Colors.white.withValues(alpha: 0.06),
+                      width: 1.0, // 1px hairline border
                     )
                   : null,
             ),

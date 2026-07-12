@@ -15,6 +15,7 @@ import 'ui/components/responsive_layout.dart';
 import 'features/profile/providers/active_character_provider.dart';
 import 'ui/components/relationship_web.dart';
 import 'ui/components/global_feedback_overlay.dart';
+import 'models/chat_room.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -284,6 +285,99 @@ class DashboardScreen extends ConsumerWidget {
           );
         }
 
+        Widget buildCard(ChatRoom room) {
+          // Deterministic activity markers for realistic gameplay feel
+          final mockWriters = (room.id.hashCode % 3) + 2; 
+          final mockTotalLogs = (room.id.hashCode % 40) + 15;
+          final isHighActivity = room.id.hashCode % 2 == 0;
+          
+          return SpringTapWrapper(
+            onTap: () {
+              ref.read(routerProvider).go('/chat');
+            },
+            child: GlassCard(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'LOCATION BEACON',
+                        style: PortalTheme.statsText.copyWith(fontSize: 9.0),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                        decoration: BoxDecoration(
+                          color: (isHighActivity ? PortalTheme.successMoss : PortalTheme.infoSlate).withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: Text(
+                          isHighActivity ? 'HIGH ACTIVITY' : 'STABLE',
+                          style: PortalTheme.statsText.copyWith(
+                            color: isHighActivity ? PortalTheme.successMoss : PortalTheme.infoSlate,
+                            fontSize: 8.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  Text(
+                    room.name.toUpperCase(),
+                    style: PortalTheme.subsectionHeader,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    room.factionRestriction != null
+                        ? 'Exclusive coordinate restricted to members of the ${room.factionRestriction} faction.'
+                        : 'A public narrative sector in the Ennoia timeline where players exchange character logs.',
+                    style: PortalTheme.smallText,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'ACTIVE WRITERS',
+                        style: PortalTheme.statsText.copyWith(
+                          fontSize: 9.0,
+                          color: PortalTheme.warmGrayBodyText,
+                        ),
+                      ),
+                      Text(
+                        '$mockWriters ONLINE • $mockTotalLogs LOGS',
+                        style: PortalTheme.statsText.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (crossAxisCount == 1) {
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rooms.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 20.0),
+            itemBuilder: (context, index) => buildCard(rooms[index]),
+          );
+        }
+
         return GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -294,89 +388,7 @@ class DashboardScreen extends ConsumerWidget {
             mainAxisExtent: 220.0,
           ),
           itemCount: rooms.length,
-          itemBuilder: (context, index) {
-            final room = rooms[index];
-            
-            // Deterministic activity markers for realistic gameplay feel
-            final mockWriters = (room.id.hashCode % 3) + 2; 
-            final mockTotalLogs = (room.id.hashCode % 40) + 15;
-            final isHighActivity = room.id.hashCode % 2 == 0;
-            
-            return SpringTapWrapper(
-              onTap: () {
-                ref.read(routerProvider).go('/chat');
-              },
-              child: GlassCard(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'LOCATION BEACON',
-                          style: PortalTheme.statsText.copyWith(fontSize: 9.0),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                          decoration: BoxDecoration(
-                            color: (isHighActivity ? PortalTheme.successMoss : PortalTheme.infoSlate).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: Text(
-                            isHighActivity ? 'HIGH ACTIVITY' : 'STABLE',
-                            style: PortalTheme.statsText.copyWith(
-                              color: isHighActivity ? PortalTheme.successMoss : PortalTheme.infoSlate,
-                              fontSize: 8.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16.0),
-                    Text(
-                      room.name.toUpperCase(),
-                      style: PortalTheme.subsectionHeader,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      room.factionRestriction != null
-                          ? 'Exclusive coordinate restricted to members of the ${room.factionRestriction} faction.'
-                          : 'A public narrative sector in the Ennoia timeline where players exchange character logs.',
-                      style: PortalTheme.smallText,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 16.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'ACTIVE WRITERS',
-                          style: PortalTheme.statsText.copyWith(
-                            fontSize: 9.0,
-                            color: PortalTheme.warmGrayBodyText,
-                          ),
-                        ),
-                        Text(
-                          '$mockWriters ONLINE • $mockTotalLogs LOGS',
-                          style: PortalTheme.statsText.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+          itemBuilder: (context, index) => buildCard(rooms[index]),
         );
       },
     );

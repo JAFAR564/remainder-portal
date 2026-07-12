@@ -99,14 +99,7 @@ class _IridescentOverlayState extends ConsumerState<IridescentOverlay> with Sing
   @override
   Widget build(BuildContext context) {
     const backgroundGradient = BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          PortalTheme.creamBg,
-          Color(0xFF05070B), // Deep space navy/black tone
-        ],
-      ),
+      color: PortalTheme.creamBg,
     );
 
     // Ethereal fallback: load child directly if shader compilation fails or is loading
