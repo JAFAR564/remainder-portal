@@ -328,13 +328,7 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
 
   @override
   Widget build(BuildContext context) {
-    // Determine whether to show the camera button based on current route
-    String routePath = '/';
-    try {
-      routePath = ref.watch(routerProvider).routeInformationProvider.value.uri.path;
-    } catch (_) {}
-
-    final showCamera = routePath != '/login';
+    final router = ref.watch(routerProvider);
 
     return Stack(
       children: [
@@ -342,50 +336,66 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
           key: _repaintKey,
           child: widget.child,
         ),
-        if (showCamera)
-          Positioned(
-            bottom: 24.0,
-            right: 24.0,
-            child: SafeArea(
-              child: SpringTapWrapper(
-                onTap: _captureAndShowFeedbackDialog,
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.95, end: 1.05).animate(
-                    CurvedAnimation(parent: _cameraAnimController, curve: Curves.easeInOut),
-                  ),
-                  child: Container(
-                    width: 56.0,
-                    height: 56.0,
-                    decoration: BoxDecoration(
-                      color: PortalTheme.tealNavyAccent,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: PortalTheme.tealNavyAccent.withValues(alpha: 0.3),
-                          blurRadius: 12.0,
-                          spreadRadius: 2.0,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+        ListenableBuilder(
+          listenable: router.routerDelegate,
+          builder: (context, child) {
+            String routePath = '/';
+            try {
+              routePath = router.routeInformationProvider.value.uri.path;
+            } catch (_) {
+              try {
+                routePath = router.routerDelegate.currentConfiguration.last.matchedLocation;
+              } catch (_) {}
+            }
+
+            final showCamera = routePath != '/login';
+            if (!showCamera) return const SizedBox.shrink();
+
+            return Positioned(
+              bottom: 24.0,
+              right: 24.0,
+              child: SafeArea(
+                child: SpringTapWrapper(
+                  onTap: _captureAndShowFeedbackDialog,
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.95, end: 1.05).animate(
+                      CurvedAnimation(parent: _cameraAnimController, curve: Curves.easeInOut),
                     ),
-                    child: _isCapturing
-                        ? const Center(
-                            child: SizedBox(
-                              width: 20.0,
-                              height: 20.0,
-                              child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                            ),
-                          )
-                        : const Icon(
-                            Icons.photo_camera_outlined,
-                            color: Colors.white,
-                            size: 26.0,
+                    child: Container(
+                      width: 56.0,
+                      height: 56.0,
+                      decoration: BoxDecoration(
+                        color: PortalTheme.tealNavyAccent,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: PortalTheme.tealNavyAccent.withValues(alpha: 0.3),
+                            blurRadius: 12.0,
+                            spreadRadius: 2.0,
+                            offset: const Offset(0, 4),
                           ),
+                        ],
+                      ),
+                      child: _isCapturing
+                          ? const Center(
+                              child: SizedBox(
+                                width: 20.0,
+                                height: 20.0,
+                                child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.photo_camera_outlined,
+                              color: Colors.white,
+                              size: 26.0,
+                            ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
+        ),
       ],
     );
   }
