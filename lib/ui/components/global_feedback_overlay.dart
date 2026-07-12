@@ -47,33 +47,46 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
     });
 
     String? base64Image;
-    final routePath = ref.read(routerProvider).routeInformationProvider.value.uri.path;
+    String routePath = '/';
 
     try {
-      // Give Flutter one frame to resolve layout
-      await Future.delayed(const Duration(milliseconds: 100));
+      // 1. Safe route path retrieval
+      try {
+        routePath = ref.read(routerProvider).routeInformationProvider.value.uri.path;
+      } catch (_) {
+        try {
+          routePath = ref.read(routerProvider).routerDelegate.currentConfiguration.last.matchedLocation;
+        } catch (_) {}
+      }
 
-      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-      if (boundary != null) {
-        final image = await boundary.toImage(pixelRatio: 1.5);
-        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-        if (byteData != null) {
-          final pngBytes = byteData.buffer.asUint8List();
-          base64Image = base64Encode(pngBytes);
+      // 2. Safe screen capture
+      try {
+        await Future.delayed(const Duration(milliseconds: 100));
+        final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+        if (boundary != null) {
+          final image = await boundary.toImage(pixelRatio: 1.5);
+          final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+          if (byteData != null) {
+            final pngBytes = byteData.buffer.asUint8List();
+            base64Image = base64Encode(pngBytes);
+          }
         }
+      } catch (e) {
+        debugPrint('Screen capture bypassed (Browser CORS/Renderer constraint): $e');
+      }
+
+      // 3. Launch dialog
+      if (mounted) {
+        _showFeedbackDialog(base64Image ?? '', routePath);
       }
     } catch (e) {
-      debugPrint('Screen capture bypassed (Browser CORS/Renderer constraint): $e');
-    }
-
-    if (mounted) {
-      _showFeedbackDialog(base64Image ?? '', routePath);
-    }
-
-    if (mounted) {
-      setState(() {
-        _isCapturing = false;
-      });
+      debugPrint('Error in capture pipeline: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCapturing = false;
+        });
+      }
     }
   }
 
