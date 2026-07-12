@@ -16,6 +16,7 @@ import 'features/profile/providers/active_character_provider.dart';
 import 'ui/components/relationship_web.dart';
 import 'ui/components/global_feedback_overlay.dart';
 import 'models/chat_room.dart';
+import 'models/roster_member.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +73,22 @@ class DashboardScreen extends ConsumerWidget {
               : AppBar(
                   backgroundColor: Colors.transparent,
                   elevation: 0,
+                  centerTitle: true,
+                  title: Text(
+                    'THE REMAINDER PORTAL',
+                    style: PortalTheme.statsText.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                      fontSize: 11.0,
+                      color: PortalTheme.charcoalNearBlackText,
+                    ),
+                  ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_none, color: PortalTheme.charcoalNearBlackText, size: 20.0),
+                      onPressed: () {},
+                    ),
+                  ],
                   iconTheme: const IconThemeData(color: PortalTheme.charcoalNearBlackText),
                 ),
           drawer: isDesktop
@@ -88,6 +105,9 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
           ),
+          bottomNavigationBar: isDesktop
+              ? null
+              : _buildBottomNavBar(context, ref),
         );
       },
     );
@@ -95,15 +115,24 @@ class DashboardScreen extends ConsumerWidget {
 
   // --- MOBILE LAYOUT (< 600dp) ---
   Widget _buildMobileLayout(BuildContext context, WidgetRef ref) {
+    final activeChar = ref.watch(activeCharacterProvider).value;
+
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
       children: [
-        _buildHeader(isMobile: true),
-        const SizedBox(height: 32.0),
-        _buildHeroSection(),
+        _buildCharacterCard(activeChar),
+        const SizedBox(height: 24.0),
+        _buildStatsRow(activeChar),
+        const SizedBox(height: 24.0),
+        _buildChroniclesSection(),
         const SizedBox(height: 24.0),
         const FactionInfluenceBoard(),
         const SizedBox(height: 24.0),
+        Text(
+          'ACTIVE SECTOR BEACONS',
+          style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 10.0, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12.0),
         _buildCollectionGrid(crossAxisCount: 1, ref: ref),
       ],
     );
@@ -111,15 +140,24 @@ class DashboardScreen extends ConsumerWidget {
 
   // --- TABLET LAYOUT (600dp - 899dp) ---
   Widget _buildTabletLayout(BuildContext context, WidgetRef ref) {
+    final activeChar = ref.watch(activeCharacterProvider).value;
+
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 40.0),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 32.0),
       children: [
-        _buildHeader(isMobile: false),
-        const SizedBox(height: 40.0),
-        _buildHeroSection(),
-        const SizedBox(height: 32.0),
+        _buildCharacterCard(activeChar),
+        const SizedBox(height: 28.0),
+        _buildStatsRow(activeChar),
+        const SizedBox(height: 28.0),
+        _buildChroniclesSection(),
+        const SizedBox(height: 28.0),
         const FactionInfluenceBoard(),
-        const SizedBox(height: 32.0),
+        const SizedBox(height: 28.0),
+        Text(
+          'ACTIVE SECTOR BEACONS',
+          style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 10.0, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 14.0),
         _buildCollectionGrid(crossAxisCount: 2, ref: ref),
       ],
     );
@@ -127,6 +165,8 @@ class DashboardScreen extends ConsumerWidget {
 
   // --- DESKTOP LAYOUT (900dp+) ---
   Widget _buildDesktopLayout(BuildContext context, WidgetRef ref) {
+    final activeChar = ref.watch(activeCharacterProvider).value;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -136,16 +176,32 @@ class DashboardScreen extends ConsumerWidget {
         // Main Scrollable Area
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 48.0),
+            padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 40.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(isMobile: false),
-                const SizedBox(height: 40.0),
-                _buildHeroSection(),
-                const SizedBox(height: 40.0),
+                Text(
+                  'THE REMAINDER PORTAL',
+                  style: PortalTheme.statsText.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.0,
+                    fontSize: 14.0,
+                  ),
+                ),
+                const SizedBox(height: 32.0),
+                _buildCharacterCard(activeChar),
+                const SizedBox(height: 32.0),
+                _buildStatsRow(activeChar),
+                const SizedBox(height: 32.0),
+                _buildChroniclesSection(),
+                const SizedBox(height: 32.0),
                 const FactionInfluenceBoard(),
-                const SizedBox(height: 40.0),
+                const SizedBox(height: 32.0),
+                Text(
+                  'ACTIVE SECTOR BEACONS',
+                  style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 10.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16.0),
                 _buildCollectionGrid(crossAxisCount: 3, ref: ref),
               ],
             ),
@@ -157,98 +213,288 @@ class DashboardScreen extends ConsumerWidget {
 
   // --- REUSABLE COMPONENTS ---
 
-  Widget _buildHeader({required bool isMobile}) {
+  Widget _buildBottomNavBar(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: 72.0,
+      decoration: BoxDecoration(
+        color: PortalTheme.lightGraySurface.withValues(alpha: 0.9),
+        border: const Border(
+          top: BorderSide(color: Colors.white10, width: 0.5),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildNavItem(context, ref, Icons.auto_stories_outlined, 'Chronicles', '/', true),
+            _buildNavItem(context, ref, Icons.person_outline, 'Profile', '/profile', false),
+            _buildNavItem(context, ref, Icons.people_outline, 'Roster', '/roster', false),
+            _buildNavItem(context, ref, Icons.map_outlined, 'Timeline', '/chronicles', false),
+            _buildNavItem(context, ref, Icons.question_answer_outlined, 'Chat', '/chat', false),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(BuildContext context, WidgetRef ref, IconData icon, String label, String route, bool isActive) {
+    return Expanded(
+      child: SpringTapWrapper(
+        onTap: () {
+          ref.read(routerProvider).go(route);
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isActive ? PortalTheme.tealNavyAccent : PortalTheme.warmGrayBodyText,
+              size: 20.0,
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              label,
+              style: PortalTheme.statsText.copyWith(
+                fontSize: 8.5,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                color: isActive ? PortalTheme.tealNavyAccent : PortalTheme.warmGrayBodyText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCharacterCard(RosterMember? activeChar) {
+    final name = activeChar?.characterName ?? 'NO IDENTITY ACTIVATED';
+    final faction = activeChar?.faction ?? 'Unknown Sector';
+    final faceclaim = activeChar?.faceclaimName ?? 'Default Hologram';
+    
+    // Deterministic level and stats based on name hash for visual completion
+    final hash = name.hashCode;
+    final level = (hash % 15) + 5; 
+    final classType = (hash % 3 == 0) ? 'Arcane Ranger' : ((hash % 3 == 1) ? 'Obsidian Rogue' : 'Chronicle Cleric');
+    final race = (hash % 2 == 0) ? 'Wood Elf' : 'High Human';
+
+    return GlassCard(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        children: [
+          // Avatar
+          Container(
+            width: 76.0,
+            height: 76.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: PortalTheme.tealNavyAccent.withValues(alpha: 0.5), width: 1.5),
+              image: activeChar != null && activeChar.faceclaimImgUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(activeChar.faceclaimImgUrl),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+            child: activeChar == null || activeChar.faceclaimImgUrl.isEmpty
+                ? const Center(
+                    child: Icon(Icons.person, color: PortalTheme.tealNavyAccent, size: 36.0),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 20.0),
+          // Character Details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name.toUpperCase(),
+                  style: PortalTheme.subsectionHeader.copyWith(fontSize: 18.0),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2.0),
+                Text(
+                  'Level $level $classType • ${faction.toUpperCase()}',
+                  style: PortalTheme.bodyText.copyWith(fontSize: 12.5, color: PortalTheme.tealNavyAccent),
+                ),
+                const SizedBox(height: 8.0),
+                Row(
+                  children: [
+                    _buildCharacterBadge('RACE: $race'),
+                    const SizedBox(width: 8.0),
+                    _buildCharacterBadge('FC: $faceclaim'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCharacterBadge(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: Text(
+        text,
+        style: PortalTheme.statsText.copyWith(fontSize: 8.5, color: PortalTheme.warmGrayBodyText),
+      ),
+    );
+  }
+
+  Widget _buildStatsRow(RosterMember? activeChar) {
+    final name = activeChar?.characterName ?? 'Default';
+    final hash = name.hashCode;
+    
+    // Deterministic stats matching character name
+    final str = (hash % 8) + 10;
+    final dex = (hash % 10) + 11;
+    final con = (hash % 7) + 12;
+    final intel = (hash % 9) + 10;
+    final wis = (hash % 6) + 13;
+    final cha = (hash % 8) + 10;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ENNOIA',
-          style: PortalTheme.displayHeadline.copyWith(
-            fontSize: isMobile ? 32.0 : 48.0,
-            letterSpacing: 0.04 * (isMobile ? 32.0 : 48.0),
-          ),
+          'CHARACTER ATTRIBUTES',
+          style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 9.5, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 8.0),
-        Text(
-          'The official administrative hub for our chronicle timeline and roleplay sanctuary.',
-          style: PortalTheme.bodyText,
+        const SizedBox(height: 12.0),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 10.0,
+          crossAxisSpacing: 10.0,
+          childAspectRatio: 1.6,
+          children: [
+            _buildStatCard('STR', str, Icons.fitness_center_outlined),
+            _buildStatCard('DEX', dex, Icons.insights_outlined),
+            _buildStatCard('CON', con, Icons.favorite_border_outlined),
+            _buildStatCard('INT', intel, Icons.psychology_outlined),
+            _buildStatCard('WIS', wis, Icons.wb_sunny_outlined),
+            _buildStatCard('CHA', cha, Icons.star_border_outlined),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildHeroSection() {
-    return SpringTapWrapper(
-      onTap: () {
-        debugPrint('Hero Card tapped');
-      },
-      child: GlassCard(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16.0,
-            offset: const Offset(0, 4),
+  Widget _buildStatCard(String label, int value, IconData icon) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 12.0, color: PortalTheme.tealNavyAccent),
+              const SizedBox(width: 4.0),
+              Text(label, style: PortalTheme.statsText.copyWith(fontSize: 9.0, color: PortalTheme.warmGrayBodyText)),
+            ],
           ),
+          const SizedBox(height: 2.0),
+          Text('$value', style: PortalTheme.statsText.copyWith(fontSize: 16.0, fontWeight: FontWeight.bold)),
         ],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-                  decoration: BoxDecoration(
-                    color: PortalTheme.tealNavyAccent,
-                    borderRadius: BorderRadius.circular(4.0),
-                  ),
-                  child: Text(
-                    'LATEST TRANSMISSION',
-                    style: PortalTheme.statsText.copyWith(
-                      color: Colors.white,
-                      fontSize: 10.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Text(
-                  'TIMELINE SPLIT',
-                  style: PortalTheme.statsText.copyWith(
-                    color: PortalTheme.alertTerracotta,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24.0),
-            Text(
-              'A Chronicle from the Timeworn Sanctuary',
-              style: PortalTheme.sectionHeader,
-            ),
-            const SizedBox(height: 12.0),
-            Text(
-              'The temporal clockwork has ticked. We are currently recording the timeline events for the Elysium Syndicate and Aethelgard Alliance. All members must submit their chronicle updates to prevent desynchronization.',
-              style: PortalTheme.bodyText,
-            ),
-            const SizedBox(height: 24.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'SECTOR: SANCTUARY CORE',
-                  style: PortalTheme.statsText,
-                ),
-                Text(
-                  'STATUS: SYNCHRONIZED',
-                  style: PortalTheme.statsText.copyWith(
-                    color: PortalTheme.successMoss,
-                  ),
-                ),
-              ],
-            ),
-          ],
+      ),
+    );
+  }
+
+  Widget _buildChroniclesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ACTIVE CHRONICLES',
+          style: PortalTheme.statsText.copyWith(color: PortalTheme.warmGrayBodyText, fontSize: 9.5, fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 12.0),
+        GlassCard(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'CURRENT QUEST',
+                    style: PortalTheme.statsText.copyWith(fontSize: 9.0, color: PortalTheme.tealNavyAccent),
+                  ),
+                  Text(
+                    '85% COMPLETE',
+                    style: PortalTheme.statsText.copyWith(fontSize: 9.0, color: PortalTheme.successMoss),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                'The Whisper of Void',
+                style: PortalTheme.subsectionHeader.copyWith(fontSize: 18.0),
+              ),
+              const SizedBox(height: 6.0),
+              Text(
+                'A desynchronization anomaly detected in the Sanctuary Core. The timeline clockwork has slipped. Archive operations must proceed to stabilize the memory grids.',
+                style: PortalTheme.smallText,
+              ),
+              const SizedBox(height: 16.0),
+              // Progress Bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(2.0),
+                child: const LinearProgressIndicator(
+                  value: 0.85,
+                  minHeight: 4.0,
+                  backgroundColor: Colors.white10,
+                  valueColor: AlwaysStoppedAnimation<Color>(PortalTheme.tealNavyAccent),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('XP: 14,250 / 22,000', style: PortalTheme.statsText.copyWith(fontSize: 9.0, color: PortalTheme.warmGrayBodyText)),
+                  Row(
+                    children: [
+                      _buildMiniActionButton(Icons.edit_outlined, 'Edit'),
+                      const SizedBox(width: 8.0),
+                      _buildMiniActionButton(Icons.visibility_outlined, 'View'),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMiniActionButton(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        borderRadius: BorderRadius.circular(4.0),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11.0, color: PortalTheme.tealNavyAccent),
+          const SizedBox(width: 4.0),
+          Text(label, style: PortalTheme.statsText.copyWith(fontSize: 8.5)),
+        ],
       ),
     );
   }
