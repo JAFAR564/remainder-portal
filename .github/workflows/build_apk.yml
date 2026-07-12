@@ -42,6 +42,9 @@ jobs:
         run: flutter analyze
         continue-on-error: true
 
+      - name: Run Flutter Tests
+        run: flutter test
+
       - name: Configure Flutter for Android
         run: |
           flutter config --enable-android

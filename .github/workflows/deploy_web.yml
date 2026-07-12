@@ -48,6 +48,9 @@ jobs:
         run: flutter analyze
         continue-on-error: true
 
+      - name: Run Flutter Tests
+        run: flutter test
+
       - name: Build Flutter Web
         run: flutter build web --base-href "/remainder-portal/" --release --web-renderer canvaskit --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} --dart-define=DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
 
