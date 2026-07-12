@@ -82,8 +82,14 @@ class _GlobalFeedbackOverlayState extends ConsumerState<GlobalFeedbackOverlay> w
     bool isSubmitting = false;
     String selectedCategory = 'UI Bug';
 
+    final navContext = ref.read(navigatorKeyProvider).currentContext;
+    if (navContext == null) {
+      debugPrint('Navigator key context is null. Cannot show dialog.');
+      return;
+    }
+
     showDialog(
-      context: context,
+      context: navContext,
       barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(

@@ -60,12 +60,19 @@ class _AuthListenable extends ChangeNotifier {
   }
 }
 
+/// Global Navigator Key provider.
+final navigatorKeyProvider = Provider<GlobalKey<NavigatorState>>((ref) {
+  return GlobalKey<NavigatorState>();
+});
+
 /// Global GoRouter provider.
 final routerProvider = Provider<GoRouter>((ref) {
   final helper = ref.watch(appRouterHelperProvider);
   final authNotifier = _AuthListenable(ref);
+  final navKey = ref.watch(navigatorKeyProvider);
 
   return GoRouter(
+    navigatorKey: navKey,
     initialLocation: '/',
     refreshListenable: authNotifier,
     redirect: helper.redirectGuard,
