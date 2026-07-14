@@ -1,0 +1,59 @@
+name: Flutter and Backend CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  flutter-build:
+    name: Build Flutter Client (Android)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '21'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version: '3.44.4'
+        cache: true
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Run Unit Tests
+      run: flutter test
+
+    - name: Build Debug APK
+      run: flutter build apk --debug
+
+  backend-check:
+    name: Verify Serverless Backend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: serverless-backend
+
+    - name: Compile TypeScript
+      run: npx tsc
+      working-directory: serverless-backend

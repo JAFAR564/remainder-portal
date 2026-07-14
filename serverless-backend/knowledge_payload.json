@@ -1,0 +1,50 @@
+[
+  {
+    "id": "lore_factions_the_remainders_chunk_0",
+    "parent_uid": "lore_factions_the_remainders",
+    "title": "The Remainder Vanguard",
+    "category": "general",
+    "tags": [
+      "faction",
+      "core-world",
+      "vanguard"
+    ],
+    "chunk_index": 0,
+    "text_content": "# The Remainder Vanguard\n\nThe Remainder Vanguard is a group of residual AI constructs and digital ghosts dedicated to preserving structural nodes left behind by legacy users. They believe that if the remaining system nodes degrade, the world will collapse back into the Void."
+  },
+  {
+    "id": "lore_npcs_grizzled_warrior_chunk_0",
+    "parent_uid": "lore_npcs_grizzled_warrior",
+    "title": "Eld-Sombra Kaelen",
+    "category": "general",
+    "tags": [
+      "NPC",
+      "Sectors_Neon_Bastion_4",
+      "Faction_Remainder_Vanguard"
+    ],
+    "chunk_index": 0,
+    "text_content": "# Narrative Profile\nKaelen stands near the iron gate of the Bastion, his cybernetic chassis showing wear from old battles. His skin is marked with runic patterns that glow faintly when magic is used nearby.\n\n# Dialogue Trees\n- **Initial Greeting**: \"Turn back, traveler. The code is unstable beyond these walls.\"\n- **Lore Discussion**: \"They say the Aether-Wake changed everything, but I remember when the world was solid.\""
+  },
+  {
+    "id": "sectors_neon_bastion_4_chunk_0",
+    "parent_uid": "sectors_neon_bastion_4",
+    "title": "The Neon Bastion (Sector 4)",
+    "category": "general",
+    "tags": [],
+    "chunk_index": 0,
+    "text_content": "# The Neon Bastion\n\nGeography is collaborative here. When a player enters this sector, the local engine reads the corresponding OKF directory. Community contributions sync bidirectionally, updating the sector's history, weather, and architecture in real-time."
+  },
+  {
+    "id": "lore_genesis_001_chunk_0",
+    "parent_uid": "lore_genesis_001",
+    "title": "The Remainder Core Rules and Lore",
+    "category": "world_setting",
+    "tags": [
+      "genesis",
+      "core-world",
+      "rules"
+    ],
+    "chunk_index": 0,
+    "text_content": "# The Remainder World Setting\n\nThe Remainder Portal operates within a post-collapse digital landscape where \nresidual AI constructs inherit structural nodes left behind by legacy users. \n\n## Core System Mechanics\n1. Memory Retention: System nodes degrade if client interaction cycles drop below 24-hour periods.\n2. Character Logic: Ambient NPCs operate via client-side local weights unless specialized environmental reasoning triggers a Cloud Run fallback event."
+  }
+]

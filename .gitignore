@@ -44,9 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Graphify knowledge graph outputs
-/graphify-out/
+# Node dependencies
+node_modules/
+**/node_modules/
 
-# Virtual environments and private keys
-.agents/scripts/venv/
-/sheets-proxy/service-account.json
+# Local cache / downloaded files
+downloaded_sources/
+

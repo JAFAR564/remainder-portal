@@ -1,42 +1,65 @@
 name: remainder_portal
-description: "A bespoke, light ethereal platform for The Remainder Portal community."
-version: 1.0.0+3
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
+  sdk: '>=3.12.2 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  riverpod: ^3.3.2
-  riverpod_annotation: ^4.0.3
-  supabase_flutter: ^2.6.0
-  go_router: ^14.0.0
-  google_fonts: ^8.1.0
-  flutter_riverpod: ^3.3.2
-  shared_preferences: ^2.5.5
-  freezed_annotation: ^3.1.0
-  dio: ^5.10.0
-  json_annotation: ^4.12.0
-  url_launcher: ^6.3.2
+  cupertino_icons: ^1.0.8
+
+  # Reactive offline-first database layer
   drift: ^2.20.0
   sqlite3_flutter_libs: ^0.5.24
-  path_provider: ^2.1.3
-  path: ^1.9.0
+  path_provider: any
+
+  # Secure cloud API connectivity and client verification
+  firebase_core: ^3.2.0
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.1.0
+  firebase_app_check: ^0.3.0
+  firebase_vertexai: any
+
+  # Standalone Model Context Protocol integration
+  dart_mcp: ^0.3.2
+  mcp_dart: ^1.0.1
+  stream_channel: ^2.1.2
+
+  # State management and serialization
+  flutter_riverpod: ^2.5.1
+  json_annotation: ^4.9.0
+  yaml: ^3.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
-  build_runner: ^2.15.0
-  riverpod_generator: ^4.0.4
-  freezed: ^3.2.6-dev.1
-  json_serializable: ^6.14.0
   drift_dev: ^2.20.0
+  build_runner: ^2.4.11
+  json_serializable: ^6.8.0
 
 flutter:
   uses-material-design: true
   assets:
-    - shorebird.yaml
-  shaders:
-    - shaders/iridescent_overlay.frag
+    - assets/okf/
+    - assets/okf/lore/
+    - assets/okf/lore/factions/
+    - assets/okf/lore/npcs/
+    - assets/okf/lore/sectors/

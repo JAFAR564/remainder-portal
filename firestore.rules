@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to verify user authentication status
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // User Profile permissions: read allowed for everyone; writes restricted to owner
+    match /user_profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Faction Lore propositions (Consensus proposals)
+    match /lore_propositions/{proposalId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      // Allow author to update/delete their own proposal before it compiles
+      allow update, delete: if isAuthenticated() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Chat thread sessions
+    match /story_threads/{threadId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+  }
+}
