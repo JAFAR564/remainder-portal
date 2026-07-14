@@ -8,7 +8,6 @@ import { fileURLToPath } from 'url';
 // Initialize Genkit leveraging Google AI Studio (Free Tier)
 const ai = genkit({
   plugins: [googleAI()],
-  logLevel: 'debug',
 });
 
 const __filename = fileURLToPath(import.meta.url);
