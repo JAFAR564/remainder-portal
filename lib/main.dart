@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'presentation/screens/genesis_screen.dart';
-import 'data/services/monitoring_service.dart';
+import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
+import 'package:remainder_portal/data/services/monitoring_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,6 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFFE53170),
           secondary: Color(0xFFFF8E3C),
           surface: Color(0xFF161520),
-          background: Color(0xFF0F0E17),
         ),
       ),
       home: const GenesisScreen(),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/game_provider.dart';
-import '../../data/models/okf_concept.dart';
-import '../widgets/crt_overlay.dart';
-import 'descent_screen.dart';
+import 'package:remainder_portal/presentation/providers/game_provider.dart';
+import 'package:remainder_portal/data/models/okf_concept.dart';
+import 'package:remainder_portal/presentation/widgets/crt_overlay.dart';
+import 'package:remainder_portal/presentation/screens/descent_screen.dart';
 
 class TerminalScreen extends ConsumerStatefulWidget {
   final OkfConcept sectorNode;
