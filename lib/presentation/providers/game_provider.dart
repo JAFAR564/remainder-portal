@@ -135,11 +135,16 @@ class MessageModel {
   });
 }
 
+enum ConnectionStatus { online, offline }
+
+final connectionStatusProvider = StateProvider<ConnectionStatus>((ref) => ConnectionStatus.online);
+
 // Manages chat messages state
 class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
   final LiteRtService _aiService;
+  final Ref _ref;
 
-  ChatHistoryNotifier(this._aiService) : super([
+  ChatHistoryNotifier(this._aiService, this._ref) : super([
     MessageModel(
       sender: 'Game Master',
       content: 'Awakening portal active. Establish neural connection to begin.',
@@ -170,6 +175,13 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
       characterClass: characterClass,
     );
 
+    // Update connection status based on whether it fell back to offline/network error
+    if (gmResponse.contains('Offline or failed to reach') || gmResponse.contains('Network Error')) {
+      _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.offline;
+    } else {
+      _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.online;
+    }
+
     // Replace placeholder with response
     state = [
       ...state.sublist(0, state.length - 1),
@@ -184,5 +196,5 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
 
 final chatHistoryProvider = StateNotifierProvider<ChatHistoryNotifier, List<MessageModel>>((ref) {
   final ai = ref.watch(litertServiceProvider);
-  return ChatHistoryNotifier(ai);
+  return ChatHistoryNotifier(ai, ref);
 });
