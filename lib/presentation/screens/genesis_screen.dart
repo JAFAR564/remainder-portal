@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
+import '../widgets/crt_overlay.dart';
 import 'descent_screen.dart';
 
 class GenesisScreen extends ConsumerStatefulWidget {
@@ -64,163 +65,165 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F0E17), // Sleek deep cyberpunk background
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment.center,
-              radius: 1.2,
-              colors: [
-                Color(0xFF1D1B26),
-                Color(0xFF0F0E17),
-              ],
+      body: CrtOverlay(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment.center,
+                radius: 1.2,
+                colors: [
+                  Color(0xFF1D1B26),
+                  Color(0xFF0F0E17),
+                ],
+              ),
             ),
-          ),
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Card(
-                elevation: 12,
-                color: const Color(0xFF161520).withOpacity(0.85), // Glassmorphism container
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24.0),
-                  side: BorderSide(
-                    color: const Color(0xFFFF8E3C).withOpacity(0.3), // Cyberpunk accent border
-                    width: 1.5,
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Card(
+                  elevation: 12,
+                  color: const Color(0xFF161520).withValues(alpha: 0.85), // Glassmorphism container
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24.0),
+                    side: BorderSide(
+                      color: const Color(0xFFFF8E3C).withValues(alpha: 0.3), // Cyberpunk accent border
+                      width: 1.5,
+                    ),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Runic Emblem placeholder
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFE53170).withOpacity(0.5),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                            )
-                          ],
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFE53170), Color(0xFFFF8E3C)],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Runic Emblem placeholder
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFE53170).withValues(alpha: 0.5),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              )
+                            ],
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE53170), Color(0xFFFF8E3C)],
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.vpn_key_sharp,
+                            size: 40,
+                            color: Colors.white,
                           ),
                         ),
-                        child: const Icon(
-                          Icons.vpn_key_sharp,
-                          size: 40,
-                          color: Colors.white,
+                        const SizedBox(height: 24),
+                        const Text(
+                          'THE REMAINDER PORTAL',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 2.0,
+                            fontFamily: 'Inter',
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'THE REMAINDER PORTAL',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 2.0,
-                          fontFamily: 'Inter',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'AWAKENING SEQUENCE INITIALIZED',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: const Color(0xFFE53170).withOpacity(0.9),
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      // Character Designation Text Field
-                      TextField(
-                        controller: _nameController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'CHARACTER DESIGNATION',
-                          labelStyle: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                        const SizedBox(height: 8),
+                        Text(
+                          'AWAKENING SEQUENCE INITIALIZED',
+                          style: TextStyle(
                             fontSize: 12,
-                            letterSpacing: 1.0,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFF0F0E17).withOpacity(0.5),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFFF8E3C)),
-                          ),
-                          prefixIcon: const Icon(Icons.person, color: Color(0xFFFF8E3C)),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Class Selection Dropdown
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F0E17).withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedClass,
-                            dropdownColor: const Color(0xFF161520),
-                            isExpanded: true,
-                            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFFF8E3C)),
-                            style: const TextStyle(color: Colors.white, fontSize: 16),
-                            items: _classes.map((cls) => DropdownMenuItem(
-                              value: cls,
-                              child: Text(cls),
-                            )).toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() {
-                                  _selectedClass = val;
-                                });
-                              }
-                            },
+                            color: const Color(0xFFE53170).withValues(alpha: 0.9),
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 36),
-                      // Awakening Button with glow effect
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: _onAwaken,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE53170),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
+                        const SizedBox(height: 32),
+                        // Character Designation Text Field
+                        TextField(
+                          controller: _nameController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            labelText: 'CHARACTER DESIGNATION',
+                            labelStyle: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.6),
+                              fontSize: 12,
+                              letterSpacing: 1.0,
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFF0F0E17).withValues(alpha: 0.5),
+                            enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
                             ),
-                            elevation: 8,
-                            shadowColor: const Color(0xFFE53170).withOpacity(0.6),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Color(0xFFFF8E3C)),
+                            ),
+                            prefixIcon: const Icon(Icons.person, color: Color(0xFFFF8E3C)),
                           ),
-                          child: const Text(
-                            'INITIATE DESCENT',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
+                        ),
+                        const SizedBox(height: 24),
+                        // Class Selection Dropdown
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F0E17).withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedClass,
+                              dropdownColor: const Color(0xFF161520),
+                              isExpanded: true,
+                              icon: const Icon(Icons.arrow_drop_down, color: Color(0xFFFF8E3C)),
+                              style: const TextStyle(color: Colors.white, fontSize: 16),
+                              items: _classes.map((cls) => DropdownMenuItem(
+                                value: cls,
+                                child: Text(cls),
+                              )).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    _selectedClass = val;
+                                  });
+                                }
+                              },
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 36),
+                        // Awakening Button with glow effect
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _onAwaken,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE53170),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 8,
+                              shadowColor: const Color(0xFFE53170).withValues(alpha: 0.6),
+                            ),
+                            child: const Text(
+                              'INITIATE DESCENT',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
