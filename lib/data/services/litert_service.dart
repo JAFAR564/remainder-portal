@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'monitoring_service.dart';
 
 class LiteRtService {
   final String _cloudEndpoint;
   final bool _isOnDeviceEnabled;
+  final MonitoringService _monitoring = MonitoringService();
 
   LiteRtService({
     String? cloudEndpoint,
@@ -14,8 +16,15 @@ class LiteRtService {
         _isOnDeviceEnabled = isOnDeviceEnabled ?? false;
 
   Future<String> generateStoryResponse(String prompt, {String? characterClass}) async {
+    final trace = await _monitoring.startTrace('generate_story_response');
+    trace.putAttribute('mode', _isOnDeviceEnabled ? 'local' : 'cloud');
+    if (characterClass != null) {
+      trace.putAttribute('class', characterClass);
+    }
+
     if (_isOnDeviceEnabled) {
       // Local LiteRT-LM Gemma 3 (1B) execution placeholder (for Tier S/A+ devices)
+      await trace.stop();
       return '[On-Device Gemma 3 (1B) via LiteRT-LM]: $prompt';
     } else {
       // Hardware-routed Cloud fallback using Firebase Genkit API
@@ -29,18 +38,25 @@ class LiteRtService {
           }),
         );
 
+        await trace.stop();
+
         if (response.statusCode == 200) {
           final Map<String, dynamic> data = json.decode(response.body);
           if (data.containsKey('response')) {
             return data['response'] as String;
           } else if (data.containsKey('error')) {
+            await _monitoring.logError('Cloud Generation Error: ${data['error']}', null, reason: 'api_error');
             return 'Cloud Generation Error: ${data['error']}';
           }
         }
+        await _monitoring.logError('Network Error: Status code ${response.statusCode}', null, reason: 'network_error');
         return 'Network Error: Status code ${response.statusCode}';
-      } catch (e) {
+      } catch (e, stack) {
+        await trace.stop();
+        await _monitoring.logError(e, stack, reason: 'request_failed');
         return 'Offline or failed to reach cloud fallback: $e';
       }
     }
   }
 }
+

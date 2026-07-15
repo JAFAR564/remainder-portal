@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'presentation/screens/genesis_screen.dart';
+import 'data/services/monitoring_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ void main() async {
   } catch (e) {
     print("⚠️ Firebase initialization bypassed (running in local offline development mode): $e");
   }
+
+  // Initialize monitoring (Crashlytics/Performance)
+  await MonitoringService().initialize();
 
   runApp(
     const ProviderScope(
