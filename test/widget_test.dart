@@ -14,7 +14,7 @@ void main() {
 
     // Verify that the title and character input fields render properly.
     expect(find.text('THE REMAINDER PORTAL'), findsOneWidget);
-    expect(find.text('CHARACTER DESIGNATION'), findsOneWidget);
+    expect(find.text('DESIGNATION IDENTIFIER (NAME)'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
 
     // Enter character designation name

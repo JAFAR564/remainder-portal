@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:remainder_portal/presentation/providers/game_provider.dart';
 import 'package:remainder_portal/presentation/widgets/crt_overlay.dart';
 import 'package:remainder_portal/presentation/screens/descent_screen.dart';
+import 'package:remainder_portal/data/services/update_service.dart';
 
 enum OnboardingStep {
   introAndName,
@@ -50,6 +51,19 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
     _animController.forward();
+
+    // Check for updates on system startup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForUpdates();
+    });
+  }
+
+  void _checkForUpdates() async {
+    final updateService = UpdateService();
+    final updateInfo = await updateService.checkForUpdates();
+    if (updateInfo != null && mounted) {
+      updateService.showUpdateDialog(context, updateInfo);
+    }
   }
 
   @override
