@@ -60,12 +60,18 @@ class PlayerProfileNotifier extends StateNotifier<PlayerProfile?> {
   final AppDatabase _db;
   PlayerProfileNotifier(this._db) : super(null);
 
-  Future<void> createProfile(String name, String origin) async {
+  Future<void> createProfile({
+    required String name,
+    required String origin,
+    required int compute,
+    required int shield,
+    required int energy,
+  }) async {
     final newId = DateTime.now().millisecondsSinceEpoch.toString();
     final initialStats = CharacterSheet(
-      computePower: origin == 'Amatsukrion Sync' ? 5 : 3,
-      shieldIntegrity: origin == 'Wyrd-Born' ? 5 : 3,
-      energyReserve: origin == 'Aether-Wake' ? 5 : 3,
+      computePower: compute,
+      shieldIntegrity: shield,
+      energyReserve: energy,
     );
 
     final profile = PlayerProfile(
