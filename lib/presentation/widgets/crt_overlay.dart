@@ -56,7 +56,7 @@ class _CrtOverlayState extends State<CrtOverlay> with SingleTickerProviderStateM
                   radius: 1.4,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.55),
+                    Colors.black.withValues(alpha: 0.55),
                   ],
                 ),
               ),
@@ -75,7 +75,7 @@ class _ScanlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFFE53170).withOpacity(opacity)
+      ..color = const Color(0xFFE53170).withValues(alpha: opacity)
       ..strokeWidth = 1.2;
     
     // Draw horizontal lines across the screen representing retro scanlines
