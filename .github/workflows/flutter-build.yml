@@ -37,6 +37,39 @@ jobs:
     - name: Build Debug APK
       run: flutter build apk --debug
 
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: remainder-portal-apk
+        path: build/app/outputs/flutter-apk/app-debug.apk
+
+  windows-build:
+    name: Build Flutter Client (Windows)
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        flutter-version: '3.44.4'
+        cache: true
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build Windows Desktop
+      run: flutter build windows --release
+
+    - name: Upload Windows Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: remainder-portal-windows
+        path: build/windows/x64/runner/Release/
+
   backend-check:
     name: Verify Serverless Backend
     runs-on: ubuntu-latest
