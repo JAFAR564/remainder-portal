@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class UpdateInfo {
   final String latestVersion;
@@ -100,15 +101,11 @@ class UpdateService {
   // Opens browser to download URL
   Future<void> launchUpdateUrl(String url) async {
     try {
-      if (Platform.isWindows) {
-        await Process.run('start', [url], runInShell: true);
-      } else if (Platform.isLinux) {
-        await Process.run('xdg-open', [url]);
-      } else if (Platform.isMacOS) {
-        await Process.run('open', [url]);
-      } else if (Platform.isAndroid) {
-        // Fallback for Android - can launch URL with shell or standard browser intents
-        await Process.run('am', ['start', '-a', 'android.intent.action.VIEW', '-d', url]);
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
       }
     } catch (e) {
       print('⚠️ Could not open update URL: $e');
@@ -201,141 +198,143 @@ del /f /q "${zipFile.path}"
           builder: (context, setState) {
             return Dialog(
               backgroundColor: Colors.transparent,
-              child: Card(
-                color: const Color(0xFF161520),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFFFF8E3C), width: 1.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            isDownloading ? Icons.downloading : Icons.system_update_alt,
-                            color: const Color(0xFFFF8E3C),
-                            size: 28,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'UPDATE DETECTED',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        statusText,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 13,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      if (isDownloading) ...[
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: Colors.white12,
-                          color: const Color(0xFFE53170),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Downloading: ${(progress * 100).toInt()}%',
-                          style: const TextStyle(
-                            color: Color(0xFFFF8E3C),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ] else ...[
-                        const Text(
-                          'RELEASE LOGS:',
-                          style: TextStyle(
-                            color: Color(0xFFE53170),
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          constraints: const BoxConstraints(maxHeight: 120),
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0F0E17),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                          ),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              info.releaseNotes,
-                              style: const TextStyle(
-                                color: Colors.white60,
-                                fontSize: 12,
-                                fontFamily: 'monospace',
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      if (!isDownloading)
+              child: SingleChildScrollView(
+                child: Card(
+                  color: const Color(0xFF161520),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: const BorderSide(color: Color(0xFFFF8E3C), width: 1.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('DISMISS', style: TextStyle(color: Colors.white54)),
+                            Icon(
+                              isDownloading ? Icons.downloading : Icons.system_update_alt,
+                              color: const Color(0xFFFF8E3C),
+                              size: 28,
                             ),
                             const SizedBox(width: 12),
-                            ElevatedButton(
-                              onPressed: () async {
-                                if (Platform.isWindows) {
-                                  setState(() {
-                                    isDownloading = true;
-                                    statusText = 'Downloading the update package from GitHub...';
-                                  });
-                                  try {
-                                    await downloadAndApplyUpdate(info, (p) {
-                                      setState(() {
-                                        progress = p;
-                                      });
-                                    });
-                                  } catch (e) {
-                                    setState(() {
-                                      isDownloading = false;
-                                      statusText = 'Update failed: $e. You can still download manually.';
-                                    });
-                                  }
-                                } else {
-                                  launchUpdateUrl(info.downloadUrl);
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFE53170),
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text(
-                                'DOWNLOAD & UPDATE',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                            const Text(
+                              'UPDATE DETECTED',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2.0,
+                                color: Colors.white,
                               ),
                             ),
                           ],
-                        )
-                    ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          statusText,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 13,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        if (isDownloading) ...[
+                          const SizedBox(height: 8),
+                          LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.white12,
+                            color: const Color(0xFFE53170),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Downloading: ${(progress * 100).toInt()}%',
+                            style: const TextStyle(
+                              color: Color(0xFFFF8E3C),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ] else ...[
+                          const Text(
+                            'RELEASE LOGS:',
+                            style: TextStyle(
+                              color: Color(0xFFE53170),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            constraints: const BoxConstraints(maxHeight: 120),
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0F0E17),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                            ),
+                            child: SingleChildScrollView(
+                              child: Text(
+                                info.releaseNotes,
+                                style: const TextStyle(
+                                  color: Colors.white60,
+                                  fontSize: 12,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        if (!isDownloading)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('DISMISS', style: TextStyle(color: Colors.white54)),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  if (Platform.isWindows) {
+                                    setState(() {
+                                      isDownloading = true;
+                                      statusText = 'Downloading the update package from GitHub...';
+                                    });
+                                    try {
+                                      await downloadAndApplyUpdate(info, (p) {
+                                        setState(() {
+                                          progress = p;
+                                        });
+                                      });
+                                    } catch (e) {
+                                      setState(() {
+                                        isDownloading = false;
+                                        statusText = 'Update failed: $e. You can still download manually.';
+                                      });
+                                    }
+                                  } else {
+                                    launchUpdateUrl(info.downloadUrl);
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFE53170),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text(
+                                  'DOWNLOAD & UPDATE',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          )
+                      ],
+                    ),
                   ),
                 ),
               ),
