@@ -103,13 +103,9 @@ class UpdateService {
     try {
       final uri = Uri.parse(url);
       try {
-        await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } catch (e) {
-        try {
-          await launchUrl(uri);
-        } catch (e2) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        }
+        await launchUrl(uri);
       }
     } catch (e) {
       print('⚠️ Could not open update URL: $e');
