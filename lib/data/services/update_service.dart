@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ota_update/ota_update.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UpdateInfo {
@@ -110,6 +112,50 @@ class UpdateService {
     } catch (e) {
       print('⚠️ Could not open update URL: $e');
     }
+  }
+
+  // Streams background APK download and triggers the native package installer
+  Future<void> executeAndroidUpdate(UpdateInfo info, void Function(double) onProgress) async {
+    final completer = Completer<void>();
+    try {
+      OtaUpdate()
+          .execute(
+        info.downloadUrl,
+        destinationFilename: 'app-debug.apk',
+      )
+          .listen(
+        (OtaEvent event) {
+          switch (event.status) {
+            case OtaStatus.DOWNLOADING:
+              final doubleVal = double.tryParse(event.value ?? '0') ?? 0.0;
+              onProgress(doubleVal / 100.0);
+              break;
+            case OtaStatus.INSTALLING:
+              completer.complete();
+              break;
+            case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
+              completer.completeError('Permission to install packages was denied. Please allow it in settings.');
+              break;
+            case OtaStatus.DOWNLOAD_ERROR:
+              completer.completeError('Failed to download APK file from GitHub.');
+              break;
+            case OtaStatus.INTERNAL_ERROR:
+              completer.completeError('An internal error occurred during the update process.');
+              break;
+            default:
+              completer.completeError('Update process terminated unexpectedly: ${event.status}');
+              break;
+          }
+        },
+        onError: (err) {
+          completer.completeError('Update stream error: $err');
+        },
+        cancelOnError: true,
+      );
+    } catch (e) {
+      completer.completeError(e);
+    }
+    return completer.future;
   }
 
   // Checks if the target directory is writable by the current process context
@@ -330,17 +376,28 @@ del /f /q "${zipFile.path}"
                               const SizedBox(width: 12),
                               ElevatedButton(
                                 onPressed: () async {
-                                  if (Platform.isWindows) {
+                                  if (Platform.isWindows || Platform.isAndroid) {
                                     setState(() {
                                       isDownloading = true;
-                                      statusText = 'Downloading the update package from GitHub...';
+                                      statusText = Platform.isAndroid
+                                          ? 'Downloading update APK from GitHub...'
+                                          : 'Downloading the update package from GitHub...';
                                     });
                                     try {
-                                      await downloadAndApplyUpdate(info, (p) {
-                                        setState(() {
-                                          progress = p;
+                                      if (Platform.isAndroid) {
+                                        await executeAndroidUpdate(info, (p) {
+                                          setState(() {
+                                            progress = p;
+                                          });
                                         });
-                                      });
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        await downloadAndApplyUpdate(info, (p) {
+                                          setState(() {
+                                            progress = p;
+                                          });
+                                        });
+                                      }
                                     } catch (e) {
                                       setState(() {
                                         isDownloading = false;

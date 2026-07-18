@@ -50,7 +50,10 @@ dependencies:
   firebase_crashlytics: ^4.3.10
   firebase_performance: ^0.10.1+10
   url_launcher: ^6.3.2
+  ota_update: ^7.1.0
 
+  path: any
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
