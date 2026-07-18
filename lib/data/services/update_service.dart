@@ -181,8 +181,7 @@ echo Extracting code archives...
 powershell -Command "Expand-Archive -Path '${zipFile.path}' -DestinationPath '$appDir' -Force"
 
 echo Restarting client execution...
-cd /d "$appDir"
-start remainder_portal.exe
+start "" "$appDir\\remainder_portal.exe"
 
 echo Cleaning temporary cache...
 del /f /q "${zipFile.path}"
