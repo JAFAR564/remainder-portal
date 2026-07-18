@@ -206,9 +206,24 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(28.0),
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: _buildStepContent(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _buildStepContent(),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'SYSTEM SECURE PORTAL v1.0.1',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
