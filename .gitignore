@@ -51,3 +51,4 @@ node_modules/
 # Local cache / downloaded files
 downloaded_sources/
 
+/remainder-portal-windows/

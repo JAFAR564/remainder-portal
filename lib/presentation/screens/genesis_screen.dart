@@ -517,11 +517,11 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 28),
-        _buildCrystallizedStatRow('Compute Power', _computeStat, const Color(0xFFE53170), Icons.bolt),
+        AnimatedStatRow(name: 'Compute Power', value: _computeStat, color: const Color(0xFFE53170), icon: Icons.bolt),
         const SizedBox(height: 12),
-        _buildCrystallizedStatRow('Shield Integrity', _shieldStat, const Color(0xFF38B000), Icons.shield),
+        AnimatedStatRow(name: 'Shield Integrity', value: _shieldStat, color: const Color(0xFF38B000), icon: Icons.shield),
         const SizedBox(height: 12),
-        _buildCrystallizedStatRow('Energy Reserve', _energyStat, const Color(0xFF00B4D8), Icons.battery_charging_full),
+        AnimatedStatRow(name: 'Energy Reserve', value: _energyStat, color: const Color(0xFF00B4D8), icon: Icons.battery_charging_full),
         const SizedBox(height: 36),
         SizedBox(
           width: double.infinity,
@@ -537,39 +537,6 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCrystallizedStatRow(String name, int value, Color color, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F0E17).withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.25), width: 1.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 12),
-              Text(
-                name.toUpperCase(),
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.0),
-              ),
-            ],
-          ),
-          Row(
-            children: List.generate(5, (index) => Icon(
-              Icons.square,
-              size: 14,
-              color: index < value ? color : Colors.white12,
-            )),
-          )
-        ],
-      ),
     );
   }
 
@@ -594,6 +561,100 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         icon,
         size: 32,
         color: Colors.white,
+      ),
+    );
+  }
+}
+
+// Custom animated stat row displaying bouncy, staggered filling blocks
+class AnimatedStatRow extends StatefulWidget {
+  final String name;
+  final int value;
+  final Color color;
+  final IconData icon;
+
+  const AnimatedStatRow({
+    super.key,
+    required this.name,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  State<AnimatedStatRow> createState() => _AnimatedStatRowState();
+}
+
+class _AnimatedStatRowState extends State<AnimatedStatRow> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _animation = Tween<double>(begin: 0.0, end: widget.value.toDouble()).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F0E17).withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: widget.color.withValues(alpha: 0.25), width: 1.0),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(widget.icon, color: widget.color, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                widget.name.toUpperCase(),
+                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+              ),
+            ],
+          ),
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              final currentValue = _animation.value;
+              return Row(
+                children: List.generate(5, (index) {
+                  final opacity = (currentValue - index).clamp(0.0, 1.0);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: Transform.scale(
+                      scale: 0.6 + (0.4 * opacity),
+                      child: Icon(
+                        Icons.square,
+                        size: 14,
+                        color: opacity > 0.0
+                            ? widget.color.withValues(alpha: opacity)
+                            : Colors.white12,
+                      ),
+                    ),
+                  );
+                }),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

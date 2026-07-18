@@ -17,7 +17,7 @@ class UpdateInfo {
 }
 
 class UpdateService {
-  static const String currentVersion = '1.0.1';
+  static const String currentVersion = '1.0.2';
   static const String githubRepo = 'JAFAR564/remainder-portal';
 
   // Compares two semantic version strings (e.g. 1.0.0 and 1.0.1)
