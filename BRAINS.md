@@ -30,13 +30,19 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * **Path Collision Protection:** Fixed hangs caused by Unix utility path collisions by mapping standard commands to their absolute Windows directory paths (`%SystemRoot%\System32\`).
 * **Win32 Kernel/Zombie Process Hang Fix:** Replaced the plain `tasklist | find` polling loop with a single synchronous `%SystemRoot%\System32\taskkill.exe /f /pid %target_pid%` command. This forcefully releases OS file locks instantly and prevents terminal hangs on zombie/terminating processes.
 * **Android Background Sideloading:** Upgraded Android updates from a clunky browser-redirect flow to in-app background downloads. Integrated `package:ota_update` with matching `FileProvider` authorities, XML resource cache directories (`file_paths.xml`), and package visibility queries inside `AndroidManifest.xml`.
+* **Desugaring Integration:** Enabled `isCoreLibraryDesugaringEnabled` inside Kotlin DSL `build.gradle.kts` and added `desugar_jdk_libs:2.1.4` dependency. This resolved AAR metadata check failures caused by modern Java 8+ streaming API features implemented inside the `ota_update` package.
 * **Crystallization Summary Animations:** Replaced static stat layout metrics on the onboarding completion screen with a staggered, bouncy scaling animation class (`AnimatedStatRow`).
+* **UI Layout & Unit Test Alignment:** Solved a horizontal RenderFlex layout overflow in `horizontal_stat_card.dart` by wrapping labels in `Expanded` widgets. Synchronized test suites by directing widget tests to instantiate `GenesisScreen` directly, since the main application entry point now defaults to the redesigned `DashboardScreen`.
 * **Version Control:** Bumped application parameters to `1.0.2+3` and published deployment releases `v1.0.1` and `v1.0.2`.
+* **Successful Build Execution:** Triggered GitHub workflow run `29658516014` which compiled cleanly and published the functional `remainder-portal-apk` and `remainder-portal-windows` artifacts.
 
 ### Modified Assets:
 * [lib/data/services/update_service.dart](file:///home/vortex/remainder-portal/lib/data/services/update_service.dart) (Sync taskkill, android ota streams, version changes)
 * [lib/presentation/screens/genesis_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/genesis_screen.dart) (Bouncy stat animation class)
+* [lib/presentation/widgets/horizontal_stat_card.dart](file:///home/vortex/remainder-portal/lib/presentation/widgets/horizontal_stat_card.dart) (Expanded layout overflow protection)
+* [test/widget_test.dart](file:///home/vortex/remainder-portal/test/widget_test.dart) (GenesisScreen test target alignment)
 * [android/app/src/main/AndroidManifest.xml](file:///home/vortex/remainder-portal/android/app/src/main/AndroidManifest.xml) (Sideloading permissions, queries, and provider configurations)
 * [android/app/src/main/res/xml/file_paths.xml](file:///home/vortex/remainder-portal/android/app/src/main/res/xml/file_paths.xml) (Provider paths XML cache definition)
+* [android/app/build.gradle.kts](file:///home/vortex/remainder-portal/android/app/build.gradle.kts) (Core library desugaring properties and dependency libraries)
 * [pubspec.yaml](file:///home/vortex/remainder-portal/pubspec.yaml) (OtaUpdate dependency, version bump)
 * [.gitignore](file:///home/vortex/remainder-portal/.gitignore) (Added build artifact folder untracking)
