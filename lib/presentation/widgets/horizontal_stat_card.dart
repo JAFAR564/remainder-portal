@@ -65,12 +65,16 @@ class HorizontalStatCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  label,
-                  style: PortalTheme.cardLabelStyle.copyWith(
-                    color: theme.secondaryText.withValues(alpha: 0.8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: PortalTheme.cardLabelStyle.copyWith(
+                      color: theme.secondaryText.withValues(alpha: 0.8),
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   value,
                   style: PortalTheme.cardValueStyle.copyWith(

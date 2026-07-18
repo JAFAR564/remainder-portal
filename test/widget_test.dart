@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:remainder_portal/main.dart';
+import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
 
 void main() {
   testWidgets('GenesisScreen initialization and inputs render', (WidgetTester tester) async {
     // Build our app wrapped in ProviderScope and trigger a frame.
     await tester.pumpWidget(
       const ProviderScope(
-        child: MyApp(),
+        child: MaterialApp(
+          home: GenesisScreen(),
+        ),
       ),
     );
 
