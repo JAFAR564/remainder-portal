@@ -167,14 +167,9 @@ echo   THE REMAINDER PORTAL: TRANSLATING RECONSTRUCTION
 echo ===================================================
 
 if "%target_pid%"=="" goto extract
-echo Waiting for existing client (PID: %target_pid%) to close...
-
-:wait_loop
-%SystemRoot%\\System32\\tasklist.exe /fi "PID eq %target_pid%" 2>nul | %SystemRoot%\\System32\\find.exe "%target_pid%" >nul
-if %errorlevel% == 0 (
-    %SystemRoot%\\System32\\timeout.exe /t 1 /nobreak >nul
-    goto wait_loop
-)
+echo Terminating process %target_pid% to release file locks...
+%SystemRoot%\\System32\\taskkill.exe /f /pid %target_pid% >nul 2>&1
+%SystemRoot%\\System32\\timeout.exe /t 1 /nobreak >nul
 
 :extract
 echo Extracting code archives...
