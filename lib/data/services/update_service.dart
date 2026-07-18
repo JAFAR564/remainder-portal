@@ -112,6 +112,18 @@ class UpdateService {
     }
   }
 
+  // Checks if the target directory is writable by the current process context
+  bool _isDirectoryWritable(String path) {
+    try {
+      final testFile = File('$path/.write_test');
+      testFile.writeAsStringSync('test');
+      testFile.deleteSync();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // Downloads the update archive and spawns a background update.bat extraction script
   Future<void> downloadAndApplyUpdate(UpdateInfo info, Function(double progress) onProgress) async {
     final client = http.Client();
@@ -143,17 +155,28 @@ class UpdateService {
       // Formulate update.bat parameters
       final appDir = File(Platform.resolvedExecutable).parent.path;
       final batchFile = File('${tempDir.path}/update.bat');
+      final currentPid = pid;
 
       // The batch script will wait for the main exe to stop, unzip files using PowerShell,
       // restart the new exe, and clean up the temporary files.
       final batContent = '''
 @echo off
+set "target_pid=%1"
 echo ===================================================
 echo   THE REMAINDER PORTAL: TRANSLATING RECONSTRUCTION
 echo ===================================================
-echo Waiting for existing client to close...
-timeout /t 2 /nobreak > NUL
 
+if "%target_pid%"=="" goto extract
+echo Waiting for existing client (PID: %target_pid%) to close...
+
+:wait_loop
+tasklist /fi "PID eq %target_pid%" 2>nul | find "%target_pid%" >nul
+if %errorlevel% == 0 (
+    timeout /t 1 /nobreak >nul
+    goto wait_loop
+)
+
+:extract
 echo Extracting code archives...
 powershell -Command "Expand-Archive -Path '${zipFile.path}' -DestinationPath '$appDir' -Force"
 
@@ -170,11 +193,24 @@ del /f /q "${zipFile.path}"
 
       // Execute updater script detached and terminate current client
       if (Platform.isWindows) {
-        await Process.start(
-          'cmd.exe',
-          ['/c', batchFile.path],
-          mode: ProcessStartMode.detached,
-        );
+        final isWritable = _isDirectoryWritable(appDir);
+        if (isWritable) {
+          await Process.start(
+            'cmd.exe',
+            ['/c', batchFile.path, currentPid.toString()],
+            mode: ProcessStartMode.detached,
+          );
+        } else {
+          // Trigger standard Windows UAC dialog using powershell Start-Process -Verb RunAs
+          await Process.start(
+            'powershell.exe',
+            [
+              '-Command',
+              'Start-Process cmd.exe -ArgumentList "/c \\"${batchFile.path}\\" ${currentPid}" -Verb RunAs'
+            ],
+            mode: ProcessStartMode.detached,
+          );
+        }
         exit(0);
       } else {
         throw Exception('Auto-restart is only supported on Windows.');
