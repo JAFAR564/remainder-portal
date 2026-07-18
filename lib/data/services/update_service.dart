@@ -170,9 +170,9 @@ if "%target_pid%"=="" goto extract
 echo Waiting for existing client (PID: %target_pid%) to close...
 
 :wait_loop
-tasklist /fi "PID eq %target_pid%" 2>nul | find "%target_pid%" >nul
+%SystemRoot%\\System32\\tasklist.exe /fi "PID eq %target_pid%" 2>nul | %SystemRoot%\\System32\\find.exe "%target_pid%" >nul
 if %errorlevel% == 0 (
-    timeout /t 1 /nobreak >nul
+    %SystemRoot%\\System32\\timeout.exe /t 1 /nobreak >nul
     goto wait_loop
 )
 
