@@ -28,10 +28,10 @@ class HolographicDecorations extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Bottom-Right floating 4-pointed HUD Sparkle (as seen in mockup)
+          // 1. Bottom-Right floating 4-pointed HUD Sparkle (safely positioned in side margin)
           Positioned(
-            right: 48.0,
-            bottom: sizeFactor(context, mobile: 120.0, desktop: 200.0),
+            right: 16.0,
+            bottom: sizeFactor(context, mobile: 90.0, desktop: 200.0),
             child: CustomPaint(
               size: const Size(24.0, 24.0),
               painter: _HUDSparklePainter(color: resolvedSecColor.withValues(alpha: 0.4)),

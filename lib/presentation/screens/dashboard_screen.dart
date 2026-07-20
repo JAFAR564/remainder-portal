@@ -26,7 +26,10 @@ class DashboardScreen extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Core Screen Layout Structure
+          // 1. Decorative Holographic Vector Overlay (Star sparkles & crosshairs) - In background
+          const HolographicDecorations(),
+
+          // 2. Core Screen Layout Structure
           Positioned.fill(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -41,8 +44,14 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. Decorative Holographic Vector Overlay (Star sparkles & crosshairs)
-          const HolographicDecorations(),
+          // 3. Floating Action Button Overlay (Persistent, fixed bottom center)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: PortalTheme.spaceLG),
+              child: _buildActionButton(context),
+            ),
+          ),
         ],
       ),
     );
@@ -50,43 +59,68 @@ class DashboardScreen extends StatelessWidget {
 
   /// Wide layout composition (Tablets, desktop, landscape orientations).
   Widget _buildWideLayout(BuildContext context) {
+    final double screenHeight = MediaQuery.sizeOf(context).height;
+
+    // Dynamically scale dashboard components based on available viewport height to prevent overflows
+    final double dashboardSize = screenHeight < 550.0 ? 210.0 : 300.0;
+    final double progressRingSize = screenHeight < 550.0 ? 172.0 : 246.0;
+    final double emblemSize = screenHeight < 550.0 ? 28.0 : 40.0;
+    final double iconSize = screenHeight < 550.0 ? 16.0 : 20.0;
+    final double headerVerticalPadding = screenHeight < 550.0 ? PortalTheme.spaceSM : PortalTheme.spaceLG;
+
     return Column(
       children: [
-        const AppHeader(),
+        AppHeader(
+          padding: EdgeInsets.symmetric(
+            vertical: headerVerticalPadding,
+            horizontal: PortalTheme.spaceMD,
+          ),
+        ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: PortalTheme.spaceLG),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Column 1: Left stat pills
+                // Column 1: Left stat pills (Scrollable on short viewports)
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _buildLeftCards(),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _buildLeftCards(),
+                    ),
                   ),
                 ),
 
-                // Column 2: Center Circular Dashboard & FAB
+                // Column 2: Center Circular Dashboard
                 Expanded(
                   flex: 4,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildCircularDashboard(),
-                      const SizedBox(height: PortalTheme.spaceLG),
-                      _buildActionButton(context),
+                      _buildCircularDashboard(
+                        size: dashboardSize,
+                        ringSize: progressRingSize,
+                        emblemSize: emblemSize,
+                        iconSize: iconSize,
+                      ),
+                      // Add bottom spacer to account for the floating FAB overlay
+                      const SizedBox(height: 56.0),
                     ],
                   ),
                 ),
 
-                // Column 3: Right stat pills
+                // Column 3: Right stat pills (Scrollable on short viewports)
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _buildRightCards(),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _buildRightCards(),
+                    ),
                   ),
                 ),
               ],
@@ -111,16 +145,20 @@ class DashboardScreen extends StatelessWidget {
               bottom: PortalTheme.spaceMD,
             ),
           ),
-          _buildCircularDashboard(),
+          _buildCircularDashboard(
+            size: 300.0,
+            ringSize: 246.0,
+            emblemSize: 40.0,
+            iconSize: 20.0,
+          ),
           const SizedBox(height: PortalTheme.spaceLG),
           
           // Vertically list all cards in mobile view
           ..._buildLeftCards(),
           ..._buildRightCards(),
           
-          const SizedBox(height: PortalTheme.spaceLG),
-          _buildActionButton(context),
-          const SizedBox(height: PortalTheme.spaceXL),
+          // Bottom scroll spacer to allow scrolling above the fixed floating FAB overlay
+          const SizedBox(height: 96.0),
         ],
       ),
     );
@@ -128,32 +166,41 @@ class DashboardScreen extends StatelessWidget {
 
   // --- Layout Helper Creators ---
 
-  Widget _buildCircularDashboard() {
-    return const CircularDashboard(
-      size: 300.0,
+  Widget _buildCircularDashboard({
+    required double size,
+    required double ringSize,
+    required double emblemSize,
+    required double iconSize,
+  }) {
+    return CircularDashboard(
+      size: size,
       progressRing: DashboardRadialProgressRing(
-        size: 246.0,
+        size: ringSize,
         outerProgress: 0.65,
         innerProgress: 0.45,
       ),
       centerEmblem: CenterEmblem(
-        size: 40.0,
+        size: emblemSize,
       ),
       topReadout: DashboardStatusIcon(
         icon: Icons.access_time_rounded,
         value: '2000',
+        iconSize: iconSize,
       ),
       leftReadout: DashboardStatusIcon(
         icon: Icons.explore_outlined,
         value: '36%',
+        iconSize: iconSize,
       ),
       rightReadout: DashboardStatusIcon(
         icon: Icons.opacity_rounded,
         value: '31%',
+        iconSize: iconSize,
       ),
       bottomReadout: DashboardStatusIcon(
         icon: Icons.bolt,
         value: '16.23',
+        iconSize: iconSize,
       ),
     );
   }
