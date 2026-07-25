@@ -32,11 +32,13 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * **Android Background Sideloading:** Upgraded Android updates from a clunky browser-redirect flow to in-app background downloads. Integrated `package:ota_update` with matching `FileProvider` authorities, XML resource cache directories (`file_paths.xml`), and package visibility queries inside `AndroidManifest.xml`.
 * **Desugaring Integration:** Enabled `isCoreLibraryDesugaringEnabled` inside Kotlin DSL `build.gradle.kts` and added `desugar_jdk_libs:2.1.4` dependency. This resolved AAR metadata check failures caused by modern Java 8+ streaming API features implemented inside the `ota_update` package.
 * **Crystallization Summary Animations:** Replaced static stat layout metrics on the onboarding completion screen with a staggered, bouncy scaling animation class (`AnimatedStatRow`).
-* **UI Layout & Unit Test Alignment:** Solved a horizontal RenderFlex layout overflow in `horizontal_stat_card.dart` by wrapping labels in `Expanded` widgets. Synchronized test suites by directing widget tests to instantiate `GenesisScreen` directly, since the main application entry point now defaults to the redesigned `DashboardScreen`.
-* **Version Control:** Bumped application parameters to `1.0.2+3` and published deployment releases `v1.0.1` and `v1.0.2`.
-* **Successful Build Execution:** Triggered GitHub workflow run `29658516014` which compiled cleanly and published the functional `remainder-portal-apk` and `remainder-portal-windows` artifacts.
+* **UI & State Rebuild (Unified Portal Navigation):** Overhauled `DashboardScreen` and `AppHeader` to seamlessly integrate Riverpod `playerProfileProvider` bindings. Dynamic operator stats (Compute Power, Shield Integrity, Energy Reserve) now update live across the circular HUD gauge and stat pillars upon completing the Genesis onboarding sequence.
+* **Header Actions & Direct Updater Trigger:** Added header action buttons for direct Character Genesis access and on-demand background update checks via `UpdateService`.
+* **Firebase Cloud Test Lab Automation:** Enabled Google Cloud Testing APIs (`testing.googleapis.com`) and executed automated Robo tests on cloud virtual devices (`MediumPhone.arm`, Android 14). Confirmed zero crashes, zero layout freezes, and zero unhandled rendering exceptions.
 
 ### Modified Assets:
+* [lib/presentation/screens/dashboard_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/dashboard_screen.dart) (ConsumerWidget refactor, dynamic profile binding, header actions)
+* [lib/presentation/widgets/app_header.dart](file:///home/vortex/remainder-portal/lib/presentation/widgets/app_header.dart) (Subtitle and header action icon bar layout)
 * [lib/data/services/update_service.dart](file:///home/vortex/remainder-portal/lib/data/services/update_service.dart) (Sync taskkill, android ota streams, version changes)
 * [lib/presentation/screens/genesis_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/genesis_screen.dart) (Bouncy stat animation class)
 * [lib/presentation/widgets/horizontal_stat_card.dart](file:///home/vortex/remainder-portal/lib/presentation/widgets/horizontal_stat_card.dart) (Expanded layout overflow protection)

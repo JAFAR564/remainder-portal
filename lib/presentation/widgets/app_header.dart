@@ -12,6 +12,12 @@ class AppHeader extends StatelessWidget {
   /// Custom padding around the header. Defaults to top safe padding and vertical gaps.
   final EdgeInsetsGeometry padding;
 
+  /// Optional subtitle or operator readout widget.
+  final Widget? subtitle;
+
+  /// Optional right-aligned header action widgets.
+  final List<Widget>? actions;
+
   const AppHeader({
     super.key,
     this.title = 'The Remainder Portal',
@@ -19,6 +25,8 @@ class AppHeader extends StatelessWidget {
       vertical: PortalTheme.spaceLG,
       horizontal: PortalTheme.spaceMD,
     ),
+    this.subtitle,
+    this.actions,
   });
 
   @override
@@ -28,44 +36,61 @@ class AppHeader extends StatelessWidget {
 
     return Padding(
       padding: padding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // Elegant title with tracking adjustment
-          Text(
-            title,
-            style: PortalTheme.titleStyle.copyWith(
-              // Fallback standard text styling modifications
-              color: Colors.white.withValues(alpha: 0.95),
-              shadows: [
-                Shadow(
-                  color: theme.primaryAccent.withValues(alpha: 0.15),
-                  offset: const Offset(0.0, 2.0),
-                  blurRadius: 8.0,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Elegant title with tracking adjustment
+              Text(
+                title,
+                style: PortalTheme.titleStyle.copyWith(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  shadows: [
+                    Shadow(
+                      color: theme.primaryAccent.withValues(alpha: 0.15),
+                      offset: const Offset(0.0, 2.0),
+                      blurRadius: 8.0,
+                    ),
+                  ],
                 ),
+                textAlign: TextAlign.center,
+              ),
+              
+              if (subtitle != null) ...[
+                const SizedBox(height: 4.0),
+                subtitle!,
               ],
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          // Micro-accent line for subtle technological detail
-          const SizedBox(height: PortalTheme.spaceXS),
-          Container(
-            width: 48.0,
-            height: 2.0,
-            decoration: BoxDecoration(
-              color: theme.primaryAccent.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(1.0),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.primaryAccent.withValues(alpha: 0.3),
-                  blurRadius: 4.0,
-                  spreadRadius: 0.5,
+
+              // Micro-accent line for subtle technological detail
+              const SizedBox(height: PortalTheme.spaceXS),
+              Container(
+                width: 48.0,
+                height: 2.0,
+                decoration: BoxDecoration(
+                  color: theme.primaryAccent.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(1.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.primaryAccent.withValues(alpha: 0.3),
+                      blurRadius: 4.0,
+                      spreadRadius: 0.5,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          if (actions != null && actions!.isNotEmpty)
+            Positioned(
+              right: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: actions!,
+              ),
+            ),
         ],
       ),
     );

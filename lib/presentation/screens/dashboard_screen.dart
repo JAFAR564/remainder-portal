@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:remainder_portal/app/theme/portal_theme.dart';
 import 'package:remainder_portal/presentation/widgets/portal_background.dart';
 import 'package:remainder_portal/presentation/widgets/app_header.dart';
@@ -11,17 +12,21 @@ import 'package:remainder_portal/presentation/widgets/animated_progress_bar.dart
 import 'package:remainder_portal/presentation/widgets/portal_action_button.dart';
 import 'package:remainder_portal/presentation/widgets/holographic_decorations.dart';
 import 'package:remainder_portal/presentation/screens/descent_screen.dart';
+import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
+import 'package:remainder_portal/presentation/providers/game_provider.dart';
+import 'package:remainder_portal/data/services/update_service.dart';
 
 /// The final screen composition for The Remainder Portal.
 ///
 /// Coordinates all custom HUD visual units (background grid, frosted columns,
 /// radial progress, animated stat cards, and decorations) into a responsive,
 /// premium visor interface layout.
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(playerProfileProvider);
     return PortalBackground(
       child: Stack(
         fit: StackFit.expand,
@@ -36,9 +41,9 @@ class DashboardScreen extends StatelessWidget {
                 final isWide = constraints.maxWidth >= 720.0;
 
                 if (isWide) {
-                  return _buildWideLayout(context);
+                  return _buildWideLayout(context, profile);
                 } else {
-                  return _buildNarrowLayout(context);
+                  return _buildNarrowLayout(context, profile);
                 }
               },
             ),
@@ -58,7 +63,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   /// Wide layout composition (Tablets, desktop, landscape orientations).
-  Widget _buildWideLayout(BuildContext context) {
+  Widget _buildWideLayout(BuildContext context, PlayerProfile? profile) {
     final double screenHeight = MediaQuery.sizeOf(context).height;
 
     // Dynamically scale dashboard components based on available viewport height to prevent overflows
@@ -75,6 +80,44 @@ class DashboardScreen extends StatelessWidget {
             vertical: headerVerticalPadding,
             horizontal: PortalTheme.spaceMD,
           ),
+          subtitle: Text(
+            profile != null ? 'OPERATOR: ${profile.name.toUpperCase()} [${profile.origin.toUpperCase()}]' : 'SYSTEM ID: UNREGISTERED (DEFAULT PROTOTYPE)',
+            style: const TextStyle(
+              color: Color(0xFF00E5FF),
+              fontSize: 11.0,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.person_add_outlined, color: Color(0xFFFF8E3C)),
+              tooltip: 'Character Genesis',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GenesisScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.system_update_rounded, color: Color(0xFFE53170)),
+              tooltip: 'Check Portal Updates',
+              onPressed: () async {
+                final updateService = UpdateService();
+                final info = await updateService.checkForUpdates();
+                if (info != null && context.mounted) {
+                  updateService.showUpdateDialog(context, info);
+                } else if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Portal core is up to date (v1.0.2).'),
+                      backgroundColor: Color(0xFF161520),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
         ),
         Expanded(
           child: Padding(
@@ -89,7 +132,7 @@ class DashboardScreen extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildLeftCards(),
+                      children: _buildLeftCards(profile),
                     ),
                   ),
                 ),
@@ -105,6 +148,7 @@ class DashboardScreen extends StatelessWidget {
                         ringSize: progressRingSize,
                         emblemSize: emblemSize,
                         iconSize: iconSize,
+                        profile: profile,
                       ),
                       // Add bottom spacer to account for the floating FAB overlay
                       const SizedBox(height: 56.0),
@@ -119,7 +163,7 @@ class DashboardScreen extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildRightCards(),
+                      children: _buildRightCards(profile),
                     ),
                   ),
                 ),
@@ -132,30 +176,69 @@ class DashboardScreen extends StatelessWidget {
   }
 
   /// Narrow layout composition (Mobile portrait orientations).
-  Widget _buildNarrowLayout(BuildContext context) {
+  Widget _buildNarrowLayout(BuildContext context, PlayerProfile? profile) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: PortalTheme.spaceMD),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const AppHeader(
-            padding: EdgeInsets.only(
+          AppHeader(
+            padding: const EdgeInsets.only(
               top: PortalTheme.spaceLG,
               bottom: PortalTheme.spaceMD,
             ),
+            subtitle: Text(
+              profile != null ? 'OPERATOR: ${profile.name.toUpperCase()}' : 'SYSTEM ID: UNREGISTERED',
+              style: const TextStyle(
+                color: Color(0xFF00E5FF),
+                fontSize: 11.0,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.person_add_outlined, color: Color(0xFFFF8E3C)),
+                tooltip: 'Character Genesis',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GenesisScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.system_update_rounded, color: Color(0xFFE53170)),
+                tooltip: 'Check Portal Updates',
+                onPressed: () async {
+                  final updateService = UpdateService();
+                  final info = await updateService.checkForUpdates();
+                  if (info != null && context.mounted) {
+                    updateService.showUpdateDialog(context, info);
+                  } else if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Portal core is up to date (v1.0.2).'),
+                        backgroundColor: Color(0xFF161520),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           _buildCircularDashboard(
             size: 300.0,
             ringSize: 246.0,
             emblemSize: 40.0,
             iconSize: 20.0,
+            profile: profile,
           ),
           const SizedBox(height: PortalTheme.spaceLG),
           
           // Vertically list all cards in mobile view
-          ..._buildLeftCards(),
-          ..._buildRightCards(),
+          ..._buildLeftCards(profile),
+          ..._buildRightCards(profile),
           
           // Bottom scroll spacer to allow scrolling above the fixed floating FAB overlay
           const SizedBox(height: 96.0),
@@ -171,35 +254,40 @@ class DashboardScreen extends StatelessWidget {
     required double ringSize,
     required double emblemSize,
     required double iconSize,
+    PlayerProfile? profile,
   }) {
+    final computeVal = profile?.stats.computePower ?? 10;
+    final shieldVal = profile?.stats.shieldIntegrity ?? 10;
+    final energyVal = profile?.stats.energyReserve ?? 10;
+
     return CircularDashboard(
       size: size,
       progressRing: DashboardRadialProgressRing(
         size: ringSize,
-        outerProgress: 0.65,
-        innerProgress: 0.45,
+        outerProgress: (computeVal / 20.0).clamp(0.0, 1.0),
+        innerProgress: (shieldVal / 20.0).clamp(0.0, 1.0),
       ),
       centerEmblem: CenterEmblem(
         size: emblemSize,
       ),
       topReadout: DashboardStatusIcon(
-        icon: Icons.access_time_rounded,
-        value: '2000',
+        icon: Icons.bolt,
+        value: '$computeVal',
         iconSize: iconSize,
       ),
       leftReadout: DashboardStatusIcon(
-        icon: Icons.explore_outlined,
-        value: '36%',
+        icon: Icons.shield,
+        value: '$shieldVal',
         iconSize: iconSize,
       ),
       rightReadout: DashboardStatusIcon(
-        icon: Icons.opacity_rounded,
-        value: '31%',
+        icon: Icons.battery_charging_full,
+        value: '$energyVal',
         iconSize: iconSize,
       ),
       bottomReadout: DashboardStatusIcon(
-        icon: Icons.bolt,
-        value: '16.23',
+        icon: Icons.wifi,
+        value: profile != null ? 'SYNC' : '16.23',
         iconSize: iconSize,
       ),
     );
@@ -216,46 +304,50 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildLeftCards() {
-    return const [
+  List<Widget> _buildLeftCards(PlayerProfile? profile) {
+    final compute = profile?.stats.computePower ?? 10;
+    final shield = profile?.stats.shieldIntegrity ?? 10;
+    final energy = profile?.stats.energyReserve ?? 10;
+
+    return [
       HorizontalStatCard(
-        label: 'Total Stats',
-        value: '10 / 130',
-        progressBar: AnimatedProgressBar(value: 0.60),
+        label: 'Compute Power',
+        value: '$compute / 20',
+        progressBar: AnimatedProgressBar(value: (compute / 20.0).clamp(0.0, 1.0)),
       ),
-      SizedBox(height: PortalTheme.spaceMD),
+      const SizedBox(height: PortalTheme.spaceMD),
       HorizontalStatCard(
-        label: 'Startlery',
-        value: '#B0B3C1',
-        progressBar: AnimatedProgressBar(value: 0.50),
+        label: 'Shield Integrity',
+        value: '$shield / 20',
+        progressBar: AnimatedProgressBar(value: (shield / 20.0).clamp(0.0, 1.0)),
       ),
-      SizedBox(height: PortalTheme.spaceMD),
+      const SizedBox(height: PortalTheme.spaceMD),
       HorizontalStatCard(
-        label: 'Speed',
-        value: '3.7%',
-        progressBar: AnimatedProgressBar(value: 0.65),
+        label: 'Energy Reserve',
+        value: '$energy / 20',
+        progressBar: AnimatedProgressBar(value: (energy / 20.0).clamp(0.0, 1.0)),
       ),
     ];
   }
 
-  List<Widget> _buildRightCards() {
-    return const [
+  List<Widget> _buildRightCards(PlayerProfile? profile) {
+    return [
       HorizontalStatCard(
-        label: 'Contiimoss',
-        value: '20 / 485',
-        progressBar: AnimatedProgressBar(value: 0.75),
+        label: 'Origin Class',
+        value: profile?.origin.toUpperCase() ?? 'VANGUARD',
+        progressBar: const AnimatedProgressBar(value: 0.85),
       ),
-      SizedBox(height: PortalTheme.spaceMD),
+      const SizedBox(height: PortalTheme.spaceMD),
       HorizontalStatCard(
-        label: 'Render Color',
-        value: '#00E5FF',
-        progressBar: AnimatedProgressBar(value: 0.65),
+        label: 'Active Sector',
+        value: profile?.activeSector.replaceAll('sectors_', '').toUpperCase() ?? 'NEON BASTION',
+        progressBar: const AnimatedProgressBar(value: 0.70),
       ),
-      SizedBox(height: PortalTheme.spaceMD),
+      const SizedBox(height: PortalTheme.spaceMD),
       HorizontalStatCard(
-        label: 'Listening',
-        value: '30px',
-        progressBar: AnimatedProgressBar(value: 0.70),
+        label: 'Neural Sync',
+        value: profile != null ? '100%' : 'DEMO MODE',
+        progressBar: const AnimatedProgressBar(value: 0.95),
       ),
     ];
   }
