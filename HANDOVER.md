@@ -59,6 +59,13 @@ To prevent local hardware performance issues or terminal lag:
 
 ---
 
+## 📡 Future Architectural Reference: Off-Grid P2P Mesh & Nostr Relay
+- **Repository:** [`permissionlesstech/bitchat`](https://github.com/permissionlesstech/bitchat)
+- **Core Design:** Dual transport architecture combining local **Bluetooth Mesh** networks for off-grid, serverless device-to-device communication + **Nostr protocol** for internet-based global relays.
+- **Application to Remainder Portal:** Noted for Phase 2/3 off-grid P2P squad roleplay and localized mesh communication during internet outages or offline tabletop sessions.
+
+---
+
 ## 🚀 How to Prompt the Next Session
 When opening your next conversation (`session: 02-expeditions-and-social`), send this prompt:
 
