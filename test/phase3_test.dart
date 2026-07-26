@@ -9,20 +9,23 @@ void main() {
     test('OfflineQueueService enforces idempotency hashing and handles retry counts', () async {
       final queueService = OfflineQueueService();
 
+      final now = DateTime.now();
       final item1 = queueService.enqueue(
         senderId: 'player_1',
         messageType: 'chat_action',
         payload: {'text': 'Exploring sector breach'},
+        timestamp: now,
       );
 
       expect(item1.idempotencyKey, isNotEmpty);
       expect(queueService.pendingCount, 1);
 
-      // Attempting to enqueue duplicate item with identical parameters within the same millisecond returns existing item
+      // Attempting to enqueue duplicate item with identical parameters returns existing item
       final item2 = queueService.enqueue(
         senderId: 'player_1',
         messageType: 'chat_action',
         payload: {'text': 'Exploring sector breach'},
+        timestamp: now,
       );
 
       expect(item2.id, item1.id);

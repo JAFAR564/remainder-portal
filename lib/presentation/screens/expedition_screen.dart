@@ -200,29 +200,37 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                       itemCount: expedition.members.length,
                       itemBuilder: (context, index) {
                         final m = expedition.members[index];
-                        return Card(
-                          color: const Color(0xFF0A0910),
+                        return Container(
                           margin: const EdgeInsets.only(bottom: 8),
-                          shape: RoundedRectangleBorder(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A0910),
                             borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(color: Colors.white12),
+                            border: Border.all(color: Colors.white12),
                           ),
-                          child: ListTile(
-                            title: Row(
-                              children: [
-                                Text(m.userName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE53170).withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(m.userName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE53170).withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(m.assignedRole, style: const TextStyle(color: Color(0xFFE53170), fontSize: 9, fontFamily: 'monospace')),
                                   ),
-                                  child: Text(m.assignedRole, style: const TextStyle(color: Color(0xFFE53170), fontSize: 9, fontFamily: 'monospace')),
-                                ),
-                              ],
-                            ),
-                            subtitle: Text('Stat: ${m.primaryStat} | Mutual Trust: ${(m.trustScore * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white54, fontSize: 10)),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Stat: ${m.primaryStat} | Mutual Trust: ${(m.trustScore * 100).toStringAsFixed(0)}%',
+                                style: const TextStyle(color: Colors.white54, fontSize: 10),
+                              ),
+                            ],
                           ),
                         );
                       },
