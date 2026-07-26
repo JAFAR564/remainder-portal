@@ -154,10 +154,56 @@ While AI serves as the atmospheric Game Master and world engine, **the heart of 
 
 ---
 
-## 8. The "Why" — The Value Proposition
+## 9. Phased Implementation Roadmap & Hardware-Adaptive AI Architecture
 
-> **Why choose *The Remainder Portal* over existing apps?**
+To address hardware constraints across low-spec mobile phones and laptops (where on-device LiteRT/Gemma models can cause memory crashes or thermal throttling), *The Remainder Portal* employs a **Tiered Hardware-Adaptive AI Architecture**:
 
-Because existing platforms force a trade-off: **Social connectivity without depth (social media)** OR **Depth without true personal impact (traditional games)**.
+```
+  AI FALLBACK ENGINE MATRIX
+  ┌─────────────────────────────────────────────────────────────┐
+  │ TIER 1: CLOUD AI (PRIMARY)                                 │
+  │ • Firebase Genkit / Gemini Flash API                        │
+  │ • Ultra-fast, zero local RAM consumption, 100% stability.   │
+  ├─────────────────────────────────────────────────────────────┤
+  │ TIER 2: RULE-BASED OFFLINE ENGINE (STABLE FALLBACK)         │
+  │ • Deterministic SQLite + OKF Graph + Stat Dice Engine      │
+  │ • Runs offline without crashing low-spec phones or laptops. │
+  ├─────────────────────────────────────────────────────────────┤
+  │ TIER 3: ON-DEVICE LiteRT GEMMA (EXPERIMENTAL)               │
+  │ • High-spec flagship hardware only (Feature Flagged).       │
+  └─────────────────────────────────────────────────────────────┘
+```
 
-*The Remainder Portal* combines the ease of a mobile messaging app with the depth of a living, breathing fantasy universe where **your words have permanent weight, your AI companions remember you, and your choices shape history.**
+---
+
+### Phase 1: Core P2P Foundation & Cloud-First AI Stability (Weeks 1–4)
+* **Objective:** Establish a stable, high-performance P2P roleplay foundation that operates flawlessly on low-spec phones and laptops.
+* **AI Engine:** Cloud AI (Firebase Genkit / Gemini Flash API) as primary GM, falling back to a deterministic SQLite Rule Engine when offline.
+* **Key Deliverables:**
+  * Character Genesis onboarding (*GenesisScreen*) & responsive holographic HUD (*DashboardScreen*).
+  * In-Character (IC) vs. Out-of-Character (OOC) dual chat threads.
+  * Direct Riverpod database bindings and local Drift/SQLite persistence.
+  * In-app background update engine (*UpdateService*) with desugaring enabled.
+
+### Phase 2: Collaborative P2P Expeditions & Sovereign Governance (Weeks 5–8)
+* **Objective:** Deepen player-to-player roleplay interactions and social worldbuilding.
+* **Key Deliverables:**
+  * Multi-player Expedition Groups (combining stats of multiple roleplayers for joint skill checks).
+  * Inter-player Trust Endorsements (*Vanguard*, *Arbiter*, *Merchant*, *Hacker*).
+  * Sovereign Guild creation and sector node tax/law governance.
+  * Weekly Democratic Chrono-Loom lore voting system.
+
+### Phase 3: Offline-First Delta Sync & Player Economy (Weeks 9–12)
+* **Objective:** Enable seamless offline roleplay and player-driven trade.
+* **Key Deliverables:**
+  * Offline roleplay message queueing stored in local SQLite (Drift).
+  * Automatic background delta synchronization via Firebase Firestore upon reconnection.
+  * Player-to-player trading matrix for items, energy credits, and sector access keys.
+  * Custom OKF sector node authoring tools for high-reputation roleplayers.
+
+### Phase 4: Hardware Tiering & Launch Deployment (Weeks 13+)
+* **Objective:** Final polish, optional high-end hardware features, and public release.
+* **Key Deliverables:**
+  * Optional experimental LiteRT / Gemma on-device LLM toggle (for flagship hardware only).
+  * Advanced visual novel CRT shader effects and dynamic audio visors.
+  * Production deployment across Google Play Store and Windows Desktop builds.
