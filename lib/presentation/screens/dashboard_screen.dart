@@ -96,68 +96,91 @@ class DashboardScreen extends ConsumerWidget {
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.groups_outlined, color: Color(0xFF00F0FF)),
-              tooltip: 'Expedition Squad Matrix',
-              onPressed: () {
+            PopupMenuButton<Widget>(
+              icon: const Icon(Icons.apps_rounded, color: Color(0xFF00E5FF), size: 26),
+              tooltip: 'Navigation Matrix',
+              color: const Color(0xFF161520),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFF00E5FF), width: 1),
+              ),
+              onSelected: (Widget targetScreen) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ExpeditionScreen()),
+                  MaterialPageRoute(builder: (_) => targetScreen),
                 );
               },
-            ),
-            IconButton(
-              icon: const Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C)),
-              tooltip: 'Sovereign Guilds',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GuildScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166)),
-              tooltip: 'Democratic Chrono-Loom',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const ChronoLoomScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000)),
-              tooltip: 'P2P Escrow Trade Matrix',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const TradeScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.design_services_outlined, color: Color(0xFFE53170)),
-              tooltip: 'Creator Authoring Suite',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const CreatorDashboardScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings_outlined, color: Colors.white),
-              tooltip: 'System & Hardware Settings',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.person_add_outlined, color: Colors.white70),
-              tooltip: 'Character Genesis',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const GenesisScreen()),
-                );
-              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: GenesisScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.person_add_outlined, color: Color(0xFF00E5FF), size: 18),
+                      SizedBox(width: 12),
+                      Text('Character Genesis', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: ExpeditionScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.groups_outlined, color: Color(0xFFE53170), size: 18),
+                      SizedBox(width: 12),
+                      Text('Expedition Squad Matrix', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: GuildScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C), size: 18),
+                      SizedBox(width: 12),
+                      Text('Sovereign Guilds', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: ChronoLoomScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166), size: 18),
+                      SizedBox(width: 12),
+                      Text('Chrono-Loom Canon', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: TradeScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000), size: 18),
+                      SizedBox(width: 12),
+                      Text('P2P Escrow Market', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: CreatorDashboardScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.design_services_outlined, color: Color(0xFFE53170), size: 18),
+                      SizedBox(width: 12),
+                      Text('Creator Authoring Suite', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: SettingsScreen(),
+                  child: Row(
+                    children: [
+                      Icon(Icons.settings_outlined, color: Colors.white70, size: 18),
+                      SizedBox(width: 12),
+                      Text('System Settings', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -240,68 +263,91 @@ class DashboardScreen extends ConsumerWidget {
               ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.groups_outlined, color: Color(0xFF00F0FF)),
-                tooltip: 'Expedition Squad Matrix',
-                onPressed: () {
+              PopupMenuButton<Widget>(
+                icon: const Icon(Icons.apps_rounded, color: Color(0xFF00E5FF), size: 26),
+                tooltip: 'Navigation Matrix',
+                color: const Color(0xFF161520),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFF00E5FF), width: 1),
+                ),
+                onSelected: (Widget targetScreen) {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ExpeditionScreen()),
+                    MaterialPageRoute(builder: (_) => targetScreen),
                   );
                 },
-              ),
-              IconButton(
-                icon: const Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C)),
-                tooltip: 'Sovereign Guilds',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const GuildScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166)),
-                tooltip: 'Democratic Chrono-Loom',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const ChronoLoomScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000)),
-                tooltip: 'P2P Escrow Trade Matrix',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const TradeScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.design_services_outlined, color: Color(0xFFE53170)),
-                tooltip: 'Creator Authoring Suite',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CreatorDashboardScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white),
-                tooltip: 'System & Hardware Settings',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_add_outlined, color: Colors.white70),
-                tooltip: 'Character Genesis',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const GenesisScreen()),
-                  );
-                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: GenesisScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_add_outlined, color: Color(0xFF00E5FF), size: 18),
+                        SizedBox(width: 12),
+                        Text('Character Genesis', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: ExpeditionScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.groups_outlined, color: Color(0xFFE53170), size: 18),
+                        SizedBox(width: 12),
+                        Text('Expedition Squad Matrix', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: GuildScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C), size: 18),
+                        SizedBox(width: 12),
+                        Text('Sovereign Guilds', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: ChronoLoomScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166), size: 18),
+                        SizedBox(width: 12),
+                        Text('Chrono-Loom Canon', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: TradeScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000), size: 18),
+                        SizedBox(width: 12),
+                        Text('P2P Escrow Market', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: CreatorDashboardScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.design_services_outlined, color: Color(0xFFE53170), size: 18),
+                        SizedBox(width: 12),
+                        Text('Creator Authoring Suite', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: SettingsScreen(),
+                    child: Row(
+                      children: [
+                        Icon(Icons.settings_outlined, color: Colors.white70, size: 18),
+                        SizedBox(width: 12),
+                        Text('System Settings', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
