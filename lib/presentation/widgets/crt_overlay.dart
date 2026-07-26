@@ -1,15 +1,17 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/presentation_provider.dart';
 
-class CrtOverlay extends StatefulWidget {
+class CrtOverlay extends ConsumerStatefulWidget {
   final Widget child;
   const CrtOverlay({super.key, required this.child});
 
   @override
-  State<CrtOverlay> createState() => _CrtOverlayState();
+  ConsumerState<CrtOverlay> createState() => _CrtOverlayState();
 }
 
-class _CrtOverlayState extends State<CrtOverlay> with SingleTickerProviderStateMixin {
+class _CrtOverlayState extends ConsumerState<CrtOverlay> with SingleTickerProviderStateMixin {
   late AnimationController _flickerController;
   final Random _random = Random();
 
@@ -32,13 +34,18 @@ class _CrtOverlayState extends State<CrtOverlay> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    // Generate a random subtle opacity shift for the flicker
-    final double flickerVal = 0.015 + _random.nextDouble() * 0.015;
+    final presentation = ref.watch(presentationProvider);
+
+    if (presentation.reducedMotion || !presentation.enableCrtScanlines) {
+      return widget.child;
+    }
+
+    final double flickerVal = presentation.scanlineOpacity + _random.nextDouble() * 0.01;
 
     return Stack(
       children: [
         widget.child,
-        // Scanlines
+        // Scanlines Overlay
         Positioned.fill(
           child: IgnorePointer(
             child: CustomPaint(
@@ -56,7 +63,7 @@ class _CrtOverlayState extends State<CrtOverlay> with SingleTickerProviderStateM
                   radius: 1.4,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.55),
+                    Colors.black.withValues(alpha: presentation.enableChromaticAberration ? 0.55 : 0.35),
                   ],
                 ),
               ),

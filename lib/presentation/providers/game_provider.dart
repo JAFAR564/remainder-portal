@@ -133,13 +133,19 @@ class MessageModel {
   final String sender;
   final String content;
   final DateTime timestamp;
+  final bool isIC;
 
   MessageModel({
     required this.sender,
     required this.content,
     required this.timestamp,
+    this.isIC = true,
   });
 }
+
+enum ChatFilter { all, icOnly, oocOnly }
+
+final chatFilterProvider = StateProvider<ChatFilter>((ref) => ChatFilter.all);
 
 enum ConnectionStatus { online, offline }
 
@@ -155,14 +161,16 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
       sender: 'Game Master',
       content: 'Awakening portal active. Establish neural connection to begin.',
       timestamp: DateTime.now(),
+      isIC: true,
     )
   ]);
 
-  Future<void> sendPlayerAction(String actionText, String characterClass) async {
+  Future<void> sendPlayerAction(String actionText, String characterClass, {bool isIC = true}) async {
     final userMsg = MessageModel(
       sender: 'Player',
       content: actionText,
       timestamp: DateTime.now(),
+      isIC: isIC,
     );
 
     state = [...state, userMsg];
@@ -172,6 +180,7 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
       sender: 'Game Master',
       content: '...processing consensus rules...',
       timestamp: DateTime.now(),
+      isIC: isIC,
     );
     state = [...state, typingMsg];
 
@@ -182,7 +191,9 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
     );
 
     // Update connection status based on whether it fell back to offline/network error
-    if (gmResponse.contains('Offline or failed to reach') || gmResponse.contains('Network Error')) {
+    if (gmResponse.contains('[OFFLINE RULE ENGINE]') ||
+        gmResponse.contains('Offline or failed to reach') ||
+        gmResponse.contains('Network Error')) {
       _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.offline;
     } else {
       _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.online;
@@ -195,6 +206,7 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
         sender: 'Game Master',
         content: gmResponse,
         timestamp: DateTime.now(),
+        isIC: isIC,
       )
     ];
   }

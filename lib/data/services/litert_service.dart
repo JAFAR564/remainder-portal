@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'monitoring_service.dart';
 
@@ -46,17 +47,46 @@ class LiteRtService {
             return data['response'] as String;
           } else if (data.containsKey('error')) {
             await _monitoring.logError('Cloud Generation Error: ${data['error']}', null, reason: 'api_error');
-            return 'Cloud Generation Error: ${data['error']}';
+            return _generateOfflineStoryResponse(prompt, characterClass);
           }
         }
         await _monitoring.logError('Network Error: Status code ${response.statusCode}', null, reason: 'network_error');
-        return 'Network Error: Status code ${response.statusCode}';
+        return _generateOfflineStoryResponse(prompt, characterClass);
       } catch (e, stack) {
         await trace.stop();
         await _monitoring.logError(e, stack, reason: 'request_failed');
-        return 'Offline or failed to reach cloud fallback: $e';
+        return _generateOfflineStoryResponse(prompt, characterClass);
       }
     }
+  }
+
+  String _generateOfflineStoryResponse(String prompt, String? characterClass) {
+    final random = math.Random();
+    final d20 = random.nextInt(20) + 1;
+    final modifier = (characterClass == 'Vanguard' || characterClass == 'Cyber Hacker') ? 3 : 2;
+    final total = d20 + modifier;
+
+    String outcomeTitle;
+    String narrativeDescription;
+
+    if (total >= 18) {
+      outcomeTitle = 'CRITICAL CONSENSUS REACHED';
+      narrativeDescription = 'Your command "$prompt" overrides local sector defenses smoothly. System stability restored at +100% capacity.';
+    } else if (total >= 10) {
+      outcomeTitle = 'SUCCESSFUL COMMAND EXECUTION';
+      narrativeDescription = 'Your action "$prompt" has been logged in the local sector node. Neural pathway stabilized.';
+    } else if (total >= 6) {
+      outcomeTitle = 'PARTIAL CONSENSUS WITH COMPLICATION';
+      narrativeDescription = 'Your action "$prompt" succeeded, but triggered minor power fluctuations across your shield integrity.';
+    } else {
+      outcomeTitle = 'SYSTEM ANOMALY DETECTED';
+      narrativeDescription = 'Local sector firewalls rejected the instruction "$prompt". Defense countermeasures engaged.';
+    }
+
+    return '[OFFLINE RULE ENGINE]\n'
+           'D20 Roll: $d20 + $modifier (${characterClass ?? "Unknown"}) = $total\n'
+           'Status: $outcomeTitle\n\n'
+           '$narrativeDescription';
   }
 }
 

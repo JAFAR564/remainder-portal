@@ -16,6 +16,7 @@ class TerminalScreen extends ConsumerStatefulWidget {
 class _TerminalScreenState extends ConsumerState<TerminalScreen> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
+  bool _isICInput = true;
 
   @override
   void dispose() {
@@ -37,6 +38,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
     await ref.read(chatHistoryProvider.notifier).sendPlayerAction(
       text,
       profile.origin,
+      isIC: _isICInput,
     );
 
     // Scroll to bottom
@@ -51,10 +53,49 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
     });
   }
 
+  Widget _buildFilterChip(WidgetRef ref, ChatFilter filter, String label) {
+    final currentFilter = ref.watch(chatFilterProvider);
+    final isSelected = currentFilter == filter;
+
+    return InkWell(
+      onTap: () {
+        ref.read(chatFilterProvider.notifier).state = filter;
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFE53170).withValues(alpha: 0.25) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFFE53170) : Colors.white24,
+            width: 1.0,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? const Color(0xFFE53170) : Colors.white60,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'monospace',
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final messages = ref.watch(chatHistoryProvider);
     final profile = ref.watch(playerProfileProvider);
+    final chatFilter = ref.watch(chatFilterProvider);
+
+    final filteredMessages = messages.where((msg) {
+      if (chatFilter == ChatFilter.icOnly) return msg.isIC;
+      if (chatFilter == ChatFilter.oocOnly) return !msg.isIC;
+      return true;
+    }).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0E17),
@@ -106,7 +147,22 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                   ],
                 ),
               ),
-  
+
+              // Chat Segmented Filter Control Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildFilterChip(ref, ChatFilter.all, 'ALL'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(ref, ChatFilter.icOnly, 'IC ONLY'),
+                    const SizedBox(width: 8),
+                    _buildFilterChip(ref, ChatFilter.oocOnly, 'OOC ONLY'),
+                  ],
+                ),
+              ),
+
               // Message console output
               Expanded(
                 child: Container(
@@ -122,42 +178,77 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                   ),
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: messages.length,
+                    itemCount: filteredMessages.length,
                     itemBuilder: (context, index) {
-                      final msg = messages[index];
+                      final msg = filteredMessages[index];
                       final isGM = msg.sender == 'Game Master';
-  
+                      final isIC = msg.isIC;
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: Column(
                           crossAxisAlignment: isGM ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                           children: [
-                            Text(
-                              msg.sender.toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'monospace',
-                                color: isGM ? const Color(0xFFE53170) : const Color(0xFFFF8E3C),
-                                letterSpacing: 1.0,
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  msg.sender.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                    color: isIC
+                                        ? (isGM ? const Color(0xFFE53170) : const Color(0xFFFF8E3C))
+                                        : Colors.white54,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: isIC
+                                        ? (isGM ? const Color(0xFFE53170).withValues(alpha: 0.2) : const Color(0xFFFF8E3C).withValues(alpha: 0.2))
+                                        : Colors.white12,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    isIC ? (isGM ? 'GM' : (profile?.origin.toUpperCase() ?? 'IC')) : 'OOC',
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'monospace',
+                                      color: isIC
+                                          ? (isGM ? const Color(0xFFE53170) : const Color(0xFFFF8E3C))
+                                          : Colors.white54,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
-                                color: isGM ? const Color(0xFF161520) : const Color(0xFF0F0E17),
+                                color: isIC
+                                    ? (isGM ? const Color(0xFF161520) : const Color(0xFF0F0E17))
+                                    : const Color(0xFF232232),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: isGM ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFFF8E3C).withValues(alpha: 0.2),
+                                  color: isIC
+                                      ? (isGM ? const Color(0xFF00F0FF).withValues(alpha: 0.4) : const Color(0xFFFF8E3C).withValues(alpha: 0.4))
+                                      : Colors.white24,
+                                  width: isIC ? 1.5 : 1.0,
                                 ),
                               ),
                               child: Text(
                                 msg.content,
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: isIC ? Colors.white : Colors.white70,
                                   fontSize: 14,
                                   height: 1.4,
+                                  fontStyle: isIC ? FontStyle.normal : FontStyle.italic,
                                 ),
                               ),
                             ),
@@ -168,18 +259,46 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                   ),
                 ),
               ),
-  
+
               // Input command prompt
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _isICInput = !_isICInput;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: _isICInput ? const Color(0xFFE53170).withValues(alpha: 0.2) : Colors.white12,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _isICInput ? const Color(0xFFE53170) : Colors.white38,
+                          ),
+                        ),
+                        child: Text(
+                          _isICInput ? 'IC' : 'OOC',
+                          style: TextStyle(
+                            color: _isICInput ? const Color(0xFFE53170) : Colors.white70,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         controller: _inputController,
                         style: const TextStyle(color: Colors.white, fontFamily: 'monospace'),
                         decoration: InputDecoration(
-                          hintText: '> enter action command...',
+                          hintText: _isICInput ? '> enter IC action command...' : '> enter OOC chat message...',
                           hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
                           filled: true,
                           fillColor: const Color(0xFF0F0E17),

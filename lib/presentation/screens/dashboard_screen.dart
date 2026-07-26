@@ -14,7 +14,13 @@ import 'package:remainder_portal/presentation/widgets/holographic_decorations.da
 import 'package:remainder_portal/presentation/screens/descent_screen.dart';
 import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
 import 'package:remainder_portal/presentation/providers/game_provider.dart';
-import 'package:remainder_portal/data/services/update_service.dart';
+
+import 'package:remainder_portal/presentation/screens/expedition_screen.dart';
+import 'package:remainder_portal/presentation/screens/guild_screen.dart';
+import 'package:remainder_portal/presentation/screens/chrono_loom_screen.dart';
+import 'package:remainder_portal/presentation/screens/trade_screen.dart';
+import 'package:remainder_portal/presentation/screens/creator_dashboard_screen.dart';
+import 'package:remainder_portal/presentation/screens/settings_screen.dart';
 
 /// The final screen composition for The Remainder Portal.
 ///
@@ -91,30 +97,66 @@ class DashboardScreen extends ConsumerWidget {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.person_add_outlined, color: Color(0xFFFF8E3C)),
+              icon: const Icon(Icons.groups_outlined, color: Color(0xFF00F0FF)),
+              tooltip: 'Expedition Squad Matrix',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ExpeditionScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C)),
+              tooltip: 'Sovereign Guilds',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GuildScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166)),
+              tooltip: 'Democratic Chrono-Loom',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ChronoLoomScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000)),
+              tooltip: 'P2P Escrow Trade Matrix',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const TradeScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.design_services_outlined, color: Color(0xFFE53170)),
+              tooltip: 'Creator Authoring Suite',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CreatorDashboardScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings_outlined, color: Colors.white),
+              tooltip: 'System & Hardware Settings',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.person_add_outlined, color: Colors.white70),
               tooltip: 'Character Genesis',
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const GenesisScreen()),
                 );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.system_update_rounded, color: Color(0xFFE53170)),
-              tooltip: 'Check Portal Updates',
-              onPressed: () async {
-                final updateService = UpdateService();
-                final info = await updateService.checkForUpdates();
-                if (info != null && context.mounted) {
-                  updateService.showUpdateDialog(context, info);
-                } else if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Portal core is up to date (v1.0.2).'),
-                      backgroundColor: Color(0xFF161520),
-                    ),
-                  );
-                }
               },
             ),
           ],
@@ -199,30 +241,66 @@ class DashboardScreen extends ConsumerWidget {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.person_add_outlined, color: Color(0xFFFF8E3C)),
+                icon: const Icon(Icons.groups_outlined, color: Color(0xFF00F0FF)),
+                tooltip: 'Expedition Squad Matrix',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ExpeditionScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C)),
+                tooltip: 'Sovereign Guilds',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const GuildScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166)),
+                tooltip: 'Democratic Chrono-Loom',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ChronoLoomScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000)),
+                tooltip: 'P2P Escrow Trade Matrix',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const TradeScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.design_services_outlined, color: Color(0xFFE53170)),
+                tooltip: 'Creator Authoring Suite',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CreatorDashboardScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                tooltip: 'System & Hardware Settings',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.person_add_outlined, color: Colors.white70),
                 tooltip: 'Character Genesis',
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const GenesisScreen()),
                   );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.system_update_rounded, color: Color(0xFFE53170)),
-                tooltip: 'Check Portal Updates',
-                onPressed: () async {
-                  final updateService = UpdateService();
-                  final info = await updateService.checkForUpdates();
-                  if (info != null && context.mounted) {
-                    updateService.showUpdateDialog(context, info);
-                  } else if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Portal core is up to date (v1.0.2).'),
-                        backgroundColor: Color(0xFF161520),
-                      ),
-                    );
-                  }
                 },
               ),
             ],

@@ -52,3 +52,12 @@ node_modules/
 downloaded_sources/
 
 /remainder-portal-windows/
+
+# Temp build files & binaries
+*.apk
+*.zip
+*.deb
+cookies*.txt
+graphify-out/
+Ideas_reference/
+

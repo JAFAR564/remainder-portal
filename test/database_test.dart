@@ -44,6 +44,19 @@ void main() {
   test('Drift Schema Offline Ingestion: Chat history and sync tracking queues properly', () async {
     final now = DateTime.now();
     
+    // Insert user first to satisfy foreign key constraints
+    await database.into(database.users).insert(
+      UsersCompanion.insert(
+        id: 'operator_alpha',
+        displayName: 'Kaelen Ally',
+        email: 'ally@remainder.net',
+        origin: 'Amatsukrion Sync',
+        activeSector: 'sectors_neon_bastion_4',
+        joinedDate: now,
+        trustScore: 0.88,
+      ),
+    );
+
     // Insert story thread session
     await database.into(database.storyThreads).insert(
       StoryThreadsCompanion.insert(
