@@ -1,8 +1,8 @@
-# 🤝 SESSION HANDOVER: Phase 1 Action Plan Execution
+# 🤝 SESSION HANDOVER: Phase 1 Action Plan & Compilation Cleanup
 
 **Repository:** `remainder-portal` (`/home/vortex/remainder-portal`)  
 **Branch:** `main`  
-**Target Goal:** Execute approved Phase 1 Action Items to reach 100% Phase 1 PRD Compliance.  
+**Target Goal:** Complete Phase 1 PRD action items and run Drift code generation for zero compilation errors.  
 
 ---
 
@@ -14,49 +14,46 @@
 
 ---
 
-## 🎯 Executive Checklist for Next Conversation
+## 🎯 Executive Checklist for Session 01 (`session: 01-database-and-domain`)
 
-The next session should execute the following 3 concrete tasks in order:
+Execute the following 3 concrete tasks and code generation steps:
 
 ### 🔴 Task 1: Offline Rule Engine Integration
 - **File to Edit:** [lib/data/services/litert_service.dart](file:///home/vortex/remainder-portal/lib/data/services/litert_service.dart)
 - **Action:** Replace raw HTTP error strings when offline (`catch (e)`) with a dynamic local deterministic RPG Rule Engine (`_generateOfflineStoryResponse`).
-- **Engine Logic:**
-  1. Generate a d20 roll (1–20) + stat modifier (derived from `characterClass`).
-  2. Evaluate outcomes: Critical Success (18+), Success (10-17), Complication (6-9), Critical Failure (1-5).
-  3. Format atmospheric cyber-gothic text starting with `[OFFLINE RULE ENGINE] D20 Roll: X + Y = Z...`.
 
 ### 🟠 Task 2: IC / OOC Dual Chat Mode
 - **Files to Edit:**
   - [lib/presentation/providers/game_provider.dart](file:///home/vortex/remainder-portal/lib/presentation/providers/game_provider.dart)
   - [lib/presentation/screens/terminal_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/terminal_screen.dart)
-- **Action:**
-  1. Add `final bool isIC;` field to `MessageModel` (default `true`).
-  2. Add `enum ChatFilter { all, icOnly, oocOnly }` and `chatFilterProvider`.
-  3. In `TerminalScreen`, add a segmented view toggle (`ALL` | `IC ONLY` | `OOC ONLY`) in the subheader bar.
-  4. Add an input mode toggle button (`[IC]` vs `[OOC]`) next to the chat text field.
-  5. Render distinct styles for IC posts (glowing cyan/orange border, origin badge) vs OOC posts (frosted silver gray container).
+- **Action:** Add IC/OOC toggle, `chatFilterProvider`, and visual styles for In-Character vs Out-of-Character messages.
 
-### 🟠 Task 3: Drift Database Migration Strategy
-- **File to Edit:** [lib/data/services/database_service.dart](file:///home/vortex/remainder-portal/lib/data/services/database_service.dart)
-- **Action:** Override `MigrationStrategy get migration` in `AppDatabase` with `onCreate`, `onUpgrade` (for future version bumps), and `beforeOpen` (`PRAGMA foreign_keys = ON;`).
+### 🟠 Task 3: Drift Database Generation & Migration Cleanup
+- **Files to Edit:**
+  - [lib/data/services/database_service.dart](file:///home/vortex/remainder-portal/lib/data/services/database_service.dart)
+  - [lib/presentation/screens/expedition_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/expedition_screen.dart)
+- **Action:**
+  1. Ensure `@DriftDatabase(tables: [...])` includes all tables (`Expeditions`, `ExpeditionMembers`, `Endorsements`, `Guilds`, `GuildMembers`, `GovernanceRules`, `LoreProposals`, `LoreHistory`, `OfflineQueue`, `PlayerTrades`, `TradeEscrow`, `CreatorContent`).
+  2. Run `dart run build_runner build --delete-conflicting-outputs` to regenerate `database_service.g.dart`.
+  3. Fix minor widget prop mismatches in `expedition_screen.dart` and `dashboard_screen.dart`.
 
 ---
 
 ## ⚡ Verification Command Sequence
-Once the changes are completed, run the following verification sequence in the terminal:
+Once completed, run the verification sequence:
 
 ```bash
+dart run build_runner build --delete-conflicting-outputs
 dart analyze
 flutter test
 git add .
-git commit -m "feat(phase1): complete offline rule engine, IC/OOC dual chat mode, and Drift migration strategy"
+git commit -m "feat(arch): resolve build_runner code generation, offline rule engine, and IC/OOC chat filters"
 git push
 ```
 
 ---
 
 ## 🚀 How to Prompt the Next Session
-When opening your new conversation, send this prompt:
+When opening your new conversation (`session: 01-database-and-domain`), send this prompt:
 
-> `"Read file:///home/vortex/remainder-portal/HANDOVER.md and let's execute the Phase 1 action plan!"`
+> `"Read file:///home/vortex/remainder-portal/HANDOVER.md and let's execute Session 1!"`
