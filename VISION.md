@@ -98,6 +98,25 @@ Every major player action generates a signed event node. At the end of each week
 * High-reputation players vote on historical canonization.
 * Approved events are permanently etched into the sector's public OKF lore history.
 
+### 5.3 Player-to-Player (P2P) Collaborative Roleplay Architecture
+
+While AI serves as the atmospheric Game Master and world engine, **the heart of *The Remainder Portal* is real human-to-human roleplay interaction.**
+
+1. **Strict IC vs. OOC Separation:**
+   * **In-Character (IC) Threads:** Styled with custom avatar visors, class badges, and formatted action text (e.g. `*activates thermal cloak*`). Every IC post contributes to character reputation and sector history.
+   * **Out-of-Character (OOC) Sub-Panels:** Toggable side drawers for roleplayers to discuss scenes, plotlines, and preferences without breaking narrative immersion.
+
+2. **Cooperative Skill-Check Expeditions:**
+   * When two or more roleplayers form an Expedition Group (e.g., a *Vanguard Guardian* and a *Cyber Hacker*), their joint actions combine stats.
+   * The Cognitive Loom acts as an impartial GM, evaluating both players' inputs and generating a shared narrative outcome for the group.
+
+3. **Player-Driven Roleplay Prompts & Assemblies:**
+   * Roleplayers can host IC events (tavern gatherings, court trials, tactical war councils, ruin raids).
+   * Other roleplayers respond directly in-character, creating emergent stories that alter sector ownership and trade tariffs.
+
+4. **Inter-Player Reputation & Bonds:**
+   * Roleplayers grant each other persistent **Bond Points** and **Trust Endorsements** (*Comrade*, *Rival*, *Mentor*, *Sovereign*), which unlock joint combo maneuvers during sector events.
+
 ---
 
 ## 6. The Complete User Journey
