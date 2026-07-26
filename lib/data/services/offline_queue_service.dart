@@ -63,8 +63,9 @@ class OfflineQueueService {
     required String messageType,
     required Map<String, dynamic> payload,
     String? dependencyId,
+    DateTime? timestamp,
   }) {
-    final now = DateTime.now();
+    final now = timestamp ?? DateTime.now();
     final key = generateIdempotencyKey(senderId, messageType, payload, now);
 
     // Idempotency check: prevent duplicate enqueue
