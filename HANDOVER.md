@@ -59,12 +59,28 @@
 
 ---
 
+## ⚙️ Implementation Details
+
+* **P2P Squad Event Synchronization:** `P2pSquadRelayService` manages a broadcast `StreamController<P2pSquadEvent>` with a 50-event deduplication window (`_processedEventIds`). When disconnected, outbound squad events queue into `_queuedOutboundEvents` and flush automatically upon reconnection.
+* **Mutual Trust Endorsements:** Tapping endorsement icons on squad roster members triggers both `expeditionProvider.updateMemberTrust` (yielding a +0.05 modifier) and `trustProvider.addEndorsement` (updating global trust vectors).
+* **Social Entity Drift DB Persistence:** `GuildStateNotifier`, `GovernanceStateNotifier`, and `ChronoLoomNotifier` write to Drift tables `Guilds`, `GuildMembers`, `GovernanceRules`, `LoreProposals`, and `LoreHistory` to survive cold app starts.
+
+---
+
 ## 🧪 Testing & CI Validation
 
 * **Unit Tests Executed (`flutter test`):**
   * `test/phase2_test.dart` — **Passed `✓`** (Covering relay stream, deduplication, trust yield, coop checks, guild persistence, and lore voting).
 * **CI Execution:**
   * Pushed to GitHub `main` (`8db1dea`) for cloud runner execution.
+
+---
+
+## 💡 Lessons Learned
+
+1. **Stream Deduplication:** High-frequency P2P socket events require a fixed-size LRU or set-based deduplication cache (`_processedEventIds`) to prevent infinite relay feedback loops between connected nodes.
+2. **Offline Relay Queueing:** Buffer outbound squad action events locally during network loss and flush them atomically upon `isOnline = true` transitions to preserve timeline sequence.
+3. **State & DB Dual Sync:** Always keep in-memory Riverpod state in sync with local Drift DB tables to prevent stale UI reads after app restarts.
 
 ---
 
