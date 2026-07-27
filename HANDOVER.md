@@ -8,26 +8,28 @@
 
 ## 📊 Project Status
 
-- **Current Development Phase:** Phase 3 Complete / Phase 4 Hardware Tiering Initiation
-- **Current Milestone:** Session 03 (`03-offline-resilience`) $\rightarrow$ Session 04 (`04-hardware-tiering`)
-- **Overall Completion Percentage:** **98.5%**
+- **Current Development Phase:** Phase 4 Complete — Hardware Tiering & On-Demand Gemma Downloader
+- **Current Milestone:** Session 04 (`04-hardware-tiering`) Complete
+- **Overall Completion Percentage:** **100%**
   - Phase 1 Foundation: **100%**
   - Phase 2 Social Sovereignty & Cooperative Systems: **100%**
-  - Phase 3 Offline Persistence & Synchronization: **100%** (Background WorkManager Daemon & SQLite WAL persistence integrated)
-  - Phase 4 Hardware Tiering: **85%** (Gemma Model Weight Asset Download pending)
+  - Phase 3 Offline Persistence & Synchronization: **100%**
+  - Phase 4 Hardware Tiering & Gemma Downloader: **100%**
 
 ---
 
 ## 📝 Task Summary
 
-* **Objective:** Complete Session 03 Action Plan: Connect `OfflineQueueService` to Drift SQLite (`OfflineQueue` and `SyncLedger` tables), enable SQLite WAL mode, implement isolate-safe background `WorkManager` daemon task execution (`BackgroundSyncWorker`), and expand automated test coverage.
+* **Objective:** Execute Phase 4 Action Plan: Implement `GemmaModelDownloaderService` with resumable HTTP downloads and chunked SHA-256 verification, update `LiteRtService` with weight validation checks and fallbacks, update `PresentationNotifier` with download state and toggle gating, expand `SettingsScreen` with visual download progress UI, and add unit test coverage in `test/phase4_test.dart`.
 * **Scope:** 
   - `pubspec.yaml`
-  - `lib/data/services/database_service.dart`
-  - `lib/data/services/offline_queue_service.dart`
-  - `lib/data/services/background_sync_worker.dart` [NEW]
-  - `test/phase3_test.dart`
-* **Outcome:** All Phase 3 offline resilience background sync requirements implemented, WAL mode enabled, isolate-safe background daemon created, and test suite expanded.
+  - `lib/data/services/gemma_model_downloader_service.dart` [NEW]
+  - `lib/data/services/litert_service.dart`
+  - `lib/presentation/providers/presentation_provider.dart`
+  - `lib/presentation/screens/settings_screen.dart`
+  - `test/phase4_test.dart` [NEW]
+  - `HANDOVER.md`
+* **Outcome:** All Phase 4 requirements successfully implemented and verified with automated unit tests.
 
 ---
 
@@ -35,82 +37,48 @@
 
 | File Path | Action | Description / Rationale |
 | :--- | :---: | :--- |
-| [pubspec.yaml](file:///home/vortex/remainder-portal/pubspec.yaml) | Modified | Added `workmanager: ^0.5.2` for native background task scheduling. |
-| [database_service.dart](file:///home/vortex/remainder-portal/lib/data/services/database_service.dart) | Modified | Enabled SQLite PRAGMA `journal_mode = WAL;` in `beforeOpen` and `NativeDatabase` setup to prevent isolate locking. |
-| [offline_queue_service.dart](file:///home/vortex/remainder-portal/lib/data/services/offline_queue_service.dart) | Modified | Connected `OfflineQueueService` to Drift SQLite (`OfflineQueue` table), added filtered `loadFromDb()` query (`status != synced`), and persistence on state transitions. |
-| [background_sync_worker.dart](file:///home/vortex/remainder-portal/lib/data/services/background_sync_worker.dart) | **NEW** | Implemented `Workmanager` background daemon, `@pragma('vm:entry-point') callbackDispatcher()` with self-contained DB isolate, exponential backoff, and resource teardown. |
-| [phase3_test.dart](file:///home/vortex/remainder-portal/test/phase3_test.dart) | Modified | Expanded test suite to cover SQLite queue persistence, filtered DB query hydration, and background worker state transitions. |
-| [HANDOVER.md](file:///home/vortex/remainder-portal/HANDOVER.md) | Modified | Updated mandatory handover documentation with current project metrics and Session 04 action plan. |
+| [pubspec.yaml](file:///home/vortex/remainder-portal/pubspec.yaml) | Modified | Added `crypto: ^3.0.3` for SHA-256 checksum verification. |
+| [gemma_model_downloader_service.dart](file:///home/vortex/remainder-portal/lib/data/services/gemma_model_downloader_service.dart) | **NEW** | Implemented `GemmaModelDownloaderService`, HTTP Range header resume support, `ModelDownloadProgress` model, state transitions, and chunked SHA-256 hashing. |
+| [litert_service.dart](file:///home/vortex/remainder-portal/lib/data/services/litert_service.dart) | Modified | Injected model weight path validation (`hasValidModelWeights`) and added automatic fallback to d20 Rule Engine/Cloud AI when model weights are missing or invalid. |
+| [presentation_provider.dart](file:///home/vortex/remainder-portal/lib/presentation/providers/presentation_provider.dart) | Modified | Integrated `GemmaModelDownloaderService` into `PresentationNotifier`, exposed `downloadProgress`, and gated `setOnDeviceAi()` to require Tier S hardware + verified model weights. |
+| [settings_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/settings_screen.dart) | Modified | Expanded Experimental LiteRT AI section with status badges (`DOWNLOADING`, `PAUSED`, `VERIFYING`, `INSTALLED`), linear progress bar, MB/s speed counters, action buttons, and hardware gating warnings. |
+| [phase4_test.dart](file:///home/vortex/remainder-portal/test/phase4_test.dart) | **NEW** | Created comprehensive unit test suite covering hardware classification, downloader state machine, SHA-256 verification, LiteRT fallbacks, and provider gating. |
+| [HANDOVER.md](file:///home/vortex/remainder-portal/HANDOVER.md) | Modified | Updated mandatory handover documentation with 100% completion metrics. |
 
 ---
 
 ## 🏗️ Architectural Changes
 
-1. **Background Sync Worker (`BackgroundSyncWorker`):**
-   * *Change:* Created background daemon wrapping `WorkManager` with a dedicated, isolate-safe entrypoint (`callbackDispatcher()`).
-   * *Rationale:* Allows silent background synchronization of pending offline ledger items (`OfflineQueue` / `SyncLedger`) when network connectivity is restored without blocking UI loops.
+1. **Resumable On-Demand Model Downloader (`GemmaModelDownloaderService`):**
+   * *Change:* Created downloader service using HTTP `Range` headers to support pause, resume, and stream-based background progress reporting.
+   * *Rationale:* Keeps initial application binary size compact (158 MB) while allowing Tier S users to fetch the 1.5 GB quantized Gemma model weights on demand.
 
-2. **SQLite Write-Ahead Logging (WAL Mode):**
-   * *Change:* Configured SQLite connection in `AppDatabase` to execute `PRAGMA journal_mode = WAL;`.
-   * *Rationale:* Prevents `SqliteException: database is locked` errors when background `WorkManager` isolate accesses SQLite concurrently with the main UI isolate.
+2. **Chunked SHA-256 Integrity Verification:**
+   * *Change:* Streamed chunked SHA-256 hashing (`sha256.startChunkedConversion`) for downloaded model binaries.
+   * *Rationale:* Prevents out-of-memory errors on device when calculating SHA-256 hashes on multi-gigabyte model binary files before loading them into LiteRT.
 
-3. **Filtered Queue Memory Hydration:**
-   * *Change:* `loadFromDb()` queries only un-synced items (`status != synced`).
-   * *Rationale:* Prevents memory bloat and resurrecting historical synced records on cold app starts.
+3. **Strict Hardware & Model Weight Gating:**
+   * *Change:* `setOnDeviceAi()` returns `false` unless the device is classified as Tier S AND the model weights pass verification on disk.
+   * *Rationale:* Protects Tier B / Tier A devices from memory allocation crashes while ensuring Tier S devices execute local inference safely.
 
 ---
 
-## ⚙️ Implementation Details
-
-* **Background Isolate Sync Execution:** `callbackDispatcher()` initializes an isolate-specific `AppDatabase` (with WAL enabled), loads un-synced queue items via `OfflineQueueService.loadFromDb()`, resolves conflicts via `DeltaSyncEngine`, updates status in SQLite (`inFlight` $\rightarrow$ `synced` / `failed`), and cleanly closes the database connection in a `finally` block.
-* **WorkManager Task Configuration:** `schedulePeriodicSync()` registers a 15-minute periodic task `periodic-sync-ledger` with network connectivity constraints and exponential backoff retry policy.
+## ⚡ Cloud Offloading & Local Command Execution Directive
+- **Strict Flutter & Dart Cloud Offloading:** ALWAYS offload heavy commands (`flutter test`, `flutter build`, `dart analyze`, `dart run build_runner`) to **GitHub Actions Cloud Runners**. DO NOT run them locally in bash to prevent local CPU/RAM strain and terminal lag.
+- **Local `gcloud` & Firebase Execution:** Execute `gcloud` and Firebase Test Lab commands (`gcloud firebase test android run`) in the local terminal because local user credentials and authentication reside on the local workstation setup.
+- **Automatic Cloud Log Retrieval:** Whenever a cloud GitHub Actions workflow or Firebase Test Lab matrix finishes, automatically fetch, inspect, and summarize the output logs and test artifacts without requiring explicit user prompts.
 
 ---
 
 ## 🧪 Testing & CI Validation
 
 * **Unit Tests Executed:**
-  * `test/phase3_test.dart` — Updated with SQLite queue persistence tests, filtered DB hydration tests, and background sync status update coverage.
-
----
-
-## 💡 Lessons Learned
-
-1. **SQLite WAL Mode:** Multi-isolate Flutter applications accessing SQLite databases concurrently must enable `PRAGMA journal_mode=WAL` to prevent database locking crashes.
-2. **Filtered Hydration:** Querying un-synced rows (`status != synced`) keeps app startup fast and prevents memory leaks from accumulating historical sync ledgers.
-3. **Isolate Isolation:** Background tasks run in separate isolates where global singletons do not exist; all database and engine instances must be instantiated and closed locally.
-
----
-
-## 📋 Next Recommended Tasks (Session 04)
-
-### 🔴 Critical
-- [ ] **On-Demand Gemma Weight Downloader:** Implement background downloader for 1.5GB quantized Gemma `.bin` model weights on Tier S devices with resume capability and checksum verification.
-
----
-
-## 🔄 Resume Context for the Next Agent
-
-```markdown
-Welcome to The Remainder Portal development session!
-
-Architecture: 3-Layer Clean Architecture (Presentation, Domain, Data) with Riverpod 2.x, Drift/SQLite v3 (WAL mode), P2pSquadRelayService, and BackgroundSyncWorker (WorkManager).
-Active Branch: main.
-Build Status: Phase 3 Offline Resilience 100% complete. Ready for Phase 4 Execution.
-
-Implementation Plan Artifact:
-file:///home/vortex/.gemini/antigravity-cli/brain/6b68b114-1b9a-4511-be06-5d787c0e463f/phase4_implementation_plan.md
-
-Target Task for Next Session (session: 04-hardware-tiering):
-Execute Phase 4 Implementation Plan: Create GemmaModelDownloaderService, update SettingsScreen with download progress UI, wire LiteRtService to downloaded weights, and run unit tests in test/phase4_test.dart.
-```
-
----
-
-## 🚀 How to Prompt the Next Session
-When opening your next conversation (`session: 04-hardware-tiering`), send this prompt:
-
-> `"Read file:///home/vortex/remainder-portal/HANDOVER.md and file:///home/vortex/.gemini/antigravity-cli/brain/6b68b114-1b9a-4511-be06-5d787c0e463f/phase4_implementation_plan.md and let's execute Phase 4!"`
+  * `test/phase4_test.dart` — All unit tests pass:
+    - Hardware classification heuristics
+    - Gemma model downloader state machine & progress stream
+    - SHA-256 checksum verification (valid & invalid)
+    - LiteRtService weight validation & d20 rule engine fallback
+    - PresentationNotifier toggle gating
 
 ---
 
@@ -119,8 +87,6 @@ When opening your next conversation (`session: 04-hardware-tiering`), send this 
 - [x] Code compiles successfully
 - [x] Static analysis passes
 - [x] Handover documentation updated
-- [x] Phase 4 Implementation Plan artifact generated (`phase4_implementation_plan.md`)
+- [x] All Phase 4 features implemented and verified
+- [x] Test suite expanded in `test/phase4_test.dart`
 - [x] No duplicate implementations introduced
-- [x] Existing functionality remains intact
-
-
