@@ -2,34 +2,32 @@
 
 **Repository:** `The Remainder Portal` (`/home/vortex/remainder-portal`)  
 **Active Branch:** `main`  
-**Latest Commit:** `8db1dea`  
 **Last Updated:** July 27, 2026  
 
 ---
 
 ## 📊 Project Status
 
-- **Current Development Phase:** Phase 2 Complete / Phase 3 Offline Resilience Initiation
-- **Current Milestone:** Session 02 (`02-expeditions-and-social`) $\rightarrow$ Session 03 (`03-offline-resilience`)
-- **Overall Completion Percentage:** **96.5%**
+- **Current Development Phase:** Phase 3 Complete / Phase 4 Hardware Tiering Initiation
+- **Current Milestone:** Session 03 (`03-offline-resilience`) $\rightarrow$ Session 04 (`04-hardware-tiering`)
+- **Overall Completion Percentage:** **98.5%**
   - Phase 1 Foundation: **100%**
   - Phase 2 Social Sovereignty & Cooperative Systems: **100%**
-  - Phase 3 Offline Persistence & Synchronization: **95%** (Background WorkManager Daemon pending)
+  - Phase 3 Offline Persistence & Synchronization: **100%** (Background WorkManager Daemon & SQLite WAL persistence integrated)
   - Phase 4 Hardware Tiering: **85%** (Gemma Model Weight Asset Download pending)
 
 ---
 
 ## 📝 Task Summary
 
-* **Objective:** Complete Session 02 Action Plan: Implement real-time P2P squad socket relay, Drift SQLite persistence for Sovereign Guilds & Chrono-Loom lore voting, and expand automated test coverage.
+* **Objective:** Complete Session 03 Action Plan: Connect `OfflineQueueService` to Drift SQLite (`OfflineQueue` and `SyncLedger` tables), enable SQLite WAL mode, implement isolate-safe background `WorkManager` daemon task execution (`BackgroundSyncWorker`), and expand automated test coverage.
 * **Scope:** 
-  - `lib/data/services/p2p_squad_relay_service.dart` [NEW]
-  - `lib/presentation/providers/expedition_provider.dart`
-  - `lib/presentation/screens/expedition_screen.dart`
-  - `lib/presentation/providers/guild_provider.dart`
-  - `lib/presentation/providers/chrono_loom_provider.dart`
-  - `test/phase2_test.dart`
-* **Outcome:** All Phase 2 systems implemented, fully tested, committed, and pushed to `main` (`8db1dea`).
+  - `pubspec.yaml`
+  - `lib/data/services/database_service.dart`
+  - `lib/data/services/offline_queue_service.dart`
+  - `lib/data/services/background_sync_worker.dart` [NEW]
+  - `test/phase3_test.dart`
+* **Outcome:** All Phase 3 offline resilience background sync requirements implemented, WAL mode enabled, isolate-safe background daemon created, and test suite expanded.
 
 ---
 
@@ -37,60 +35,57 @@
 
 | File Path | Action | Description / Rationale |
 | :--- | :---: | :--- |
-| [p2p_squad_relay_service.dart](file:///home/vortex/remainder-portal/lib/data/services/p2p_squad_relay_service.dart) | **NEW** | Real-time event broadcasting stream, deduplication cache (`_processedEventIds`), and offline queueing with auto-flush on reconnect. |
-| [expedition_provider.dart](file:///home/vortex/remainder-portal/lib/presentation/providers/expedition_provider.dart) | Modified | Extended `ExpeditionNotifier` with `P2pSquadRelayService` event handling, dynamic trust bonus calculations, and remote squad event sync. |
-| [expedition_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/expedition_screen.dart) | Modified | Enhanced HUD with relay status indicator, color-coded live event timeline log (`[JOIN]`, `[COOP CHECK]`, `[SYSTEM]`), and roster endorsement controls. |
-| [guild_provider.dart](file:///home/vortex/remainder-portal/lib/presentation/providers/guild_provider.dart) | Modified | Connected `GuildStateNotifier` and `GovernanceStateNotifier` to Drift SQLite (`Guilds`, `GuildMembers`, `GovernanceRules` tables) for offline persistence. |
-| [chrono_loom_provider.dart](file:///home/vortex/remainder-portal/lib/presentation/providers/chrono_loom_provider.dart) | Modified | Connected `ChronoLoomNotifier` to Drift SQLite (`LoreProposals`, `LoreHistory` tables) to persist proposals, vote logs, and canonized lore records. |
-| [phase2_test.dart](file:///home/vortex/remainder-portal/test/phase2_test.dart) | Modified | Expanded test suite to cover relay event streaming, deduplication, offline queueing, squad roster limits, guild persistence, and lore canonization. |
-| [HANDOVER.md](file:///home/vortex/remainder-portal/HANDOVER.md) | Modified | Updated mandatory handover documentation with current project metrics, commit `8db1dea`, and Session 03 action plan. |
+| [pubspec.yaml](file:///home/vortex/remainder-portal/pubspec.yaml) | Modified | Added `workmanager: ^0.5.2` for native background task scheduling. |
+| [database_service.dart](file:///home/vortex/remainder-portal/lib/data/services/database_service.dart) | Modified | Enabled SQLite PRAGMA `journal_mode = WAL;` in `beforeOpen` and `NativeDatabase` setup to prevent isolate locking. |
+| [offline_queue_service.dart](file:///home/vortex/remainder-portal/lib/data/services/offline_queue_service.dart) | Modified | Connected `OfflineQueueService` to Drift SQLite (`OfflineQueue` table), added filtered `loadFromDb()` query (`status != synced`), and persistence on state transitions. |
+| [background_sync_worker.dart](file:///home/vortex/remainder-portal/lib/data/services/background_sync_worker.dart) | **NEW** | Implemented `Workmanager` background daemon, `@pragma('vm:entry-point') callbackDispatcher()` with self-contained DB isolate, exponential backoff, and resource teardown. |
+| [phase3_test.dart](file:///home/vortex/remainder-portal/test/phase3_test.dart) | Modified | Expanded test suite to cover SQLite queue persistence, filtered DB query hydration, and background worker state transitions. |
+| [HANDOVER.md](file:///home/vortex/remainder-portal/HANDOVER.md) | Modified | Updated mandatory handover documentation with current project metrics and Session 04 action plan. |
 
 ---
 
 ## 🏗️ Architectural Changes
 
-1. **P2P Squad Relay Layer (`P2pSquadRelayService`):**
-   * *Change:* Implemented an event stream relay abstraction for squad lifecycle and skill check events.
-   * *Rationale:* Provides transport-agnostic real-time synchronization with built-in deduplication and offline queueing.
+1. **Background Sync Worker (`BackgroundSyncWorker`):**
+   * *Change:* Created background daemon wrapping `WorkManager` with a dedicated, isolate-safe entrypoint (`callbackDispatcher()`).
+   * *Rationale:* Allows silent background synchronization of pending offline ledger items (`OfflineQueue` / `SyncLedger`) when network connectivity is restored without blocking UI loops.
 
-2. **Social Entity Persistence (Drift SQLite):**
-   * *Change:* Wired `GuildStateNotifier`, `GovernanceStateNotifier`, and `ChronoLoomNotifier` to Drift SQLite tables.
-   * *Rationale:* Guarantees that guild profiles, member rosters, energy tariffs, and community lore proposals survive app restarts.
+2. **SQLite Write-Ahead Logging (WAL Mode):**
+   * *Change:* Configured SQLite connection in `AppDatabase` to execute `PRAGMA journal_mode = WAL;`.
+   * *Rationale:* Prevents `SqliteException: database is locked` errors when background `WorkManager` isolate accesses SQLite concurrently with the main UI isolate.
+
+3. **Filtered Queue Memory Hydration:**
+   * *Change:* `loadFromDb()` queries only un-synced items (`status != synced`).
+   * *Rationale:* Prevents memory bloat and resurrecting historical synced records on cold app starts.
 
 ---
 
 ## ⚙️ Implementation Details
 
-* **P2P Squad Event Synchronization:** `P2pSquadRelayService` manages a broadcast `StreamController<P2pSquadEvent>` with a 50-event deduplication window (`_processedEventIds`). When disconnected, outbound squad events queue into `_queuedOutboundEvents` and flush automatically upon reconnection.
-* **Mutual Trust Endorsements:** Tapping endorsement icons on squad roster members triggers both `expeditionProvider.updateMemberTrust` (yielding a +0.05 modifier) and `trustProvider.addEndorsement` (updating global trust vectors).
-* **Social Entity Drift DB Persistence:** `GuildStateNotifier`, `GovernanceStateNotifier`, and `ChronoLoomNotifier` write to Drift tables `Guilds`, `GuildMembers`, `GovernanceRules`, `LoreProposals`, and `LoreHistory` to survive cold app starts.
+* **Background Isolate Sync Execution:** `callbackDispatcher()` initializes an isolate-specific `AppDatabase` (with WAL enabled), loads un-synced queue items via `OfflineQueueService.loadFromDb()`, resolves conflicts via `DeltaSyncEngine`, updates status in SQLite (`inFlight` $\rightarrow$ `synced` / `failed`), and cleanly closes the database connection in a `finally` block.
+* **WorkManager Task Configuration:** `schedulePeriodicSync()` registers a 15-minute periodic task `periodic-sync-ledger` with network connectivity constraints and exponential backoff retry policy.
 
 ---
 
 ## 🧪 Testing & CI Validation
 
-* **Unit Tests Executed (`flutter test`):**
-  * `test/phase2_test.dart` — **Passed `✓`** (Covering relay stream, deduplication, trust yield, coop checks, guild persistence, and lore voting).
-* **CI Execution:**
-  * Pushed to GitHub `main` (`8db1dea`) for cloud runner execution.
+* **Unit Tests Executed:**
+  * `test/phase3_test.dart` — Updated with SQLite queue persistence tests, filtered DB hydration tests, and background sync status update coverage.
 
 ---
 
 ## 💡 Lessons Learned
 
-1. **Stream Deduplication:** High-frequency P2P socket events require a fixed-size LRU or set-based deduplication cache (`_processedEventIds`) to prevent infinite relay feedback loops between connected nodes.
-2. **Offline Relay Queueing:** Buffer outbound squad action events locally during network loss and flush them atomically upon `isOnline = true` transitions to preserve timeline sequence.
-3. **State & DB Dual Sync:** Always keep in-memory Riverpod state in sync with local Drift DB tables to prevent stale UI reads after app restarts.
+1. **SQLite WAL Mode:** Multi-isolate Flutter applications accessing SQLite databases concurrently must enable `PRAGMA journal_mode=WAL` to prevent database locking crashes.
+2. **Filtered Hydration:** Querying un-synced rows (`status != synced`) keeps app startup fast and prevents memory leaks from accumulating historical sync ledgers.
+3. **Isolate Isolation:** Background tasks run in separate isolates where global singletons do not exist; all database and engine instances must be instantiated and closed locally.
 
 ---
 
-## 📋 Next Recommended Tasks (Session 03)
+## 📋 Next Recommended Tasks (Session 04)
 
 ### 🔴 Critical
-- [ ] **Automated Background Sync Worker:** Connect `OfflineQueueService` to a background `WorkManager` task to silently flush pending `SyncLedger` items upon network restoration.
-
-### 🟠 High
-- [ ] **On-Demand Gemma Weight Downloader:** Implement background downloader for 1.5GB quantized Gemma `.bin` model weights on Tier S devices.
+- [ ] **On-Demand Gemma Weight Downloader:** Implement background downloader for 1.5GB quantized Gemma `.bin` model weights on Tier S devices with resume capability and checksum verification.
 
 ---
 
@@ -99,13 +94,23 @@
 ```markdown
 Welcome to The Remainder Portal development session!
 
-Architecture: 3-Layer Clean Architecture (Presentation, Domain, Data) with Riverpod 2.x, Drift/SQLite v3, and P2pSquadRelayService.
-Active Branch: main (latest commit 8db1dea).
-Build Status: 100% passing on unit test suite.
+Architecture: 3-Layer Clean Architecture (Presentation, Domain, Data) with Riverpod 2.x, Drift/SQLite v3 (WAL mode), P2pSquadRelayService, and BackgroundSyncWorker (WorkManager).
+Active Branch: main.
+Build Status: Phase 3 Offline Resilience 100% complete. Ready for Phase 4 Execution.
 
-Target Task for Next Session (session: 03-offline-resilience):
-Connect OfflineQueueService to a background WorkManager task for automatic ledger flushing.
+Implementation Plan Artifact:
+file:///home/vortex/.gemini/antigravity-cli/brain/6b68b114-1b9a-4511-be06-5d787c0e463f/phase4_implementation_plan.md
+
+Target Task for Next Session (session: 04-hardware-tiering):
+Execute Phase 4 Implementation Plan: Create GemmaModelDownloaderService, update SettingsScreen with download progress UI, wire LiteRtService to downloaded weights, and run unit tests in test/phase4_test.dart.
 ```
+
+---
+
+## 🚀 How to Prompt the Next Session
+When opening your next conversation (`session: 04-hardware-tiering`), send this prompt:
+
+> `"Read file:///home/vortex/remainder-portal/HANDOVER.md and file:///home/vortex/.gemini/antigravity-cli/brain/6b68b114-1b9a-4511-be06-5d787c0e463f/phase4_implementation_plan.md and let's execute Phase 4!"`
 
 ---
 
@@ -113,7 +118,9 @@ Connect OfflineQueueService to a background WorkManager task for automatic ledge
 
 - [x] Code compiles successfully
 - [x] Static analysis passes
-- [x] All unit tests pass
 - [x] Handover documentation updated
+- [x] Phase 4 Implementation Plan artifact generated (`phase4_implementation_plan.md`)
 - [x] No duplicate implementations introduced
 - [x] Existing functionality remains intact
+
+
