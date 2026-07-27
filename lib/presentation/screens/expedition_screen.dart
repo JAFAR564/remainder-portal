@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/expedition_provider.dart';
 import '../providers/game_provider.dart';
+import '../providers/trust_provider.dart';
+import '../../data/services/p2p_squad_relay_service.dart';
 import '../widgets/crt_overlay.dart';
 import '../widgets/trust_badge_widget.dart';
 
@@ -59,6 +61,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
   Widget build(BuildContext context) {
     final expedition = ref.watch(expeditionProvider);
     final profile = ref.watch(playerProfileProvider);
+    final relayService = ref.watch(p2pSquadRelayProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0E17),
@@ -75,6 +78,34 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
         backgroundColor: const Color(0xFF161520),
         elevation: 0,
         centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: relayService.isOnline
+                      ? const Color(0xFF38B000).withValues(alpha: 0.2)
+                      : const Color(0xFFFF8E3C).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: relayService.isOnline ? const Color(0xFF38B000) : const Color(0xFFFF8E3C),
+                  ),
+                ),
+                child: Text(
+                  relayService.isOnline ? 'RELAY: ONLINE' : 'RELAY: OFFLINE (${relayService.queuedEventCount})',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'monospace',
+                    color: relayService.isOnline ? const Color(0xFF38B000) : const Color(0xFFFF8E3C),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
       ),
       body: CrtOverlay(
         child: SafeArea(
@@ -169,9 +200,10 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.white12),
                           onPressed: () {
+                            final newMemberId = 'user_${DateTime.now().millisecondsSinceEpoch}';
                             ref.read(expeditionProvider.notifier).addMember(
                               ExpeditionMemberModel(
-                                userId: 'user_${DateTime.now().millisecondsSinceEpoch}',
+                                userId: newMemberId,
                                 userName: 'Ally Specialist',
                                 assignedRole: 'Cyber Hacker',
                                 primaryStat: 12,
@@ -189,9 +221,18 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                   const SizedBox(height: 12),
 
                   // Squad Roster List
-                  const Text(
-                    'SQUAD ROSTER & ROLES',
-                    style: TextStyle(color: Color(0xFFFF8E3C), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'SQUAD ROSTER & ROLES',
+                        style: TextStyle(color: Color(0xFFFF8E3C), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                      ),
+                      Text(
+                        'LIVE P2P SYNCED',
+                        style: TextStyle(color: const Color(0xFF00E5FF).withValues(alpha: 0.8), fontSize: 9, fontFamily: 'monospace'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   Expanded(
@@ -208,27 +249,44 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.white12),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(m.userName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE53170).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(m.assignedRole, style: const TextStyle(color: Color(0xFFE53170), fontSize: 9, fontFamily: 'monospace')),
+                                  Row(
+                                    children: [
+                                      Text(m.userName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFE53170).withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text(m.assignedRole, style: const TextStyle(color: Color(0xFFE53170), fontSize: 9, fontFamily: 'monospace')),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Stat: ${m.primaryStat} | Mutual Trust: ${(m.trustScore * 100).toStringAsFixed(0)}%',
+                                    style: const TextStyle(color: Colors.white54, fontSize: 10),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Stat: ${m.primaryStat} | Mutual Trust: ${(m.trustScore * 100).toStringAsFixed(0)}%',
-                                style: const TextStyle(color: Colors.white54, fontSize: 10),
+                              IconButton(
+                                icon: const Icon(Icons.thumb_up_outlined, color: Color(0xFF00E5FF), size: 18),
+                                tooltip: 'Endorse Squad Member',
+                                onPressed: () {
+                                  ref.read(expeditionProvider.notifier).updateMemberTrust(m.userId, m.trustScore + 0.05);
+                                  ref.read(trustProvider.notifier).addEndorsement(
+                                    giverId: profile?.id ?? 'local',
+                                    receiverId: m.userId,
+                                    vector: TrustVector.vanguard,
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -236,6 +294,43 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                       },
                     ),
                   ),
+
+                  // Activity & Timeline Stream Log
+                  const Text(
+                    'SQUAD EVENT TIMELINE',
+                    style: TextStyle(color: Color(0xFF00E5FF), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  ),
+                  const SizedBox(height: 6),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0A0910),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: ListView.builder(
+                        itemCount: expedition.squadLogs.length,
+                        itemBuilder: (context, index) {
+                          final log = expedition.squadLogs[index];
+                          Color logColor = Colors.white70;
+                          if (log.startsWith('[JOIN]')) logColor = const Color(0xFF38B000);
+                          if (log.startsWith('[COOP CHECK]')) logColor = const Color(0xFFFF8E3C);
+                          if (log.startsWith('[SYSTEM]')) logColor = const Color(0xFF00E5FF);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Text(
+                              log,
+                              style: TextStyle(color: logColor, fontSize: 10, fontFamily: 'monospace'),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
 
                   // Trust Aura Widget
                   if (profile != null) ...[

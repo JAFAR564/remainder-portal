@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remainder_portal/domain/usecases/evaluate_cooperative_check.dart';
-import 'package:remainder_portal/domain/usecases/evaluate_consensus.dart';
+import 'package:remainder_portal/data/services/p2p_squad_relay_service.dart';
 import 'package:remainder_portal/presentation/providers/trust_provider.dart';
 import 'package:remainder_portal/presentation/providers/expedition_provider.dart';
 import 'package:remainder_portal/presentation/providers/guild_provider.dart';
@@ -48,6 +48,56 @@ void main() {
       expect(result.statusTitle, contains('SQUAD CRITICAL CONSENSUS REACHED'));
     });
 
+    test('P2pSquadRelayService broadcasts events, handles deduplication and offline queueing', () async {
+      final relay = P2pSquadRelayService();
+      final eventsReceived = <P2pSquadRelayEvent>[];
+
+      final sub = relay.eventStream.listen((event) {
+        eventsReceived.add(event);
+      });
+
+      final event1 = P2pSquadRelayEvent(
+        id: 'evt_001',
+        expeditionId: 'exp_100',
+        senderId: 'user_1',
+        senderName: 'Alpha',
+        eventType: SquadRelayEventType.squadAction,
+        payload: {'action': 'scout'},
+      );
+
+      final success1 = relay.broadcastEvent(event1);
+      expect(success1, isTrue);
+
+      // Duplicate broadcast with same ID should be ignored
+      final successDuplicate = relay.broadcastEvent(event1);
+      expect(successDuplicate, isFalse);
+
+      // Test offline queueing
+      relay.setOnlineStatus(false);
+      final event2 = P2pSquadRelayEvent(
+        id: 'evt_002',
+        expeditionId: 'exp_100',
+        senderId: 'user_2',
+        senderName: 'Bravo',
+        eventType: SquadRelayEventType.coopCheck,
+        payload: {'action': 'hack'},
+      );
+
+      final success2 = relay.broadcastEvent(event2);
+      expect(success2, isFalse); // Queued offline
+      expect(relay.queuedEventCount, 1);
+
+      // Reconnect and flush queue
+      relay.setOnlineStatus(true);
+      await pumpEventQueue();
+
+      expect(eventsReceived.length, 2);
+      expect(eventsReceived.last.id, 'evt_002');
+
+      await sub.cancel();
+      relay.dispose();
+    });
+
     test('TrustNotifier enforces daily cap of 3 endorsements and calculates score yields', () {
       final notifier = TrustNotifier();
 
@@ -65,8 +115,9 @@ void main() {
       expect(e4, isFalse);
     });
 
-    test('ExpeditionNotifier manages squad roster limits and skill check log history', () {
-      final notifier = ExpeditionNotifier();
+    test('ExpeditionNotifier manages squad roster limits, relay sync, and skill check log history', () {
+      final relay = P2pSquadRelayService();
+      final notifier = ExpeditionNotifier(relay);
 
       notifier.createExpedition(
         title: 'Bastion Raid',
@@ -75,8 +126,8 @@ void main() {
         sectorId: 'sectors_neon_bastion_4',
       );
 
-      expect(notifier.debugState, isNotNull);
-      expect(notifier.debugState!.members.length, 1);
+      expect(notifier.state, isNotNull);
+      expect(notifier.state!.members.length, 1);
 
       // Add 4 members up to max 5 limit
       for (int i = 2; i <= 5; i++) {
@@ -99,6 +150,9 @@ void main() {
         ),
       );
       expect(overflowMember, isFalse);
+
+      notifier.dispose();
+      relay.dispose();
     });
 
     test('GuildStateNotifier and GovernanceStateNotifier initialize sovereign governance', () {
@@ -110,9 +164,9 @@ void main() {
         masterName: 'Grandmaster Kael',
       );
 
-      expect(guildNotifier.debugState, isNotNull);
-      expect(guildNotifier.debugState!.name, 'Vanguard Syndicate');
-      expect(guildNotifier.debugState!.treasuryBalance, 500);
+      expect(guildNotifier.state, isNotNull);
+      expect(guildNotifier.state!.name, 'Vanguard Syndicate');
+      expect(guildNotifier.state!.treasuryBalance, 500);
 
       final govNotifier = GovernanceStateNotifier();
       govNotifier.updateGovernance(
@@ -122,7 +176,7 @@ void main() {
         laws: 'All traders pay 10% tariff to VNG Syndicate.',
       );
 
-      final sectorState = govNotifier.debugState['sectors_neon_bastion_4'];
+      final sectorState = govNotifier.state['sectors_neon_bastion_4'];
       expect(sectorState, isNotNull);
       expect(sectorState!.taxRate, 0.10);
       expect(sectorState.sectorLawBody, contains('10% tariff'));
@@ -139,7 +193,7 @@ void main() {
         proposedContent: 'Construct energy shield conduits.',
       );
 
-      final proposalId = notifier.debugState.proposals.first.id;
+      final proposalId = notifier.state.proposals.first.id;
 
       // Cast 5 affirmative votes to cross approval threshold
       for (int i = 0; i < 5; i++) {
@@ -152,10 +206,10 @@ void main() {
       }
 
       // Proposal should now be canonized (status 2) and added to canonizedHistory
-      final updatedProp = notifier.debugState.proposals.firstWhere((p) => p.id == proposalId);
+      final updatedProp = notifier.state.proposals.firstWhere((p) => p.id == proposalId);
       expect(updatedProp.status, 2); // Canonized
-      expect(notifier.debugState.canonizedHistory.length, greaterThanOrEqualTo(2));
-      expect(notifier.debugState.canonizedHistory.first.title, 'Bastion Energy Concordat');
+      expect(notifier.state.canonizedHistory.length, greaterThanOrEqualTo(2));
+      expect(notifier.state.canonizedHistory.first.title, 'Bastion Energy Concordat');
     });
   });
 }

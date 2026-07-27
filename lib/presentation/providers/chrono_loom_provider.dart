@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart';
 import '../../domain/usecases/evaluate_consensus.dart';
+import '../../data/services/database_service.dart';
+import 'game_provider.dart';
 
 class LoreProposalModel {
   final String id;
@@ -92,8 +95,9 @@ class ChronoLoomState {
 
 class ChronoLoomNotifier extends StateNotifier<ChronoLoomState> {
   final EvaluateConsensus _consensusEvaluator = EvaluateConsensus();
+  final AppDatabase? _db;
 
-  ChronoLoomNotifier()
+  ChronoLoomNotifier([this._db])
       : super(ChronoLoomState(
           proposals: [
             LoreProposalModel(
@@ -121,42 +125,107 @@ class ChronoLoomNotifier extends StateNotifier<ChronoLoomState> {
               canonizedAt: DateTime.now().subtract(const Duration(days: 30)),
             )
           ],
-        ));
+        )) {
+    _loadFromDb();
+  }
 
-  void submitProposal({
+  Future<void> _loadFromDb() async {
+    if (_db == null) return;
+    try {
+      final dbProposals = await _db!.select(_db!.loreProposals).get();
+      final dbHistory = await _db!.select(_db!.loreHistory).get();
+
+      final proposalsList = dbProposals.map((p) {
+        return LoreProposalModel(
+          id: p.id,
+          sectorId: p.sectorId,
+          authorId: p.authorUserId,
+          authorName: 'Author',
+          title: p.title,
+          proposedContent: p.proposedContent,
+          status: p.status,
+          yesVotes: p.yesVotes,
+          noVotes: p.noVotes,
+          votingEndsAt: p.votingEndsAt,
+        );
+      }).toList();
+
+      final historyList = dbHistory.map((h) {
+        return LoreHistoryModel(
+          id: h.id,
+          sectorId: h.sectorId,
+          proposalId: h.proposalId,
+          version: h.version,
+          title: 'Canon Lore #${h.version}',
+          markdownContent: h.markdownContent,
+          canonizedAt: h.canonizedAt,
+        );
+      }).toList();
+
+      if (proposalsList.isNotEmpty || historyList.isNotEmpty) {
+        state = state.copyWith(
+          proposals: proposalsList.isNotEmpty ? proposalsList : state.proposals,
+          canonizedHistory: historyList.isNotEmpty ? historyList : state.canonizedHistory,
+        );
+      }
+    } catch (_) {}
+  }
+
+  Future<void> submitProposal({
     required String sectorId,
     required String authorId,
     required String authorName,
     required String title,
     required String proposedContent,
-  }) {
+  }) async {
+    final propId = 'prop_${DateTime.now().millisecondsSinceEpoch}';
+    final votingEnds = DateTime.now().add(const Duration(days: 3));
+
     final newProp = LoreProposalModel(
-      id: 'prop_${DateTime.now().millisecondsSinceEpoch}',
+      id: propId,
       sectorId: sectorId,
       authorId: authorId,
       authorName: authorName,
       title: title,
       proposedContent: proposedContent,
       status: 1, // Active voting
-      votingEndsAt: DateTime.now().add(const Duration(days: 3)),
+      votingEndsAt: votingEnds,
     );
 
     state = state.copyWith(
       proposals: [newProp, ...state.proposals],
     );
+
+    if (_db != null) {
+      try {
+        await _db!.into(_db!.loreProposals).insertOnConflictUpdate(
+          LoreProposalsCompanion.insert(
+            id: propId,
+            sectorId: sectorId,
+            authorUserId: authorId,
+            title: title,
+            proposedContent: proposedContent,
+            status: 1,
+            yesVotes: const Value(0),
+            noVotes: const Value(0),
+            votingEndsAt: votingEnds,
+          ),
+        );
+      } catch (_) {}
+    }
   }
 
-  void castVote({
+  Future<void> castVote({
     required String proposalId,
     required bool isYes,
     required double trustScore,
     required int reputationRank,
-  }) {
+  }) async {
     final index = state.proposals.indexWhere((p) => p.id == proposalId);
     if (index == -1) return;
 
     final target = state.proposals[index];
-    if (target.status != 1) return; // Only active voting proposals
+    if (target.status != 1) return;
 
     final voter = VoterInfo(
       vote: isYes,
@@ -174,14 +243,14 @@ class ChronoLoomNotifier extends StateNotifier<ChronoLoomState> {
       voterLog: updatedVoters,
     );
 
-    // Evaluate if consensus reached
     bool approved = _consensusEvaluator.isApproved(updatedVoters);
     int newStatus = target.status;
     List<LoreHistoryModel> newHistory = state.canonizedHistory;
+    LoreHistoryModel? newHistoryEntry;
 
     if (updatedVoters.length >= 5 && approved) {
       newStatus = 2; // Canonized
-      final historyEntry = LoreHistoryModel(
+      newHistoryEntry = LoreHistoryModel(
         id: 'hist_${DateTime.now().millisecondsSinceEpoch}',
         sectorId: target.sectorId,
         proposalId: target.id,
@@ -190,7 +259,7 @@ class ChronoLoomNotifier extends StateNotifier<ChronoLoomState> {
         markdownContent: target.proposedContent,
         canonizedAt: DateTime.now(),
       );
-      newHistory = [historyEntry, ...newHistory];
+      newHistory = [newHistoryEntry, ...newHistory];
     } else if (updatedVoters.length >= 5 && !approved) {
       newStatus = 3; // Rejected
     }
@@ -204,9 +273,35 @@ class ChronoLoomNotifier extends StateNotifier<ChronoLoomState> {
       proposals: updatedProposals,
       canonizedHistory: newHistory,
     );
+
+    if (_db != null) {
+      try {
+        await (_db!.update(_db!.loreProposals)..where((tbl) => tbl.id.equals(target.id))).write(
+          LoreProposalsCompanion(
+            status: Value(newStatus),
+            yesVotes: Value(updatedYes),
+            noVotes: Value(updatedNo),
+          ),
+        );
+
+        if (newHistoryEntry != null) {
+          await _db!.into(_db!.loreHistory).insertOnConflictUpdate(
+            LoreHistoryCompanion.insert(
+              id: newHistoryEntry.id,
+              sectorId: newHistoryEntry.sectorId,
+              proposalId: newHistoryEntry.proposalId,
+              version: newHistoryEntry.version,
+              markdownContent: newHistoryEntry.markdownContent,
+              canonizedAt: newHistoryEntry.canonizedAt,
+            ),
+          );
+        }
+      } catch (_) {}
+    }
   }
 }
 
 final chronoLoomProvider = StateNotifierProvider<ChronoLoomNotifier, ChronoLoomState>((ref) {
-  return ChronoLoomNotifier();
+  final db = ref.watch(databaseProvider);
+  return ChronoLoomNotifier(db);
 });
