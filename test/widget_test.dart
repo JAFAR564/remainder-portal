@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
+import 'package:remainder_portal/presentation/screens/splash_screen.dart';
+import 'package:remainder_portal/presentation/screens/auth_screen.dart';
 
 void main() {
-  testWidgets('GenesisScreen initialization and inputs render', (WidgetTester tester) async {
+  testWidgets('SplashScreen and AuthScreen initialization render clean UI', (WidgetTester tester) async {
     // Build our app wrapped in ProviderScope and trigger a frame.
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
-          home: GenesisScreen(),
+          home: SplashScreen(),
         ),
       ),
     );
 
-    // Verify that the title and character input fields render properly.
+    // Verify that the title on SplashScreen renders properly.
     expect(find.text('THE REMAINDER PORTAL'), findsOneWidget);
-    expect(find.text('DESIGNATION IDENTIFIER (NAME)'), findsOneWidget);
+    expect(find.text('SOVEREIGN SYSTEM ADMIN & ROLEPLAY NEXUS'), findsOneWidget);
+
+    // Test AuthScreen directly
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: AuthScreen(),
+        ),
+      ),
+    );
+
+    expect(find.text('SYSTEM ADMIN AUTHORIZATION'), findsOneWidget);
+    expect(find.text('REGISTER OPERATOR'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
-
-    // Enter character designation name
-    await tester.enterText(find.byType(TextField), 'Vortex Scribe');
-    await tester.pump();
-
-    // Verify input text updated
-    expect(find.text('Vortex Scribe'), findsOneWidget);
   });
 }
