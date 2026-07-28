@@ -55,7 +55,7 @@ dependencies:
   path: any
   http: any
   crypto: ^3.0.3
-  workmanager: ^0.5.2
+  workmanager: ^0.9.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
