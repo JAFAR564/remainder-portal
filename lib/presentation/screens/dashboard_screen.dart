@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
+import '../widgets/equipment_slots_widget.dart';
+import '../widgets/social_post_card.dart';
 import 'descent_screen.dart';
 import 'terminal_screen.dart';
 import 'expedition_screen.dart';
 import 'guild_screen.dart';
 import 'chrono_loom_screen.dart';
 import 'trade_screen.dart';
-import 'settings_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -117,9 +118,13 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // 2. Solo Leveling Holographic System Quest Window
+              // 2. MMORPG Equipment & Gear Slots Widget
+              const EquipmentSlotsWidget(),
+              const SizedBox(height: 16),
+
+              // 3. Solo Leveling Holographic System Quest Window
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
@@ -188,9 +193,9 @@ class DashboardScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // 3. Sci-Fi / High Fantasy Stat Meter Gauges
+              // 4. Sci-Fi / High Fantasy Stat Meter Gauges
               const Text(
                 'SOVEREIGN VITALITY & ESSENCE GAUGES',
                 style: TextStyle(
@@ -207,7 +212,7 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: _buildStatTile(
-                      label: 'VITALITY CORE (HP)',
+                      label: 'VITALITY (HP)',
                       value: '$vitality / 20',
                       progress: vitality / 20.0,
                       color: Colors.redAccent,
@@ -217,7 +222,7 @@ class DashboardScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildStatTile(
-                      label: 'AETHER RESERVE (MP)',
+                      label: 'AETHER (MP)',
                       value: '$aether / 20',
                       progress: aether / 20.0,
                       color: const Color(0xFF00B4D8),
@@ -227,7 +232,7 @@ class DashboardScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildStatTile(
-                      label: 'SYSTEM ESSENCE (SP)',
+                      label: 'SYSTEM (SP)',
                       value: '$essence / 20',
                       progress: essence / 20.0,
                       color: const Color(0xFFD4AF37),
@@ -236,9 +241,9 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // 4. Subsystem Quick-Action Community Grid
+              // 5. Subsystem Quick-Action Community Grid
               const Text(
                 'SOVEREIGN SUBSYSTEMS & NEXUS HUBS',
                 style: TextStyle(
@@ -249,65 +254,101 @@ class DashboardScreen extends ConsumerWidget {
                   color: Color(0xFFD4AF37),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.35,
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.1,
                 children: [
                   _buildSubsystemCard(
                     context,
-                    title: 'Dungeon Descent',
-                    subtitle: 'Engage Sector Anomalies',
+                    title: 'Descent',
+                    subtitle: 'Dungeons',
                     icon: Icons.explore_outlined,
                     color: const Color(0xFFD4AF37),
                     targetScreen: const DescentScreen(),
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Nexus Roleplay',
-                    subtitle: 'IC/OOC Roleplay Chat',
+                    title: 'Nexus Chat',
+                    subtitle: 'IC/OOC RP',
                     icon: Icons.forum_outlined,
                     color: const Color(0xFF00B4D8),
                     targetScreen: const TerminalScreen(),
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Squad Matrix',
-                    subtitle: 'Co-op P2P Squads',
+                    title: 'Squads',
+                    subtitle: 'Co-op P2P',
                     icon: Icons.shield_outlined,
                     color: Colors.purpleAccent,
                     targetScreen: const ExpeditionScreen(),
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Sovereign Guilds',
-                    subtitle: 'Guild Halls & Treasury',
+                    title: 'Guilds',
+                    subtitle: 'Halls & Vault',
                     icon: Icons.fort_outlined,
                     color: Colors.amber,
                     targetScreen: const GuildScreen(),
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Chrono-Loom Canon',
-                    subtitle: 'Community Lore Voting',
+                    title: 'Canon',
+                    subtitle: 'Lore Votes',
                     icon: Icons.auto_stories_outlined,
                     color: Colors.tealAccent,
                     targetScreen: const ChronoLoomScreen(),
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Market Escrow',
-                    subtitle: 'P2P Asset Trading',
+                    title: 'Market',
+                    subtitle: 'Trading',
                     icon: Icons.swap_horiz_outlined,
                     color: Colors.lightGreenAccent,
                     targetScreen: const TradeScreen(),
                   ),
                 ],
+              ),
+              const SizedBox(height: 24),
+
+              // 6. Facebook-Style Social Roleplay Wall Feed
+              const Text(
+                'SOVEREIGN COMMUNITY WALL & NEWS FEED',
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                  color: Color(0xFFD4AF37),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              const SocialPostCard(
+                authorName: 'Aegis Commander Kaelen',
+                authorTitle: 'High Guardian | Guild: Covenant of Aegis',
+                avatarPath: 'assets/icon/app_icon.jpg',
+                timeAgo: '12m ago',
+                content: 'Shield barrier holding at 94% strength in Sector 4. Looking for two high-Aether sorcerers to join our raid party against the Shadow Serpent wave tonight!',
+                isIC: true,
+                initialLaurels: 24,
+                initialComments: 7,
+              ),
+
+              const SocialPostCard(
+                authorName: 'Cyber Hacker Nyx',
+                authorTitle: 'Neural Operator | Guild: Technomancers',
+                avatarPath: 'assets/icon/app_icon.jpg',
+                timeAgo: '45m ago',
+                content: 'OOC: Just finished designing the new lore proposal for the Ancient Aether Spire in the Chrono-Loom! Please check out the proposal thread and cast your vote!',
+                isIC: false,
+                initialLaurels: 41,
+                initialComments: 12,
               ),
             ],
           ),
@@ -382,32 +423,33 @@ class DashboardScreen extends ConsumerWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(14.0),
+        padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
           color: const Color(0xFF1C2541).withValues(alpha: 0.9),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: color.withValues(alpha: 0.5), width: 1.2),
           boxShadow: [
             BoxShadow(
               color: color.withValues(alpha: 0.1),
-              blurRadius: 10,
+              blurRadius: 8,
             ),
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 26),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontFamily: 'serif', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            const SizedBox(height: 2),
             Text(
               subtitle,
-              style: const TextStyle(fontSize: 10, color: Colors.white54),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 8, color: Colors.white54),
             ),
           ],
         ),
