@@ -19,6 +19,9 @@ void main() {
     expect(find.text('THE REMAINDER PORTAL'), findsOneWidget);
     expect(find.text('SOVEREIGN SYSTEM ADMIN & ROLEPLAY NEXUS'), findsOneWidget);
 
+    // Flush the pending timer on SplashScreen
+    await tester.pump(const Duration(seconds: 3));
+
     // Test AuthScreen directly
     await tester.pumpWidget(
       const ProviderScope(
