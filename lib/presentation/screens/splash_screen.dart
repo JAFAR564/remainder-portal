@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
 
-    Timer(const Duration(milliseconds: 2600), () {
+    Timer(const Duration(milliseconds: 1200), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(opacity: animation, child: child);
             },
-            transitionDuration: const Duration(milliseconds: 800),
+            transitionDuration: const Duration(milliseconds: 400),
           ),
         );
       }
@@ -57,7 +57,16 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B132B),
-      body: Center(
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const LoadingScreen()),
+            );
+          }
+        },
+        child: Center(
         child: AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {

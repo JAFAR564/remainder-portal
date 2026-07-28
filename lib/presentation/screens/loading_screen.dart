@@ -31,7 +31,7 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
       duration: const Duration(seconds: 3),
     )..repeat();
 
-    _timer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
       setState(() {
         if (_progress < 100) {
           _progress += 20;
