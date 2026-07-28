@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'monitoring_service.dart';
@@ -6,25 +7,35 @@ import 'monitoring_service.dart';
 class LiteRtService {
   final String _cloudEndpoint;
   final bool _isOnDeviceEnabled;
+  final String? _modelWeightPath;
   final MonitoringService _monitoring = MonitoringService();
 
   LiteRtService({
     String? cloudEndpoint,
     bool? isOnDeviceEnabled,
+    String? modelWeightPath,
   })  : _cloudEndpoint = cloudEndpoint ?? 'http://localhost:8080/api/gm',
         // On-device inference is blocked at startup for Tier A devices (e.g. Samsung Galaxy A04s)
         // because of low RAM (< 4GB) and no dedicated NPU accelerator.
-        _isOnDeviceEnabled = isOnDeviceEnabled ?? false;
+        _isOnDeviceEnabled = isOnDeviceEnabled ?? false,
+        _modelWeightPath = modelWeightPath;
+
+  bool get hasValidModelWeights {
+    if (_modelWeightPath == null) return false;
+    final file = File(_modelWeightPath!);
+    return file.existsSync() && file.lengthSync() > 0;
+  }
 
   Future<String> generateStoryResponse(String prompt, {String? characterClass}) async {
     final trace = await _monitoring.startTrace('generate_story_response');
-    trace.putAttribute('mode', _isOnDeviceEnabled ? 'local' : 'cloud');
+    final bool canRunOnDevice = _isOnDeviceEnabled && (_modelWeightPath == null || hasValidModelWeights);
+    trace.putAttribute('mode', canRunOnDevice ? 'local' : 'cloud');
     if (characterClass != null) {
       trace.putAttribute('class', characterClass);
     }
 
-    if (_isOnDeviceEnabled) {
-      // Local LiteRT-LM Gemma 3 (1B) execution placeholder (for Tier S/A+ devices)
+    if (canRunOnDevice) {
+      // Local LiteRT-LM Gemma 3 (1B) execution placeholder (for Tier S/A+ devices with verified model weights)
       await trace.stop();
       return '[On-Device Gemma 3 (1B) via LiteRT-LM]: $prompt';
     } else {

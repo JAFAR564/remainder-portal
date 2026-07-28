@@ -54,6 +54,8 @@ dependencies:
 
   path: any
   http: any
+  crypto: ^3.0.3
+  workmanager: ^0.5.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -64,6 +66,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/icon/
     - assets/okf/
     - assets/okf/lore/
     - assets/okf/lore/factions/

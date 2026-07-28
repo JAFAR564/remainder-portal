@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:drift/drift.dart';
+import 'package:remainder_portal/data/services/database_service.dart';
 
 enum QueueItemStatus { pending, inFlight, synced, failed }
 
@@ -46,12 +48,45 @@ class QueueItemModel {
 }
 
 class OfflineQueueService {
+  final AppDatabase? db;
   final List<QueueItemModel> _memoryQueue = [];
+
+  OfflineQueueService({this.db});
 
   List<QueueItemModel> get pendingItems =>
       _memoryQueue.where((item) => item.status == QueueItemStatus.pending).toList();
 
+  List<QueueItemModel> get allItems => List.unmodifiable(_memoryQueue);
+
   int get pendingCount => pendingItems.length;
+
+  Future<void> loadFromDb() async {
+    if (db == null) return;
+
+    // Fetch ONLY un-synced items from SQLite to prevent memory bloat and historical re-processing
+    final dbItems = await (db!.select(db!.offlineQueue)
+          ..where((tbl) => tbl.status.neq(QueueItemStatus.synced.index)))
+        .get();
+
+    _memoryQueue.clear();
+    for (final row in dbItems) {
+      final safeStatusIndex = (row.status >= 0 && row.status < QueueItemStatus.values.length)
+          ? row.status
+          : QueueItemStatus.pending.index;
+
+      _memoryQueue.add(QueueItemModel(
+        id: row.id,
+        idempotencyKey: row.idempotencyKey,
+        messageType: row.messageType,
+        payload: json.decode(row.payload) as Map<String, dynamic>,
+        dependencyId: row.dependencyId,
+        retryCount: row.retryCount,
+        status: QueueItemStatus.values[safeStatusIndex],
+        conflictMetadata: row.conflictMetadata,
+        createdAt: row.createdAt,
+      ));
+    }
+  }
 
   static String generateIdempotencyKey(String sender, String messageType, Map<String, dynamic> payload, DateTime time) {
     final raw = '$sender:$messageType:${json.encode(payload)}:${time.millisecondsSinceEpoch}';
@@ -86,6 +121,24 @@ class OfflineQueueService {
     );
 
     _memoryQueue.add(item);
+
+    // Asynchronously persist to SQLite if DB is connected
+    if (db != null) {
+      db!.into(db!.offlineQueue).insertOnConflictUpdate(
+        OfflineQueueCompanion.insert(
+          id: item.id,
+          idempotencyKey: item.idempotencyKey,
+          messageType: item.messageType,
+          payload: json.encode(item.payload),
+          dependencyId: Value(item.dependencyId),
+          retryCount: Value(item.retryCount),
+          status: Value(item.status.index),
+          conflictMetadata: Value(item.conflictMetadata),
+          createdAt: item.createdAt,
+        ),
+      );
+    }
+
     return item;
   }
 
@@ -98,6 +151,7 @@ class OfflineQueueService {
       if (index == -1) continue;
 
       _memoryQueue[index] = _memoryQueue[index].copyWith(status: QueueItemStatus.inFlight);
+      await _updateDbItem(_memoryQueue[index]);
 
       try {
         final success = await syncHandler(_memoryQueue[index]);
@@ -121,11 +175,25 @@ class OfflineQueueService {
           conflictMetadata: e.toString(),
         );
       }
+
+      await _updateDbItem(_memoryQueue[index]);
     }
     return syncedCount;
+  }
+
+  Future<void> _updateDbItem(QueueItemModel item) async {
+    if (db == null) return;
+    await (db!.update(db!.offlineQueue)..where((t) => t.id.equals(item.id))).write(
+      OfflineQueueCompanion(
+        retryCount: Value(item.retryCount),
+        status: Value(item.status.index),
+        conflictMetadata: Value(item.conflictMetadata),
+      ),
+    );
   }
 
   void clearSynced() {
     _memoryQueue.removeWhere((item) => item.status == QueueItemStatus.synced);
   }
 }
+

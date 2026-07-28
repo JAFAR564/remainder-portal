@@ -1,478 +1,417 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:remainder_portal/app/theme/portal_theme.dart';
-import 'package:remainder_portal/presentation/widgets/portal_background.dart';
-import 'package:remainder_portal/presentation/widgets/app_header.dart';
-import 'package:remainder_portal/presentation/widgets/circular_dashboard.dart';
-import 'package:remainder_portal/presentation/widgets/dashboard_radial_progress_ring.dart';
-import 'package:remainder_portal/presentation/widgets/center_emblem.dart';
-import 'package:remainder_portal/presentation/widgets/dashboard_status_icon.dart';
-import 'package:remainder_portal/presentation/widgets/horizontal_stat_card.dart';
-import 'package:remainder_portal/presentation/widgets/animated_progress_bar.dart';
-import 'package:remainder_portal/presentation/widgets/portal_action_button.dart';
-import 'package:remainder_portal/presentation/widgets/holographic_decorations.dart';
-import 'package:remainder_portal/presentation/screens/descent_screen.dart';
-import 'package:remainder_portal/presentation/screens/genesis_screen.dart';
-import 'package:remainder_portal/presentation/providers/game_provider.dart';
+import '../providers/game_provider.dart';
+import 'descent_screen.dart';
+import 'terminal_screen.dart';
+import 'expedition_screen.dart';
+import 'guild_screen.dart';
+import 'chrono_loom_screen.dart';
+import 'trade_screen.dart';
+import 'settings_screen.dart';
 
-import 'package:remainder_portal/presentation/screens/expedition_screen.dart';
-import 'package:remainder_portal/presentation/screens/guild_screen.dart';
-import 'package:remainder_portal/presentation/screens/chrono_loom_screen.dart';
-import 'package:remainder_portal/presentation/screens/trade_screen.dart';
-import 'package:remainder_portal/presentation/screens/creator_dashboard_screen.dart';
-import 'package:remainder_portal/presentation/screens/settings_screen.dart';
-
-/// The final screen composition for The Remainder Portal.
-///
-/// Coordinates all custom HUD visual units (background grid, frosted columns,
-/// radial progress, animated stat cards, and decorations) into a responsive,
-/// premium visor interface layout.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(playerProfileProvider);
-    return PortalBackground(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Decorative Holographic Vector Overlay (Star sparkles & crosshairs) - In background
-          const HolographicDecorations(),
 
-          // 2. Core Screen Layout Structure
-          Positioned.fill(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= 720.0;
+    final playerName = profile?.name ?? 'Operator Sung (Shadow Monarch)';
+    final playerOrigin = profile?.origin ?? 'Vanguard Class';
+    final vitality = profile?.stats.shieldIntegrity ?? 16;
+    final aether = profile?.stats.energyReserve ?? 18;
+    final essence = profile?.stats.computePower ?? 14;
 
-                if (isWide) {
-                  return _buildWideLayout(context, profile);
-                } else {
-                  return _buildNarrowLayout(context, profile);
-                }
-              },
-            ),
-          ),
-
-          // 3. Floating Action Button Overlay (Persistent, fixed bottom center)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: PortalTheme.spaceLG),
-              child: _buildActionButton(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Wide layout composition (Tablets, desktop, landscape orientations).
-  Widget _buildWideLayout(BuildContext context, PlayerProfile? profile) {
-    final double screenHeight = MediaQuery.sizeOf(context).height;
-
-    // Dynamically scale dashboard components based on available viewport height to prevent overflows
-    final double dashboardSize = screenHeight < 550.0 ? 210.0 : 300.0;
-    final double progressRingSize = screenHeight < 550.0 ? 172.0 : 246.0;
-    final double emblemSize = screenHeight < 550.0 ? 28.0 : 40.0;
-    final double iconSize = screenHeight < 550.0 ? 16.0 : 20.0;
-    final double headerVerticalPadding = screenHeight < 550.0 ? PortalTheme.spaceSM : PortalTheme.spaceLG;
-
-    return Column(
-      children: [
-        AppHeader(
-          padding: EdgeInsets.symmetric(
-            vertical: headerVerticalPadding,
-            horizontal: PortalTheme.spaceMD,
-          ),
-          subtitle: Text(
-            profile != null ? 'OPERATOR: ${profile.name.toUpperCase()} [${profile.origin.toUpperCase()}]' : 'SYSTEM ID: UNREGISTERED (DEFAULT PROTOTYPE)',
-            style: const TextStyle(
-              color: Color(0xFF00E5FF),
-              fontSize: 11.0,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
-          actions: [
-            PopupMenuButton<Widget>(
-              icon: const Icon(Icons.apps_rounded, color: Color(0xFF00E5FF), size: 26),
-              tooltip: 'Navigation Matrix',
-              color: const Color(0xFF161520),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: Color(0xFF00E5FF), width: 1),
-              ),
-              onSelected: (Widget targetScreen) {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => targetScreen),
-                );
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: GenesisScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.person_add_outlined, color: Color(0xFF00E5FF), size: 18),
-                      SizedBox(width: 12),
-                      Text('Character Genesis', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: ExpeditionScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.groups_outlined, color: Color(0xFFE53170), size: 18),
-                      SizedBox(width: 12),
-                      Text('Expedition Squad Matrix', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: GuildScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C), size: 18),
-                      SizedBox(width: 12),
-                      Text('Sovereign Guilds', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: ChronoLoomScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166), size: 18),
-                      SizedBox(width: 12),
-                      Text('Chrono-Loom Canon', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: TradeScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000), size: 18),
-                      SizedBox(width: 12),
-                      Text('P2P Escrow Market', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: CreatorDashboardScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.design_services_outlined, color: Color(0xFFE53170), size: 18),
-                      SizedBox(width: 12),
-                      Text('Creator Authoring Suite', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: SettingsScreen(),
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings_outlined, color: Colors.white70, size: 18),
-                      SizedBox(width: 12),
-                      Text('System Settings', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: PortalTheme.spaceLG),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Column 1: Left stat pills (Scrollable on short viewports)
-                Expanded(
-                  flex: 3,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildLeftCards(profile),
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B132B),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. System Administrator Header Card
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C2541).withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.5), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+                      blurRadius: 15,
                     ),
-                  ),
+                  ],
                 ),
-
-                // Column 2: Center Circular Dashboard
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildCircularDashboard(
-                        size: dashboardSize,
-                        ringSize: progressRingSize,
-                        emblemSize: emblemSize,
-                        iconSize: iconSize,
-                        profile: profile,
+                child: Row(
+                  children: [
+                    // Operator Avatar Emblem
+                    Container(
+                      width: 54,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFD4AF37), width: 2),
                       ),
-                      // Add bottom spacer to account for the floating FAB overlay
-                      const SizedBox(height: 56.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(27),
+                        child: Image.asset(
+                          'assets/icon/app_icon.jpg',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFFD4AF37)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    
+                    // Name & Title Readouts
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            playerName.toUpperCase(),
+                            style: const TextStyle(
+                              fontFamily: 'serif',
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFD4AF37),
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'CLASS: $playerOrigin | RANK: S-RANK',
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 10,
+                              color: Color(0xFF00B4D8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Level Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFD4AF37)),
+                      ),
+                      child: const Column(
+                        children: [
+                          Text(
+                            'LEVEL',
+                            style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFFD4AF37)),
+                          ),
+                          Text(
+                            '88',
+                            style: TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 2. Solo Leveling Holographic System Quest Window
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF00B4D8).withValues(alpha: 0.15),
+                      const Color(0xFFD4AF37).withValues(alpha: 0.15),
                     ],
                   ),
-                ),
-
-                // Column 3: Right stat pills (Scrollable on short viewports)
-                Expanded(
-                  flex: 3,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildRightCards(profile),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF00B4D8).withValues(alpha: 0.8), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00B4D8).withValues(alpha: 0.2),
+                      blurRadius: 15,
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Narrow layout composition (Mobile portrait orientations).
-  Widget _buildNarrowLayout(BuildContext context, PlayerProfile? profile) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: PortalTheme.spaceMD),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          AppHeader(
-            padding: const EdgeInsets.only(
-              top: PortalTheme.spaceLG,
-              bottom: PortalTheme.spaceMD,
-            ),
-            subtitle: Text(
-              profile != null ? 'OPERATOR: ${profile.name.toUpperCase()}' : 'SYSTEM ID: UNREGISTERED',
-              style: const TextStyle(
-                color: Color(0xFF00E5FF),
-                fontSize: 11.0,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.notifications_active_outlined, color: Color(0xFF00B4D8), size: 18),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'SYSTEM ADMINISTRATOR QUEST NOTICE',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF00B4D8),
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.redAccent),
+                          ),
+                          child: const Text(
+                            'URGENT',
+                            style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: Colors.redAccent, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'QUEST: Clear Anomaly Wave in Sector 4 (Neon Bastion)',
+                      style: TextStyle(
+                        fontFamily: 'serif',
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'The System Administrator AI (Cardinal) has detected dimensional instability. Assemble squad matrix or engage solo descent.',
+                      style: TextStyle(fontSize: 11, color: Colors.white70),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            actions: [
-              PopupMenuButton<Widget>(
-                icon: const Icon(Icons.apps_rounded, color: Color(0xFF00E5FF), size: 26),
-                tooltip: 'Navigation Matrix',
-                color: const Color(0xFF161520),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Color(0xFF00E5FF), width: 1),
+              const SizedBox(height: 20),
+
+              // 3. Sci-Fi / High Fantasy Stat Meter Gauges
+              const Text(
+                'SOVEREIGN VITALITY & ESSENCE GAUGES',
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                  color: Color(0xFFD4AF37),
                 ),
-                onSelected: (Widget targetScreen) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => targetScreen),
-                  );
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: GenesisScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.person_add_outlined, color: Color(0xFF00E5FF), size: 18),
-                        SizedBox(width: 12),
-                        Text('Character Genesis', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
+              ),
+              const SizedBox(height: 10),
+              
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatTile(
+                      label: 'VITALITY CORE (HP)',
+                      value: '$vitality / 20',
+                      progress: vitality / 20.0,
+                      color: Colors.redAccent,
+                      icon: Icons.favorite_outline,
                     ),
                   ),
-                  const PopupMenuItem(
-                    value: ExpeditionScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.groups_outlined, color: Color(0xFFE53170), size: 18),
-                        SizedBox(width: 12),
-                        Text('Expedition Squad Matrix', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildStatTile(
+                      label: 'AETHER RESERVE (MP)',
+                      value: '$aether / 20',
+                      progress: aether / 20.0,
+                      color: const Color(0xFF00B4D8),
+                      icon: Icons.bolt_outlined,
                     ),
                   ),
-                  const PopupMenuItem(
-                    value: GuildScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C), size: 18),
-                        SizedBox(width: 12),
-                        Text('Sovereign Guilds', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _buildStatTile(
+                      label: 'SYSTEM ESSENCE (SP)',
+                      value: '$essence / 20',
+                      progress: essence / 20.0,
+                      color: const Color(0xFFD4AF37),
+                      icon: Icons.auto_awesome_outlined,
                     ),
                   ),
-                  const PopupMenuItem(
-                    value: ChronoLoomScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.auto_stories_outlined, color: Color(0xFFFFD166), size: 18),
-                        SizedBox(width: 12),
-                        Text('Chrono-Loom Canon', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
-                    ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // 4. Subsystem Quick-Action Community Grid
+              const Text(
+                'SOVEREIGN SUBSYSTEMS & NEXUS HUBS',
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                  color: Color(0xFFD4AF37),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.35,
+                children: [
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Dungeon Descent',
+                    subtitle: 'Engage Sector Anomalies',
+                    icon: Icons.explore_outlined,
+                    color: const Color(0xFFD4AF37),
+                    targetScreen: const DescentScreen(),
                   ),
-                  const PopupMenuItem(
-                    value: TradeScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.swap_horiz_outlined, color: Color(0xFF38B000), size: 18),
-                        SizedBox(width: 12),
-                        Text('P2P Escrow Market', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
-                    ),
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Nexus Roleplay',
+                    subtitle: 'IC/OOC Roleplay Chat',
+                    icon: Icons.forum_outlined,
+                    color: const Color(0xFF00B4D8),
+                    targetScreen: const TerminalScreen(),
                   ),
-                  const PopupMenuItem(
-                    value: CreatorDashboardScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.design_services_outlined, color: Color(0xFFE53170), size: 18),
-                        SizedBox(width: 12),
-                        Text('Creator Authoring Suite', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
-                    ),
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Squad Matrix',
+                    subtitle: 'Co-op P2P Squads',
+                    icon: Icons.shield_outlined,
+                    color: Colors.purpleAccent,
+                    targetScreen: const ExpeditionScreen(),
                   ),
-                  const PopupMenuItem(
-                    value: SettingsScreen(),
-                    child: Row(
-                      children: [
-                        Icon(Icons.settings_outlined, color: Colors.white70, size: 18),
-                        SizedBox(width: 12),
-                        Text('System Settings', style: TextStyle(color: Colors.white, fontSize: 12, fontFamily: 'monospace')),
-                      ],
-                    ),
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Sovereign Guilds',
+                    subtitle: 'Guild Halls & Treasury',
+                    icon: Icons.fort_outlined,
+                    color: Colors.amber,
+                    targetScreen: const GuildScreen(),
+                  ),
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Chrono-Loom Canon',
+                    subtitle: 'Community Lore Voting',
+                    icon: Icons.auto_stories_outlined,
+                    color: Colors.tealAccent,
+                    targetScreen: const ChronoLoomScreen(),
+                  ),
+                  _buildSubsystemCard(
+                    context,
+                    title: 'Market Escrow',
+                    subtitle: 'P2P Asset Trading',
+                    icon: Icons.swap_horiz_outlined,
+                    color: Colors.lightGreenAccent,
+                    targetScreen: const TradeScreen(),
                   ),
                 ],
               ),
             ],
           ),
-          _buildCircularDashboard(
-            size: 300.0,
-            ringSize: 246.0,
-            emblemSize: 40.0,
-            iconSize: 20.0,
-            profile: profile,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatTile({
+    required String label,
+    required String value,
+    required double progress,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(10.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C2541).withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 14),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: color, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: PortalTheme.spaceLG),
-          
-          // Vertically list all cards in mobile view
-          ..._buildLeftCards(profile),
-          ..._buildRightCards(profile),
-          
-          // Bottom scroll spacer to allow scrolling above the fixed floating FAB overlay
-          const SizedBox(height: 96.0),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              backgroundColor: Colors.white10,
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 4,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // --- Layout Helper Creators ---
-
-  Widget _buildCircularDashboard({
-    required double size,
-    required double ringSize,
-    required double emblemSize,
-    required double iconSize,
-    PlayerProfile? profile,
+  Widget _buildSubsystemCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required Widget targetScreen,
   }) {
-    final computeVal = profile?.stats.computePower ?? 10;
-    final shieldVal = profile?.stats.shieldIntegrity ?? 10;
-    final energyVal = profile?.stats.energyReserve ?? 10;
-
-    return CircularDashboard(
-      size: size,
-      progressRing: DashboardRadialProgressRing(
-        size: ringSize,
-        outerProgress: (computeVal / 20.0).clamp(0.0, 1.0),
-        innerProgress: (shieldVal / 20.0).clamp(0.0, 1.0),
-      ),
-      centerEmblem: CenterEmblem(
-        size: emblemSize,
-      ),
-      topReadout: DashboardStatusIcon(
-        icon: Icons.bolt,
-        value: '$computeVal',
-        iconSize: iconSize,
-      ),
-      leftReadout: DashboardStatusIcon(
-        icon: Icons.shield,
-        value: '$shieldVal',
-        iconSize: iconSize,
-      ),
-      rightReadout: DashboardStatusIcon(
-        icon: Icons.battery_charging_full,
-        value: '$energyVal',
-        iconSize: iconSize,
-      ),
-      bottomReadout: DashboardStatusIcon(
-        icon: Icons.wifi,
-        value: profile != null ? 'SYNC' : '16.23',
-        iconSize: iconSize,
-      ),
-    );
-  }
-
-  Widget _buildActionButton(BuildContext context) {
-    return PortalActionButton(
+    return GestureDetector(
       onTap: () {
-        // Navigate forward in game flow to descent screen selector matrix
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const DescentScreen()),
+          MaterialPageRoute(builder: (context) => targetScreen),
         );
       },
+      child: Container(
+        padding: const EdgeInsets.all(14.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C2541).withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 26),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 10, color: Colors.white54),
+            ),
+          ],
+        ),
+      ),
     );
-  }
-
-  List<Widget> _buildLeftCards(PlayerProfile? profile) {
-    final compute = profile?.stats.computePower ?? 10;
-    final shield = profile?.stats.shieldIntegrity ?? 10;
-    final energy = profile?.stats.energyReserve ?? 10;
-
-    return [
-      HorizontalStatCard(
-        label: 'Compute Power',
-        value: '$compute / 20',
-        progressBar: AnimatedProgressBar(value: (compute / 20.0).clamp(0.0, 1.0)),
-      ),
-      const SizedBox(height: PortalTheme.spaceMD),
-      HorizontalStatCard(
-        label: 'Shield Integrity',
-        value: '$shield / 20',
-        progressBar: AnimatedProgressBar(value: (shield / 20.0).clamp(0.0, 1.0)),
-      ),
-      const SizedBox(height: PortalTheme.spaceMD),
-      HorizontalStatCard(
-        label: 'Energy Reserve',
-        value: '$energy / 20',
-        progressBar: AnimatedProgressBar(value: (energy / 20.0).clamp(0.0, 1.0)),
-      ),
-    ];
-  }
-
-  List<Widget> _buildRightCards(PlayerProfile? profile) {
-    return [
-      HorizontalStatCard(
-        label: 'Origin Class',
-        value: profile?.origin.toUpperCase() ?? 'VANGUARD',
-        progressBar: const AnimatedProgressBar(value: 0.85),
-      ),
-      const SizedBox(height: PortalTheme.spaceMD),
-      HorizontalStatCard(
-        label: 'Active Sector',
-        value: profile?.activeSector.replaceAll('sectors_', '').toUpperCase() ?? 'NEON BASTION',
-        progressBar: const AnimatedProgressBar(value: 0.70),
-      ),
-      const SizedBox(height: PortalTheme.spaceMD),
-      HorizontalStatCard(
-        label: 'Neural Sync',
-        value: profile != null ? '100%' : 'DEMO MODE',
-        progressBar: const AnimatedProgressBar(value: 0.95),
-      ),
-    ];
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:remainder_portal/presentation/screens/dashboard_screen.dart';
+import 'package:remainder_portal/presentation/screens/splash_screen.dart';
 import 'package:remainder_portal/app/theme/portal_theme.dart';
 import 'package:remainder_portal/data/services/monitoring_service.dart';
 
@@ -39,17 +39,17 @@ class MyApp extends StatelessWidget {
       title: 'The Remainder Portal',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF1A1A24),
+        scaffoldBackgroundColor: const Color(0xFF0B132B),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF00E5FF),
-          secondary: Color(0xFFB0B3C1),
-          surface: Color(0xFF1A1A24),
+          primary: Color(0xFFD4AF37),
+          secondary: Color(0xFF00B4D8),
+          surface: Color(0xFF1C2541),
         ),
         extensions: <ThemeExtension<dynamic>>[
           PortalTheme.dark(),
         ],
       ),
-      home: const DashboardScreen(),
+      home: const SplashScreen(),
     );
   }
 }

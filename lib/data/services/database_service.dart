@@ -305,6 +305,7 @@ class AppDatabase extends _$AppDatabase {
       },
       beforeOpen: (OpeningDetails details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
+        await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
   }
@@ -314,6 +315,8 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'remainder_portal.db'));
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase(file, setup: (rawDb) {
+      rawDb.execute('PRAGMA journal_mode=WAL;');
+    });
   });
 }

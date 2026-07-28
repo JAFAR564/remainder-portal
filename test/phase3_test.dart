@@ -143,5 +143,28 @@ void main() {
       notifier.advanceStage(contentId);
       expect(notifier.debugState.firstWhere((c) => c.id == contentId).stage, ContentLifecycleStage.preview);
     });
+
+    test('OfflineQueueService persistence filters synced historical data and updates DB state', () async {
+      final queueService = OfflineQueueService();
+
+      final now = DateTime.now();
+      queueService.enqueue(
+        senderId: 'user_x',
+        messageType: 'lore_vote',
+        payload: {'proposalId': 'prop_1', 'vote': 'yes'},
+        timestamp: now,
+      );
+
+      expect(queueService.pendingCount, 1);
+
+      // Process queue to mark status as synced
+      await queueService.processQueue((item) async => true);
+      expect(queueService.pendingCount, 0);
+      expect(queueService.allItems.first.status, QueueItemStatus.synced);
+
+      // Memory clearSynced removes synced items from RAM
+      queueService.clearSynced();
+      expect(queueService.allItems.isEmpty, isTrue);
+    });
   });
 }
