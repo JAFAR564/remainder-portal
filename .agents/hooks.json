@@ -1,0 +1,36 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "inject-memory-and-graph-context",
+      "trigger": "PreInvocation",
+      "action": {
+        "type": "command",
+        "command": "bash .agents/hooks/pre_invocation.sh"
+      },
+      "timeout": 15,
+      "enabled": true
+    },
+    {
+      "name": "auto-update-graphify-ast",
+      "trigger": "PostToolUse",
+      "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+      "action": {
+        "type": "command",
+        "command": "bash .agents/hooks/post_tool_use.sh"
+      },
+      "timeout": 10,
+      "enabled": true
+    },
+    {
+      "name": "persist-napkin-and-mem0",
+      "trigger": "PostInvocation",
+      "action": {
+        "type": "command",
+        "command": "bash .agents/hooks/post_invocation.sh"
+      },
+      "timeout": 15,
+      "enabled": true
+    }
+  ]
+}
