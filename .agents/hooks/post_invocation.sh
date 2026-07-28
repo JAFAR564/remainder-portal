@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # .agents/hooks/post_invocation.sh
-# Persist user corrections into Napkin and Mem0
+# Persist user corrections into Napkin and Mem0 (Antigravity CLI)
 
 INPUT=$(cat)
 USER_CORRECTION=$(python3 -c 'import json, sys; d=json.load(sys.stdin); print(d.get("user_feedback",""))' <<< "$INPUT" 2>/dev/null || echo "")
 
-NAPKIN_PATH=".claude/napkin.md"
+NAPKIN_PATH=".antigravity/napkin.md"
 if [ ! -f "$NAPKIN_PATH" ]; then
   if [ -f "scratch/napkin.md" ]; then
     NAPKIN_PATH="scratch/napkin.md"
+  else
+    mkdir -p .antigravity
+    NAPKIN_PATH=".antigravity/napkin.md"
   fi
 fi
 

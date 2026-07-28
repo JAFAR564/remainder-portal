@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # .agents/hooks/pre_invocation.sh
-# Session Start Context Injection for Mem0, Napkin, and Graphify
+# Session Start Context Injection for Mem0, Napkin, and Graphify (Antigravity CLI)
 
 MEM0_PREFS=$(mem0 --agent search "user preferences and coding style" --user-id default 2>/dev/null)
 
-NAPKIN_PATH=".claude/napkin.md"
+NAPKIN_PATH=".antigravity/napkin.md"
 if [ ! -f "$NAPKIN_PATH" ]; then
   if [ -f "scratch/napkin.md" ]; then
     NAPKIN_PATH="scratch/napkin.md"
   else
-    mkdir -p .claude
-    cat << 'EOF' > .claude/napkin.md
-# Napkin Notes
+    mkdir -p .antigravity
+    cat << 'EOF' > .antigravity/napkin.md
+# Napkin Notes (Antigravity CLI Workspace)
 ## Active Execution Context
 ## User Feedback & Corrections
 ## Repo Architectural Directives
