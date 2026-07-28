@@ -150,9 +150,9 @@ class _SocialPostCardState extends State<SocialPostCard> {
           // 2. Post Body Text
           Text(
             widget.content,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Colors.white90,
+              color: Colors.white.withValues(alpha: 0.9),
               height: 1.4,
             ),
           ),

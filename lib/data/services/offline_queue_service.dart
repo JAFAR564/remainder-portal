@@ -65,7 +65,7 @@ class OfflineQueueService {
 
     // Fetch ONLY un-synced items from SQLite to prevent memory bloat and historical re-processing
     final dbItems = await (db!.select(db!.offlineQueue)
-          ..where((tbl) => tbl.status.neq(QueueItemStatus.synced.index)))
+          ..where((tbl) => tbl.status.equals(QueueItemStatus.synced.index).not()))
         .get();
 
     _memoryQueue.clear();

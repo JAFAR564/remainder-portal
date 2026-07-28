@@ -342,17 +342,8 @@ class GemmaModelDownloaderService {
     final file = File(filePath);
     if (!await file.exists()) return false;
 
-    final output = AccumulatorSink<Digest>();
-    final input = sha256.startChunkedConversion(output);
-
-    final stream = file.openRead();
-    await for (final chunk in stream) {
-      input.add(chunk);
-    }
-    input.close();
-
-    final computedHash = output.events.single.toString();
-    return computedHash.toLowerCase() == expectedSha256.toLowerCase();
+    final digest = await sha256.bind(file.openRead()).first;
+    return digest.toString().toLowerCase() == expectedSha256.toLowerCase();
   }
 
   void _updateProgress(ModelDownloadProgress progress) {
