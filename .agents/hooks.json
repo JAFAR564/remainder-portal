@@ -2,7 +2,7 @@
   "version": "v1",
   "hooks": [
     {
-      "name": "inject-memory-and-graph-context",
+      "name": "1-inject-memory-and-graph-context",
       "trigger": "PreInvocation",
       "action": {
         "type": "command",
@@ -12,7 +12,18 @@
       "enabled": true
     },
     {
-      "name": "auto-update-graphify-ast",
+      "name": "2-safety-guardrails-and-validation",
+      "trigger": "PreToolUse",
+      "matcher": "run_command",
+      "action": {
+        "type": "command",
+        "command": "bash .agents/hooks/pre_tool_use.sh"
+      },
+      "timeout": 5,
+      "enabled": true
+    },
+    {
+      "name": "3-auto-update-graphify-ast",
       "trigger": "PostToolUse",
       "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
       "action": {
@@ -23,13 +34,23 @@
       "enabled": true
     },
     {
-      "name": "persist-napkin-and-mem0",
+      "name": "4-persist-napkin-and-mem0",
       "trigger": "PostInvocation",
       "action": {
         "type": "command",
         "command": "bash .agents/hooks/post_invocation.sh"
       },
       "timeout": 15,
+      "enabled": true
+    },
+    {
+      "name": "5-log-subagent-lifecycle",
+      "trigger": "OnSubagentStart",
+      "action": {
+        "type": "command",
+        "command": "bash .agents/hooks/on_subagent_start.sh"
+      },
+      "timeout": 5,
       "enabled": true
     }
   ]
