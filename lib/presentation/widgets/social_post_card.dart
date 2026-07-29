@@ -204,15 +204,15 @@ class _SocialPostCardState extends State<SocialPostCard> {
               InkWell(
                 onTap: () {},
                 borderRadius: BorderRadius.circular(8),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: Row(
                     children: [
-                      Icon(Icons.mode_comment_outlined, color: Color(0xFF666666), size: 18),
-                      SizedBox(width: 6),
+                      const Icon(Icons.mode_comment_outlined, color: Color(0xFF666666), size: 18),
+                      const SizedBox(width: 6),
                       Text(
                         '$_comments COMMENTS',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
                           color: Color(0xFF666666),
