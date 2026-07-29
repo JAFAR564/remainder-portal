@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
 import 'main_navigation_shell.dart';
+import 'story_prologue_screen.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -33,8 +34,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     );
 
     if (mounted) {
+      final targetScreen = _isSignUp ? const StoryPrologueScreen() : const MainNavigationShell();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainNavigationShell()),
+        MaterialPageRoute(builder: (context) => targetScreen),
       );
     }
   }
