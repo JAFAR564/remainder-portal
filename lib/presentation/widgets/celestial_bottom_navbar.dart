@@ -20,10 +20,12 @@ class CelestialBottomNavbar extends StatelessWidget {
       _NavbarItem(icon: Icons.settings_outlined, activeIcon: Icons.settings, label: 'SETTINGS'),
     ];
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
+    return SafeArea(
+      bottom: true,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
@@ -83,8 +85,9 @@ class CelestialBottomNavbar extends StatelessWidget {
           );
         }),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _NavbarItem {

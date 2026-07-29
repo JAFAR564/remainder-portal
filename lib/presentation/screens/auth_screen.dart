@@ -238,16 +238,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD4AF37),
                       foregroundColor: const Color(0xFF1A1A1A),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 4,
+                      shadowColor: const Color(0xFFB8860B).withValues(alpha: 0.4),
                     ),
                     onPressed: _submit,
                     child: Text(
                       _isSignUp ? 'ENTHRONE OPERATOR PROFILE' : 'CONNECT NEURAL IDENTITY',
                       style: const TextStyle(
                         fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A1A1A),
+                        fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
                         fontSize: 12,
                       ),
