@@ -16,7 +16,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   String _selectedClass = 'Vanguard';
   String _selectedTitle = 'Shadow Monarch';
 
-  final List<String> _classes = ['Vanguard', 'Cyber Hacker', 'Aegis Sentinel'];
+  final List<String> _classes = ['Vanguard', 'Aether Sorcerer', 'Aegis Sentinel'];
   final List<String> _titles = ['Shadow Monarch', 'Vanguard Commander', 'High Aether Alchemist', 'Sovereign Administrator'];
 
   void _submit() async {
