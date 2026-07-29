@@ -221,11 +221,11 @@ class DashboardScreen extends ConsumerWidget {
               // Vitality Meters
               Row(
                 children: [
-                  Expanded(child: _buildGaugeMeter('VITALITY (HP)', '16 / 20', 0.8, Colors.redAccent)),
+                  Expanded(child: _buildStatTile(label: 'VITALITY (HP)', value: '16 / 20', progress: 0.8, color: Colors.redAccent, icon: Icons.favorite)),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildGaugeMeter('AETHER (MP)', '18 / 20', 0.9, const Color(0xFF007791))),
+                  Expanded(child: _buildStatTile(label: 'AETHER (MP)', value: '18 / 20', progress: 0.9, color: const Color(0xFF007791), icon: Icons.auto_awesome)),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildGaugeMeter('SYSTEM (SP)', '14 / 20', 0.7, const Color(0xFFB8860B))),
+                  Expanded(child: _buildStatTile(label: 'SYSTEM (SP)', value: '14 / 20', progress: 0.7, color: const Color(0xFFB8860B), icon: Icons.shield)),
                 ],
               ),
               const SizedBox(height: 20),

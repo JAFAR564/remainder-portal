@@ -45,7 +45,6 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
       setState(() => _currentStep++);
     } else {
       // Complete prologue and enter main dashboard
-      await ref.read(playerProfileProvider.notifier).incrementEssence();
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const MainNavigationShell()),
