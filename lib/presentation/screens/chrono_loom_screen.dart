@@ -48,11 +48,15 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF161520),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+        ),
         title: const Text(
           'SUBMIT CHRONO-LOOM PROPOSAL',
           style: TextStyle(
-            color: Color(0xFF00F0FF),
+            color: Color(0xFFB8860B),
             fontSize: 12,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
@@ -63,24 +67,26 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
           children: [
             TextField(
               controller: _titleController,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600),
               decoration: const InputDecoration(
                 labelText: 'PROPOSAL TITLE',
-                labelStyle: TextStyle(color: Colors.white60, fontSize: 10),
+                labelStyle: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold),
                 filled: true,
-                fillColor: Color(0xFF0A0910),
+                fillColor: Color(0xFFFAF8F5),
+                border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE0DDD5))),
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: _contentController,
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600),
               maxLines: 3,
               decoration: const InputDecoration(
                 labelText: 'PROPOSED LORE AMENDMENT',
-                labelStyle: TextStyle(color: Colors.white60, fontSize: 10),
+                labelStyle: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold),
                 filled: true,
-                fillColor: Color(0xFF0A0910),
+                fillColor: Color(0xFFFAF8F5),
+                border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE0DDD5))),
               ),
             ),
           ],
@@ -88,12 +94,15 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL', style: TextStyle(color: Colors.white60)),
+            child: const Text('CANCEL', style: TextStyle(color: Color(0xFF666666))),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00F0FF)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD4AF37),
+              foregroundColor: const Color(0xFF1A1A1A),
+            ),
             onPressed: _onSubmitProposal,
-            child: const Text('SUBMIT FOR VOTE', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            child: const Text('SUBMIT FOR VOTE', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -106,7 +115,7 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
     final trust = ref.watch(trustProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
+      backgroundColor: const Color(0xFFF8F6F0),
       appBar: AppBar(
         title: const Text(
           'DEMOCRATIC CHRONO-LOOM',
@@ -114,15 +123,16 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 2.0,
-            color: Colors.white,
+            color: Color(0xFFB8860B),
           ),
         ),
-        backgroundColor: const Color(0xFF161520),
-        elevation: 0,
+        backgroundColor: const Color(0xFFFAF8F5),
+        elevation: 1,
+        shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_comment, color: Color(0xFF00F0FF)),
+            icon: const Icon(Icons.add_comment, color: Color(0xFFB8860B)),
             onPressed: _showNewProposalDialog,
           ),
         ],
@@ -134,9 +144,9 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
             child: Column(
               children: [
                 const TabBar(
-                  indicatorColor: Color(0xFF00F0FF),
-                  labelColor: Color(0xFF00F0FF),
-                  unselectedLabelColor: Colors.white54,
+                  indicatorColor: Color(0xFFB8860B),
+                  labelColor: Color(0xFFB8860B),
+                  unselectedLabelColor: Color(0xFF666666),
                   labelStyle: TextStyle(fontFamily: 'monospace', fontSize: 11, fontWeight: FontWeight.bold),
                   tabs: [
                     Tab(text: 'ACTIVE VOTES'),
@@ -153,14 +163,14 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                         itemBuilder: (context, index) {
                           final p = state.proposals[index];
                           return Card(
-                            color: const Color(0xFF161520),
+                            color: Colors.white,
+                            elevation: 2,
                             margin: const EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                color: p.status == 2
-                                    ? const Color(0xFF38B000)
-                                    : (p.status == 3 ? Colors.redAccent : const Color(0xFF00F0FF).withValues(alpha: 0.4)),
+                              side: const BorderSide(
+                                color: Color(0xFFD4AF37),
+                                width: 1.5,
                               ),
                             ),
                             child: Padding(
@@ -175,7 +185,7 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                         child: Text(
                                           p.title.toUpperCase(),
                                           style: const TextStyle(
-                                            color: Colors.white,
+                                            color: Color(0xFF1A1A1A),
                                             fontWeight: FontWeight.bold,
                                             fontSize: 13,
                                             fontFamily: 'monospace',
@@ -186,14 +196,15 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: p.status == 2
-                                              ? const Color(0xFF38B000).withValues(alpha: 0.2)
-                                              : const Color(0xFF00F0FF).withValues(alpha: 0.2),
+                                              ? Colors.green.withValues(alpha: 0.1)
+                                              : const Color(0xFFD4AF37).withValues(alpha: 0.15),
                                           borderRadius: BorderRadius.circular(4),
+                                          border: Border.all(color: p.status == 2 ? Colors.green : const Color(0xFFD4AF37)),
                                         ),
                                         child: Text(
                                           p.status == 2 ? 'CANONIZED' : (p.status == 3 ? 'REJECTED' : 'VOTING ACTIVE'),
                                           style: TextStyle(
-                                            color: p.status == 2 ? const Color(0xFF38B000) : const Color(0xFF00F0FF),
+                                            color: p.status == 2 ? Colors.green.shade700 : const Color(0xFFB8860B),
                                             fontSize: 9,
                                             fontWeight: FontWeight.bold,
                                             fontFamily: 'monospace',
@@ -205,12 +216,12 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                   const SizedBox(height: 6),
                                   Text(
                                     'AUTHOR: ${p.authorName} | SECTOR: ${p.sectorId}',
-                                    style: const TextStyle(color: Colors.white54, fontSize: 10, fontFamily: 'monospace'),
+                                    style: const TextStyle(color: Color(0xFF777777), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     p.proposedContent,
-                                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    style: const TextStyle(color: Color(0xFF2C2C2C), fontSize: 12, height: 1.3),
                                   ),
                                   const SizedBox(height: 12),
                                   Row(
@@ -218,13 +229,13 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                     children: [
                                       Text(
                                         'YES: ${p.yesVotes} | NO: ${p.noVotes}',
-                                        style: const TextStyle(color: Color(0xFFFFD166), fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                                        style: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                                       ),
                                       if (p.status == 1) ...[
                                         Row(
                                           children: [
                                             OutlinedButton(
-                                              style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFF38B000))),
+                                              style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFB8860B))),
                                               onPressed: () {
                                                 ref.read(chronoLoomProvider.notifier).castVote(
                                                       proposalId: p.id,
@@ -233,7 +244,7 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                                       reputationRank: 1,
                                                     );
                                               },
-                                              child: const Text('VOTE YES', style: TextStyle(color: Color(0xFF38B000), fontSize: 10)),
+                                              child: const Text('VOTE YES', style: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold)),
                                             ),
                                             const SizedBox(width: 8),
                                             OutlinedButton(
@@ -246,7 +257,7 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                                                       reputationRank: 1,
                                                     );
                                               },
-                                              child: const Text('VOTE NO', style: TextStyle(color: Colors.redAccent, fontSize: 10)),
+                                              child: const Text('VOTE NO', style: TextStyle(color: Colors.redAccent, fontSize: 10, fontWeight: FontWeight.bold)),
                                             ),
                                           ],
                                         ),
@@ -267,21 +278,21 @@ class _ChronoLoomScreenState extends ConsumerState<ChronoLoomScreen> {
                         itemBuilder: (context, index) {
                           final h = state.canonizedHistory[index];
                           return Card(
-                            color: const Color(0xFF0A0910),
+                            color: const Color(0xFFFAF8F5),
                             margin: const EdgeInsets.only(bottom: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: Color(0xFF38B000), width: 1),
+                              side: const BorderSide(color: Color(0xFFD4AF37), width: 1.2),
                             ),
                             child: ListTile(
-                              title: Text('v${h.version}. ${h.title}', style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                              title: Text('v${h.version}. ${h.title}', style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.bold)),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const SizedBox(height: 4),
-                                  Text(h.markdownContent, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                                  Text(h.markdownContent, style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 11)),
                                   const SizedBox(height: 6),
-                                  Text('Canonized: ${h.canonizedAt.toIso8601String().substring(0, 10)}', style: const TextStyle(color: Color(0xFF38B000), fontSize: 9, fontFamily: 'monospace')),
+                                  Text('Canonized: ${h.canonizedAt.toIso8601String().substring(0, 10)}', style: const TextStyle(color: Color(0xFFB8860B), fontSize: 9, fontFamily: 'monospace', fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
