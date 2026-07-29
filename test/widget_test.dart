@@ -31,8 +31,8 @@ void main() {
       ),
     );
 
-    expect(find.text('SYSTEM ADMIN AUTHORIZATION'), findsOneWidget);
-    expect(find.text('REGISTER OPERATOR'), findsOneWidget);
+    expect(find.text('WORLD ARBITER AWAKENING'), findsOneWidget);
+    expect(find.text('AWAKEN TRAVELER'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
   });
 }
