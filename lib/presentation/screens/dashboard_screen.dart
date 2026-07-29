@@ -24,7 +24,7 @@ class DashboardScreen extends ConsumerWidget {
     final essence = profile?.stats.computePower ?? 14;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: const Color(0xFFF8F6F0),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20.0),
@@ -35,13 +35,14 @@ class DashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1C2541).withValues(alpha: 0.8),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.5), width: 1.5),
+                  border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
-                      blurRadius: 15,
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.25),
+                      blurRadius: 16,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
@@ -53,14 +54,21 @@ class DashboardScreen extends ConsumerWidget {
                       height: 54,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
+                        color: Colors.white,
                         border: Border.all(color: const Color(0xFFD4AF37), width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                          ),
+                        ],
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(27),
                         child: Image.asset(
                           'assets/icon/app_icon.jpg',
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFFD4AF37)),
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFFB8860B)),
                         ),
                       ),
                     ),
@@ -77,7 +85,7 @@ class DashboardScreen extends ConsumerWidget {
                               fontFamily: 'serif',
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFD4AF37),
+                              color: Color(0xFFB8860B),
                               letterSpacing: 1.0,
                             ),
                           ),
@@ -87,7 +95,8 @@ class DashboardScreen extends ConsumerWidget {
                             style: const TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 10,
-                              color: Color(0xFF00B4D8),
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF007791),
                             ),
                           ),
                         ],
@@ -98,19 +107,25 @@ class DashboardScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                        color: const Color(0xFFFAF8F5),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFD4AF37)),
+                        border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                            blurRadius: 6,
+                          ),
+                        ],
                       ),
                       child: const Column(
                         children: [
                           Text(
                             'LEVEL',
-                            style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFFD4AF37)),
+                            style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFFB8860B), fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '88',
-                            style: TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
+                            style: TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFB8860B)),
                           ),
                         ],
                       ),
@@ -128,18 +143,13 @@ class DashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF00B4D8).withValues(alpha: 0.15),
-                      const Color(0xFFD4AF37).withValues(alpha: 0.15),
-                    ],
-                  ),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF00B4D8).withValues(alpha: 0.8), width: 1.5),
+                  border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00B4D8).withValues(alpha: 0.2),
-                      blurRadius: 15,
+                      color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                      blurRadius: 14,
                     ),
                   ],
                 ),
@@ -148,7 +158,7 @@ class DashboardScreen extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.notifications_active_outlined, color: Color(0xFF00B4D8), size: 18),
+                        const Icon(Icons.notifications_active_outlined, color: Color(0xFFB8860B), size: 18),
                         const SizedBox(width: 8),
                         const Text(
                           'SYSTEM ADMINISTRATOR QUEST NOTICE',
@@ -156,7 +166,7 @@ class DashboardScreen extends ConsumerWidget {
                             fontFamily: 'monospace',
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF00B4D8),
+                            color: Color(0xFFB8860B),
                             letterSpacing: 1.2,
                           ),
                         ),
@@ -164,7 +174,7 @@ class DashboardScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.redAccent.withValues(alpha: 0.2),
+                            color: Colors.redAccent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(color: Colors.redAccent),
                           ),
@@ -182,13 +192,13 @@ class DashboardScreen extends ConsumerWidget {
                         fontFamily: 'serif',
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFF1A1A1A),
                       ),
                     ),
                     const SizedBox(height: 4),
                     const Text(
                       'The System Administrator AI (Cardinal) has detected dimensional instability. Assemble squad matrix or engage solo descent.',
-                      style: TextStyle(fontSize: 11, color: Colors.white70),
+                      style: TextStyle(fontSize: 11, color: Color(0xFF555555), height: 1.3),
                     ),
                   ],
                 ),
@@ -203,7 +213,7 @@ class DashboardScreen extends ConsumerWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
-                  color: Color(0xFFD4AF37),
+                  color: Color(0xFFB8860B),
                 ),
               ),
               const SizedBox(height: 10),
@@ -215,7 +225,7 @@ class DashboardScreen extends ConsumerWidget {
                       label: 'VITALITY (HP)',
                       value: '$vitality / 20',
                       progress: vitality / 20.0,
-                      color: Colors.redAccent,
+                      color: Colors.red.shade700,
                       icon: Icons.favorite_outline,
                     ),
                   ),
@@ -225,7 +235,7 @@ class DashboardScreen extends ConsumerWidget {
                       label: 'AETHER (MP)',
                       value: '$aether / 20',
                       progress: aether / 20.0,
-                      color: const Color(0xFF00B4D8),
+                      color: const Color(0xFF007791),
                       icon: Icons.bolt_outlined,
                     ),
                   ),
@@ -235,7 +245,7 @@ class DashboardScreen extends ConsumerWidget {
                       label: 'SYSTEM (SP)',
                       value: '$essence / 20',
                       progress: essence / 20.0,
-                      color: const Color(0xFFD4AF37),
+                      color: const Color(0xFFB8860B),
                       icon: Icons.auto_awesome_outlined,
                     ),
                   ),
@@ -251,7 +261,7 @@ class DashboardScreen extends ConsumerWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
-                  color: Color(0xFFD4AF37),
+                  color: Color(0xFFB8860B),
                 ),
               ),
               const SizedBox(height: 10),
@@ -269,7 +279,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Descent',
                     subtitle: 'Dungeons',
                     icon: Icons.explore_outlined,
-                    color: const Color(0xFFD4AF37),
+                    color: const Color(0xFFB8860B),
                     targetScreen: const DescentScreen(),
                   ),
                   _buildSubsystemCard(
@@ -277,7 +287,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Nexus Chat',
                     subtitle: 'IC/OOC RP',
                     icon: Icons.forum_outlined,
-                    color: const Color(0xFF00B4D8),
+                    color: const Color(0xFF007791),
                     targetScreen: const TerminalScreen(),
                   ),
                   _buildSubsystemCard(
@@ -285,7 +295,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Squads',
                     subtitle: 'Co-op P2P',
                     icon: Icons.shield_outlined,
-                    color: Colors.purpleAccent,
+                    color: Colors.purple.shade700,
                     targetScreen: const ExpeditionScreen(),
                   ),
                   _buildSubsystemCard(
@@ -293,7 +303,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Guilds',
                     subtitle: 'Halls & Vault',
                     icon: Icons.fort_outlined,
-                    color: Colors.amber,
+                    color: Colors.amber.shade800,
                     targetScreen: const GuildScreen(),
                   ),
                   _buildSubsystemCard(
@@ -301,7 +311,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Canon',
                     subtitle: 'Lore Votes',
                     icon: Icons.auto_stories_outlined,
-                    color: Colors.tealAccent,
+                    color: Colors.teal.shade700,
                     targetScreen: const ChronoLoomScreen(),
                   ),
                   _buildSubsystemCard(
@@ -309,7 +319,7 @@ class DashboardScreen extends ConsumerWidget {
                     title: 'Market',
                     subtitle: 'Trading',
                     icon: Icons.swap_horiz_outlined,
-                    color: Colors.lightGreenAccent,
+                    color: Colors.green.shade700,
                     targetScreen: const TradeScreen(),
                   ),
                 ],
@@ -324,7 +334,7 @@ class DashboardScreen extends ConsumerWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
-                  color: Color(0xFFD4AF37),
+                  color: Color(0xFFB8860B),
                 ),
               ),
               const SizedBox(height: 12),
@@ -367,9 +377,15 @@ class DashboardScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(10.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541).withValues(alpha: 0.8),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: const Color(0xFFD4AF37), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+            blurRadius: 8,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,14 +407,14 @@ class DashboardScreen extends ConsumerWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
           ),
           const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
               value: progress.clamp(0.0, 1.0),
-              backgroundColor: Colors.white10,
+              backgroundColor: const Color(0xFFEFECE6),
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 4,
             ),
@@ -425,12 +441,12 @@ class DashboardScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(10.0),
         decoration: BoxDecoration(
-          color: const Color(0xFF1C2541).withValues(alpha: 0.9),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.5), width: 1.2),
+          border: Border.all(color: const Color(0xFFD4AF37), width: 1.2),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.1),
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
               blurRadius: 8,
             ),
           ],
@@ -444,12 +460,12 @@ class DashboardScreen extends ConsumerWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: 'serif', fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+              style: const TextStyle(fontFamily: 'serif', fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
             ),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 8, color: Colors.white54),
+              style: const TextStyle(fontSize: 8, color: Color(0xFF777777), fontWeight: FontWeight.w500),
             ),
           ],
         ),

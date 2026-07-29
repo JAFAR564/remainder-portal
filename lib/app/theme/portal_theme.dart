@@ -39,26 +39,26 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
     required this.glassShadow,
   });
 
-  /// Default configuration matching the UI Analysis source of truth.
+  /// Factory configuration for Majestic Hellenic White Marble & Imperial Gold.
   factory PortalTheme.dark() {
     return PortalTheme(
-      baseBackground: const Color(0xFF1A1A24),
-      surfaceOverlay: const Color(0x08FFFFFF), // ~3% opacity white
-      primaryAccent: const Color(0xFF00E5FF),
-      secondaryText: const Color(0xFFB0B3C1),
-      glassBorder: const Color(0x33B0B3C1), // ~20% opacity silver-gray
+      baseBackground: const Color(0xFFF8F6F0),
+      surfaceOverlay: const Color(0xFFFFFFFF),
+      primaryAccent: const Color(0xFFD4AF37),
+      secondaryText: const Color(0xFF4A4A4A),
+      glassBorder: const Color(0xFFD4AF37),
       neonGlow: [
         BoxShadow(
-          color: const Color(0xFF00E5FF).withValues(alpha: 0.4),
-          blurRadius: 15.0,
+          color: const Color(0xFFD4AF37).withValues(alpha: 0.35),
+          blurRadius: 18.0,
           spreadRadius: 1.0,
         ),
       ],
       glassShadow: [
         BoxShadow(
-          color: const Color(0xFF1A1A24).withValues(alpha: 0.5),
-          blurRadius: 20.0,
-          spreadRadius: 0.0,
+          color: const Color(0xFF000000).withValues(alpha: 0.08),
+          blurRadius: 16.0,
+          spreadRadius: 2.0,
         ),
       ],
     );

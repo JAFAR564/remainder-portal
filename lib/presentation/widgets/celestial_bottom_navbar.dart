@@ -24,17 +24,17 @@ class CelestialBottomNavbar extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541).withValues(alpha: 0.95),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.5), width: 1.5),
+        border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0B132B).withValues(alpha: 0.8),
-            blurRadius: 20,
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.25),
+            blurRadius: 16,
             spreadRadius: 2,
           ),
           BoxShadow(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             spreadRadius: 1,
           ),
@@ -53,15 +53,15 @@ class CelestialBottomNavbar extends StatelessWidget {
               duration: const Duration(milliseconds: 250),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFD4AF37).withValues(alpha: 0.2) : Colors.transparent,
+                color: isSelected ? const Color(0xFFD4AF37) : Colors.transparent,
                 borderRadius: BorderRadius.circular(20),
-                border: isSelected ? Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.8)) : null,
+                border: isSelected ? Border.all(color: const Color(0xFFB8860B)) : null,
               ),
               child: Row(
                 children: [
                   Icon(
                     isSelected ? item.activeIcon : item.icon,
-                    color: isSelected ? const Color(0xFFD4AF37) : Colors.white54,
+                    color: isSelected ? const Color(0xFF1A1A1A) : const Color(0xFF666666),
                     size: 20,
                   ),
                   if (isSelected) ...[
@@ -72,7 +72,7 @@ class CelestialBottomNavbar extends StatelessWidget {
                         fontFamily: 'monospace',
                         fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFFD4AF37),
+                        color: Color(0xFF1A1A1A),
                         letterSpacing: 1.0,
                       ),
                     ),

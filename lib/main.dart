@@ -38,12 +38,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'The Remainder Portal',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0B132B),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFD4AF37),
-          secondary: Color(0xFF00B4D8),
-          surface: Color(0xFF1C2541),
+      theme: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: const Color(0xFFF8F6F0),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFFB8860B),
+          secondary: Color(0xFF007791),
+          surface: Color(0xFFFFFFFF),
         ),
         extensions: <ThemeExtension<dynamic>>[
           PortalTheme.dark(),

@@ -48,7 +48,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: const Color(0xFFF8F6F0),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -56,14 +56,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             child: Container(
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C2541).withValues(alpha: 0.8),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.6), width: 1.5),
+                border: Border.all(color: const Color(0xFFD4AF37), width: 2.0),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
-                    blurRadius: 20,
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                    blurRadius: 24,
                     spreadRadius: 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    spreadRadius: 1,
                   ),
                 ],
               ),
@@ -78,14 +83,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       height: 70,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFD4AF37)),
+                        color: Colors.white,
+                        border: Border.all(color: const Color(0xFFD4AF37), width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                            blurRadius: 12,
+                          ),
+                        ],
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(35),
                         child: Image.asset(
                           'assets/icon/app_icon.jpg',
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.auto_awesome, color: Color(0xFFD4AF37), size: 36),
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 36),
                         ),
                       ),
                     ),
@@ -100,14 +112,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2.0,
-                      color: Color(0xFFD4AF37),
+                      color: Color(0xFFB8860B),
                     ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     'Establishes neural identity in the Sovereign Portal',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54, fontSize: 11),
+                    style: TextStyle(color: Color(0xFF666666), fontSize: 11, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 24),
 
@@ -120,9 +132,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: _isSignUp ? const Color(0xFFD4AF37).withValues(alpha: 0.2) : Colors.transparent,
+                              color: _isSignUp ? const Color(0xFFD4AF37).withValues(alpha: 0.15) : const Color(0xFFFAF8F5),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _isSignUp ? const Color(0xFFD4AF37) : Colors.white12),
+                              border: Border.all(color: _isSignUp ? const Color(0xFFB8860B) : const Color(0xFFE0DDD5)),
                             ),
                             child: Text(
                               'REGISTER OPERATOR',
@@ -131,7 +143,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 fontFamily: 'monospace',
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: _isSignUp ? const Color(0xFFD4AF37) : Colors.white54,
+                                color: _isSignUp ? const Color(0xFFB8860B) : const Color(0xFF777777),
                               ),
                             ),
                           ),
@@ -144,9 +156,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: !_isSignUp ? const Color(0xFF00B4D8).withValues(alpha: 0.2) : Colors.transparent,
+                              color: !_isSignUp ? const Color(0xFF007791).withValues(alpha: 0.15) : const Color(0xFFFAF8F5),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: !_isSignUp ? const Color(0xFF00B4D8) : Colors.white12),
+                              border: Border.all(color: !_isSignUp ? const Color(0xFF007791) : const Color(0xFFE0DDD5)),
                             ),
                             child: Text(
                               'LOGIN LINK',
@@ -155,7 +167,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 fontFamily: 'monospace',
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: !_isSignUp ? const Color(0xFF00B4D8) : Colors.white54,
+                                color: !_isSignUp ? const Color(0xFF007791) : const Color(0xFF777777),
                               ),
                             ),
                           ),
@@ -168,15 +180,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   // Profile Name Input
                   TextField(
                     controller: _nameController,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'OPERATOR NAME',
-                      labelStyle: const TextStyle(color: Color(0xFFD4AF37), fontSize: 11, fontFamily: 'monospace'),
+                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFF0B132B),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Colors.white24)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFD4AF37))),
+                      fillColor: const Color(0xFFFAF8F5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFB8860B))),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -184,14 +196,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   // Sovereign Title Picker
                   DropdownButtonFormField<String>(
                     value: _selectedTitle,
-                    dropdownColor: const Color(0xFF1C2541),
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    dropdownColor: Colors.white,
+                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'SOVEREIGN SYSTEM TITLE',
-                      labelStyle: const TextStyle(color: Color(0xFFD4AF37), fontSize: 11, fontFamily: 'monospace'),
+                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFF0B132B),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      fillColor: const Color(0xFFFAF8F5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
                     ),
                     items: _titles.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                     onChanged: (val) {
@@ -203,14 +216,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   // Class Archetype Selector
                   DropdownButtonFormField<String>(
                     value: _selectedClass,
-                    dropdownColor: const Color(0xFF1C2541),
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    dropdownColor: Colors.white,
+                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'CLASS ARCHETYPE',
-                      labelStyle: const TextStyle(color: Color(0xFFD4AF37), fontSize: 11, fontFamily: 'monospace'),
+                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFF0B132B),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      fillColor: const Color(0xFFFAF8F5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
                     ),
                     items: _classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                     onChanged: (val) {
@@ -223,7 +237,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD4AF37),
-                      foregroundColor: const Color(0xFF0B132B),
+                      foregroundColor: const Color(0xFF1A1A1A),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 4,

@@ -56,16 +56,21 @@ class _SocialPostCardState extends State<SocialPostCard> {
       margin: const EdgeInsets.only(bottom: 16.0),
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2541).withValues(alpha: 0.9),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _hasLaureled ? const Color(0xFFD4AF37) : Colors.white12,
-          width: 1.2,
+          color: const Color(0xFFD4AF37),
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0B132B).withValues(alpha: 0.6),
-            blurRadius: 10,
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
           ),
         ],
       ),
@@ -80,6 +85,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                 height: 44,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
+                  color: Colors.white,
                   border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
                 ),
                 child: ClipRRect(
@@ -87,7 +93,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   child: Image.asset(
                     widget.avatarPath,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFFD4AF37)),
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFFB8860B)),
                   ),
                 ),
               ),
@@ -102,7 +108,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                         fontFamily: 'serif',
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Color(0xFF1A1A1A),
                       ),
                     ),
                     Row(
@@ -112,13 +118,14 @@ class _SocialPostCardState extends State<SocialPostCard> {
                           style: const TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 10,
-                            color: Color(0xFF00B4D8),
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF007791),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           '• ${widget.timeAgo}',
-                          style: const TextStyle(fontSize: 10, color: Colors.white38),
+                          style: const TextStyle(fontSize: 10, color: Color(0xFF777777)),
                         ),
                       ],
                     ),
@@ -129,9 +136,9 @@ class _SocialPostCardState extends State<SocialPostCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: widget.isIC ? Colors.purple.withValues(alpha: 0.2) : Colors.blue.withValues(alpha: 0.2),
+                  color: widget.isIC ? Colors.purple.withValues(alpha: 0.1) : Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: widget.isIC ? Colors.purpleAccent : Colors.lightBlueAccent),
+                  border: Border.all(color: widget.isIC ? Colors.purple : Colors.blue),
                 ),
                 child: Text(
                   widget.isIC ? 'IC POST' : 'OOC POST',
@@ -139,7 +146,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     fontFamily: 'monospace',
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
-                    color: widget.isIC ? Colors.purpleAccent : Colors.lightBlueAccent,
+                    color: widget.isIC ? Colors.purple.shade700 : Colors.blue.shade700,
                   ),
                 ),
               ),
@@ -150,15 +157,15 @@ class _SocialPostCardState extends State<SocialPostCard> {
           // 2. Post Body Text
           Text(
             widget.content,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.9),
+              color: Color(0xFF2C2C2C),
               height: 1.4,
             ),
           ),
           const SizedBox(height: 14),
 
-          const Divider(color: Colors.white10, height: 1),
+          const Divider(color: Color(0xFFE0DDD5), height: 1),
           const SizedBox(height: 8),
 
           // 3. Facebook-style Social Reaction Bar
@@ -175,17 +182,17 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     children: [
                       Icon(
                         _hasLaureled ? Icons.workspace_premium : Icons.workspace_premium_outlined,
-                        color: _hasLaureled ? const Color(0xFFD4AF37) : Colors.white54,
+                        color: const Color(0xFFB8860B),
                         size: 18,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         '$_laurels LAURELS',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: _hasLaureled ? const Color(0xFFD4AF37) : Colors.white54,
+                          color: Color(0xFFB8860B),
                         ),
                       ),
                     ],
@@ -197,18 +204,18 @@ class _SocialPostCardState extends State<SocialPostCard> {
               InkWell(
                 onTap: () {},
                 borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: Row(
                     children: [
-                      const Icon(Icons.mode_comment_outlined, color: Colors.white54, size: 18),
-                      const SizedBox(width: 6),
+                      Icon(Icons.mode_comment_outlined, color: Color(0xFF666666), size: 18),
+                      SizedBox(width: 6),
                       Text(
                         '$_comments COMMENTS',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
-                          color: Colors.white54,
+                          color: Color(0xFF666666),
                         ),
                       ),
                     ],
@@ -224,14 +231,14 @@ class _SocialPostCardState extends State<SocialPostCard> {
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   child: Row(
                     children: [
-                      Icon(Icons.share_outlined, color: Colors.white54, size: 18),
+                      Icon(Icons.share_outlined, color: Color(0xFF666666), size: 18),
                       SizedBox(width: 6),
                       Text(
                         'SHARE',
                         style: TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
-                          color: Colors.white54,
+                          color: Color(0xFF666666),
                         ),
                       ),
                     ],

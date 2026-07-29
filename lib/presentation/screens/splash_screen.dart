@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B132B),
+      backgroundColor: const Color(0xFFF8F6F0),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -67,82 +67,85 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           }
         },
         child: Center(
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return FadeTransition(
-              opacity: _fadeAnimation,
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Custom Golden Astrolabe App Icon
-                    Container(
-                      width: 140,
-                      height: 140,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFD4AF37).withValues(alpha: 0.5),
-                            blurRadius: 30,
-                            spreadRadius: 5,
-                          ),
-                          BoxShadow(
-                            color: const Color(0xFF00B4D8).withValues(alpha: 0.3),
-                            blurRadius: 40,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(70),
-                        child: Image.asset(
-                          'assets/icon/app_icon.jpg',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: const Color(0xFF1C2541),
-                            child: const Icon(Icons.auto_awesome, color: Color(0xFFD4AF37), size: 64),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Custom Golden Astrolabe App Icon
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFFD4AF37), width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                              blurRadius: 30,
+                              spreadRadius: 4,
+                            ),
+                            BoxShadow(
+                              color: const Color(0xFF008CA8).withValues(alpha: 0.2),
+                              blurRadius: 20,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(70),
+                          child: Image.asset(
+                            'assets/icon/app_icon.jpg',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: const Color(0xFFFAF8F5),
+                              child: const Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 64),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'THE REMAINDER PORTAL',
-                      style: TextStyle(
-                        fontFamily: 'serif',
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 4.0,
-                        color: Color(0xFFD4AF37),
-                        shadows: [
-                          Shadow(
-                            color: Color(0xFFD4AF37),
-                            blurRadius: 10,
-                          ),
-                        ],
+                      const SizedBox(height: 24),
+                      const Text(
+                        'THE REMAINDER PORTAL',
+                        style: TextStyle(
+                          fontFamily: 'serif',
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 4.0,
+                          color: Color(0xFFB8860B),
+                          shadows: [
+                            Shadow(
+                              color: Color(0xFFD4AF37),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'SOVEREIGN SYSTEM ADMIN & ROLEPLAY NEXUS',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 10,
-                        letterSpacing: 2.0,
-                        color: const Color(0xFF00B4D8).withValues(alpha: 0.9),
+                      const SizedBox(height: 8),
+                      Text(
+                        'SOVEREIGN SYSTEM ADMIN & ROLEPLAY NEXUS',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 10,
+                          letterSpacing: 2.0,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF007791).withValues(alpha: 0.95),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
-    ),
     );
   }
 }

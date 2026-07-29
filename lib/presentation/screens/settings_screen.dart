@@ -24,7 +24,7 @@ class SettingsScreen extends ConsumerWidget {
         : (profile.tier == HardwareTier.midRange ? const Color(0xFFFFD166) : const Color(0xFFFF8E3C));
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
+      backgroundColor: const Color(0xFFF8F6F0),
       appBar: AppBar(
         title: const Text(
           'VISOR SYSTEM & HARDWARE SETTINGS',
@@ -32,11 +32,12 @@ class SettingsScreen extends ConsumerWidget {
             fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 2.0,
-            color: Colors.white,
+            color: Color(0xFFB8860B),
           ),
         ),
-        backgroundColor: const Color(0xFF161520),
-        elevation: 0,
+        backgroundColor: const Color(0xFFFAF8F5),
+        elevation: 1,
+        shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
         centerTitle: true,
       ),
       body: CrtOverlay(
@@ -48,10 +49,11 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 // Device Hardware Profile Card
                 Card(
-                  color: const Color(0xFF161520),
+                  color: Colors.white,
+                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: tierColor),
+                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -64,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
                             const Text(
                               'HARDWARE CLASSIFICATION',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Color(0xFF1A1A1A),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'monospace',
@@ -73,8 +75,9 @@ class SettingsScreen extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: tierColor.withValues(alpha: 0.2),
+                                color: tierColor.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: tierColor),
                               ),
                               child: Text(
                                 tierName,
@@ -91,12 +94,12 @@ class SettingsScreen extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text(
                           'PLATFORM: ${profile.platformName} | CORES: ${profile.processorCores} | EST. RAM: ${profile.totalRamMb} MB',
-                          style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace'),
+                          style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'DEDICATED NPU ACCELERATOR: ${profile.hasDedicatedNpu ? "ACTIVE" : "UNAVAILABLE"}',
-                          style: const TextStyle(color: Colors.white54, fontSize: 10, fontFamily: 'monospace'),
+                          style: const TextStyle(color: Color(0xFF777777), fontSize: 10, fontFamily: 'monospace'),
                         ),
                       ],
                     ),
@@ -107,10 +110,11 @@ class SettingsScreen extends ConsumerWidget {
 
                 // Experimental On-Device LiteRT AI Section Card
                 Card(
-                  color: const Color(0xFF0A0910),
+                  color: Colors.white,
+                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: const Color(0xFF00F0FF).withValues(alpha: 0.3)),
+                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -127,7 +131,7 @@ class SettingsScreen extends ConsumerWidget {
                                   Text(
                                     'EXPERIMENTAL LOCAL LiteRT GEMMA AI',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Color(0xFF1A1A1A),
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
                                       fontFamily: 'monospace',
@@ -136,13 +140,13 @@ class SettingsScreen extends ConsumerWidget {
                                   SizedBox(height: 4),
                                   Text(
                                     'On-demand quantized Gemma 3 (1B) execution.',
-                                    style: TextStyle(color: Colors.white54, fontSize: 10),
+                                    style: TextStyle(color: Color(0xFF666666), fontSize: 10),
                                   ),
                                 ],
                               ),
                             ),
                             Switch(
-                              activeColor: const Color(0xFF00F0FF),
+                              activeColor: const Color(0xFFB8860B),
                               value: settings.enableOnDeviceAi,
                               onChanged: (profile.tier == HardwareTier.flagship &&
                                       progress.status == ModelDownloadState.ready)
@@ -153,7 +157,7 @@ class SettingsScreen extends ConsumerWidget {
                         ),
 
                         const SizedBox(height: 12),
-                        const Divider(color: Colors.white12, height: 1),
+                        const Divider(color: Color(0xFFE0DDD5), height: 1),
                         const SizedBox(height: 12),
 
                         // Model Download & Hardware Requirements Gating Section
@@ -167,12 +171,12 @@ class SettingsScreen extends ConsumerWidget {
                             ),
                             child: const Row(
                               children: [
-                                Icon(Icons.warning_amber_rounded, color: Color(0xFFFF8E3C), size: 20),
+                                Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 20),
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
                                     'HARDWARE GATED: On-device LiteRT AI execution is locked on Tier B / Tier A devices to prevent memory crashes. Cloud AI + d20 Rule Engine is active.',
-                                    style: TextStyle(color: Color(0xFFFF8E3C), fontSize: 10, fontFamily: 'monospace'),
+                                    style: TextStyle(color: Color(0xFFD97706), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
@@ -191,38 +195,43 @@ class SettingsScreen extends ConsumerWidget {
                 // Presentation & Visual Preferences
                 const Text(
                   'PRESENTATION & ACCESSIBILITY',
-                  style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  style: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                 ),
                 const SizedBox(height: 8),
 
                 Card(
-                  color: const Color(0xFF161520),
+                  color: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                  ),
                   child: Column(
                     children: [
                       SwitchListTile(
-                        activeColor: const Color(0xFFE53170),
-                        title: const Text('CRT SCANLINES OVERLAY', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        activeColor: const Color(0xFFB8860B),
+                        title: const Text('CRT SCANLINES OVERLAY', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
                         subtitle: Text(
                           'Retro CRT scanline effect (Adaptive Opacity: ${(settings.scanlineOpacity * 100).toStringAsFixed(1)}%)',
-                          style: const TextStyle(color: Colors.white54, fontSize: 10),
+                          style: const TextStyle(color: Color(0xFF666666), fontSize: 10),
                         ),
                         value: settings.enableCrtScanlines,
                         onChanged: (val) => notifier.toggleCrtScanlines(val),
                       ),
-                      const Divider(color: Colors.white12, height: 1),
+                      const Divider(color: Color(0xFFE0DDD5), height: 1),
                       SwitchListTile(
-                        activeColor: const Color(0xFFFF8E3C),
-                        title: const Text('CHROMATIC ABERRATION & VIGNETTE', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        activeColor: const Color(0xFFB8860B),
+                        title: const Text('CHROMATIC ABERRATION & VIGNETTE', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
                         value: settings.enableChromaticAberration,
                         onChanged: (val) => notifier.toggleChromaticAberration(val),
                       ),
-                      const Divider(color: Colors.white12, height: 1),
+                      const Divider(color: Color(0xFFE0DDD5), height: 1),
                       SwitchListTile(
-                        activeColor: const Color(0xFF38B000),
-                        title: const Text('REDUCED MOTION MODE', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        activeColor: const Color(0xFFB8860B),
+                        title: const Text('REDUCED MOTION MODE', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
                         subtitle: const Text(
                           'Disables animations, scanlines, and particle effects for accessibility.',
-                          style: TextStyle(color: Colors.white54, fontSize: 10),
+                          style: TextStyle(color: Color(0xFF666666), fontSize: 10),
                         ),
                         value: settings.reducedMotion,
                         onChanged: (val) => notifier.toggleReducedMotion(val),
