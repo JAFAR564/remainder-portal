@@ -160,17 +160,19 @@ class DashboardScreen extends ConsumerWidget {
                       children: [
                         const Icon(Icons.notifications_active_outlined, color: Color(0xFFB8860B), size: 18),
                         const SizedBox(width: 8),
-                        const Text(
-                          'WORLD ARBITER QUEST DECREE',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFB8860B),
-                            letterSpacing: 1.2,
+                        Expanded(
+                          child: Text(
+                            'WORLD ARBITER QUEST DECREE',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFB8860B),
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
-                        const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(

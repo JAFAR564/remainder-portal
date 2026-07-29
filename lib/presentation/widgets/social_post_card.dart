@@ -113,16 +113,20 @@ class _SocialPostCardState extends State<SocialPostCard> {
                     ),
                     Row(
                       children: [
-                        Text(
-                          widget.authorTitle,
-                          style: const TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF007791),
+                        Flexible(
+                          child: Text(
+                            widget.authorTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF007791),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
                           '• ${widget.timeAgo}',
                           style: const TextStyle(fontSize: 10, color: Color(0xFF777777)),

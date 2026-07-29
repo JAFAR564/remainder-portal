@@ -140,8 +140,8 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
           // System Admin AI Announcement Banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: const Color(0xFFFAF8F5),
             decoration: const BoxDecoration(
+              color: Color(0xFFFAF8F5),
               border: Border(bottom: BorderSide(color: Color(0xFFD4AF37), width: 1.0)),
             ),
             child: const Row(

@@ -43,57 +43,61 @@ class SettingsScreen extends ConsumerWidget {
         shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
         centerTitle: true,
       ),
-      body: CrtOverlay(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Device Hardware Profile Card
-                Card(
-                  color: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Device Hardware Profile Card
+              Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            child: Text(
                               'SOUL VESSEL CLASSIFICATION',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Color(0xFF1A1A1A),
-                                fontSize: 12,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'monospace',
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: tierColor.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: tierColor),
-                              ),
-                              child: Text(
-                                tierName,
-                                style: TextStyle(
-                                  color: tierColor,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
-                                ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: tierColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: tierColor),
+                            ),
+                            child: Text(
+                              tierName,
+                              style: TextStyle(
+                                color: tierColor,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'monospace',
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
                         const SizedBox(height: 10),
                         Text(
                           'PLATFORM: ${profile.platformName} | SPIRIT CORES: ${profile.processorCores} | ESSENCE: ${profile.totalRamMb} MB',
@@ -429,9 +433,9 @@ class SettingsScreen extends ConsumerWidget {
                 onPressed: () => notifier.deleteModelWeights(),
               ),
             ],
-          ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }
