@@ -68,7 +68,6 @@ class BackgroundSyncWorker {
         networkType: NetworkType.connected,
       ),
       backoffPolicy: BackoffPolicy.exponential,
-      backoffPolicyDuration: const Duration(minutes: 5),
     );
   }
 

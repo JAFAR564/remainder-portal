@@ -252,8 +252,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildModelDownloaderControls(
