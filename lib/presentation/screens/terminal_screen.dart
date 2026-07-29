@@ -110,11 +110,11 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'NEXUS ROLEPLAY & SYSTEM ADMIN CHAT',
+              'SOVEREIGN REALM & WORLD ARBITER CHAT',
               style: TextStyle(fontFamily: 'serif', fontSize: 13, color: Color(0xFFB8860B), fontWeight: FontWeight.bold),
             ),
             Text(
-              'SYSTEM ADMINISTRATOR AI (CARDINAL / SOVEREIGN) ONLINE',
+              'WORLD ARBITER (CARDINAL) ONLINE',
               style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Color(0xFF007791), fontWeight: FontWeight.bold),
             ),
           ],

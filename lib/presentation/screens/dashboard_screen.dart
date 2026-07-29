@@ -161,7 +161,7 @@ class DashboardScreen extends ConsumerWidget {
                         const Icon(Icons.notifications_active_outlined, color: Color(0xFFB8860B), size: 18),
                         const SizedBox(width: 8),
                         const Text(
-                          'SYSTEM ADMINISTRATOR QUEST NOTICE',
+                          'WORLD ARBITER QUEST DECREE',
                           style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 11,
@@ -187,7 +187,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      'QUEST: Clear Anomaly Wave in Sector 4 (Neon Bastion)',
+                      'QUEST: Clear Anomaly Wave in Sanctuary 4 (Aether Spire)',
                       style: TextStyle(
                         fontFamily: 'serif',
                         fontSize: 14,
@@ -197,7 +197,7 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'The System Administrator AI (Cardinal) has detected dimensional instability. Assemble squad matrix or engage solo descent.',
+                      'The World Arbiter (Cardinal) has detected dimensional chaos. Assemble squad matrix or engage solo descent.',
                       style: TextStyle(fontSize: 11, color: Color(0xFF555555), height: 1.3),
                     ),
                   ],
@@ -205,7 +205,7 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
-              // 4. Sci-Fi / High Fantasy Stat Meter Gauges
+              // 4. High Fantasy Stat Meter Gauges
               const Text(
                 'SOVEREIGN VITALITY & ESSENCE GAUGES',
                 style: TextStyle(
@@ -218,44 +218,21 @@ class DashboardScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 10),
               
+              // Vitality Meters
               Row(
                 children: [
-                  Expanded(
-                    child: _buildStatTile(
-                      label: 'VITALITY (HP)',
-                      value: '$vitality / 20',
-                      progress: vitality / 20.0,
-                      color: Colors.red.shade700,
-                      icon: Icons.favorite_outline,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _buildStatTile(
-                      label: 'AETHER (MP)',
-                      value: '$aether / 20',
-                      progress: aether / 20.0,
-                      color: const Color(0xFF007791),
-                      icon: Icons.bolt_outlined,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _buildStatTile(
-                      label: 'SYSTEM (SP)',
-                      value: '$essence / 20',
-                      progress: essence / 20.0,
-                      color: const Color(0xFFB8860B),
-                      icon: Icons.auto_awesome_outlined,
-                    ),
-                  ),
+                  Expanded(child: _buildGaugeMeter('VITALITY (HP)', '16 / 20', 0.8, Colors.redAccent)),
+                  const SizedBox(width: 8),
+                  Expanded(child: _buildGaugeMeter('AETHER (MP)', '18 / 20', 0.9, const Color(0xFF007791))),
+                  const SizedBox(width: 8),
+                  Expanded(child: _buildGaugeMeter('SYSTEM (SP)', '14 / 20', 0.7, const Color(0xFFB8860B))),
                 ],
               ),
               const SizedBox(height: 20),
 
-              // 5. Subsystem Quick-Action Community Grid
+              // 5. Sovereign Realms & Hubs
               const Text(
-                'SOVEREIGN SUBSYSTEMS & NEXUS HUBS',
+                'SOVEREIGN REALMS & COMMUNION HUBS',
                 style: TextStyle(
                   fontFamily: 'serif',
                   fontSize: 12,
@@ -264,7 +241,7 @@ class DashboardScreen extends ConsumerWidget {
                   color: Color(0xFFB8860B),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
               GridView.count(
                 shrinkWrap: true,
@@ -284,7 +261,7 @@ class DashboardScreen extends ConsumerWidget {
                   ),
                   _buildSubsystemCard(
                     context,
-                    title: 'Nexus Chat',
+                    title: 'Sanctuary Chat',
                     subtitle: 'IC/OOC RP',
                     icon: Icons.forum_outlined,
                     color: const Color(0xFF007791),
@@ -344,15 +321,15 @@ class DashboardScreen extends ConsumerWidget {
                 authorTitle: 'High Guardian | Guild: Covenant of Aegis',
                 avatarPath: 'assets/icon/app_icon.jpg',
                 timeAgo: '12m ago',
-                content: 'Shield barrier holding at 94% strength in Sector 4. Looking for two high-Aether sorcerers to join our raid party against the Shadow Serpent wave tonight!',
+                content: 'Barrier wards holding strong at Sanctuary 4. Looking for two high-Aether sorcerers to join our raid party against the Shadow Serpent wave tonight!',
                 isIC: true,
                 initialLaurels: 24,
                 initialComments: 7,
               ),
 
               const SocialPostCard(
-                authorName: 'Cyber Hacker Nyx',
-                authorTitle: 'Neural Operator | Guild: Technomancers',
+                authorName: 'Archmage Nyx',
+                authorTitle: 'Master Sorcerer | Guild: Spellweavers',
                 avatarPath: 'assets/icon/app_icon.jpg',
                 timeAgo: '45m ago',
                 content: 'OOC: Just finished designing the new lore proposal for the Ancient Aether Spire in the Chrono-Loom! Please check out the proposal thread and cast your vote!',

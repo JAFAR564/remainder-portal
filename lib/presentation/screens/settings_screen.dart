@@ -23,11 +23,14 @@ class SettingsScreen extends ConsumerWidget {
         ? const Color(0xFF00F0FF)
         : (profile.tier == HardwareTier.midRange ? const Color(0xFFFFD166) : const Color(0xFFFF8E3C));
 
+    final bool isHardwareEligible = profile.tier == HardwareTier.flagship;
+    final bool isModelInstalled = progress.status == ModelDownloadState.ready;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6F0),
       appBar: AppBar(
         title: const Text(
-          'VISOR SYSTEM & HARDWARE SETTINGS',
+          'SOVEREIGN REALM & WORLD SETTINGS',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
@@ -64,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'HARDWARE CLASSIFICATION',
+                              'SOUL VESSEL CLASSIFICATION',
                               style: TextStyle(
                                 color: Color(0xFF1A1A1A),
                                 fontSize: 12,
@@ -93,12 +96,12 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'PLATFORM: ${profile.platformName} | CORES: ${profile.processorCores} | EST. RAM: ${profile.totalRamMb} MB',
+                          'PLATFORM: ${profile.platformName} | SPIRIT CORES: ${profile.processorCores} | ESSENCE: ${profile.totalRamMb} MB',
                           style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'DEDICATED NPU ACCELERATOR: ${profile.hasDedicatedNpu ? "ACTIVE" : "UNAVAILABLE"}',
+                          'DIVINE ACCELERATOR: ${profile.hasDedicatedNpu ? "ACTIVE" : "UNAVAILABLE"}',
                           style: const TextStyle(color: Color(0xFF777777), fontSize: 10, fontFamily: 'monospace'),
                         ),
                       ],
@@ -108,7 +111,7 @@ class SettingsScreen extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                // Experimental On-Device LiteRT AI Section Card
+                // Experimental On-Device AI Section Card
                 Card(
                   color: Colors.white,
                   elevation: 2,
@@ -129,7 +132,7 @@ class SettingsScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'EXPERIMENTAL LOCAL LiteRT GEMMA AI',
+                                    'ON-DEVICE SPIRITUAL ARBITER (GEMMA)',
                                     style: TextStyle(
                                       color: Color(0xFF1A1A1A),
                                       fontSize: 12,
@@ -139,7 +142,7 @@ class SettingsScreen extends ConsumerWidget {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    'On-demand quantized Gemma 3 (1B) execution.',
+                                    'On-demand inner realm intelligence execution.',
                                     style: TextStyle(color: Color(0xFF666666), fontSize: 10),
                                   ),
                                 ],
@@ -148,20 +151,16 @@ class SettingsScreen extends ConsumerWidget {
                             Switch(
                               activeColor: const Color(0xFFB8860B),
                               value: settings.enableOnDeviceAi,
-                              onChanged: (profile.tier == HardwareTier.flagship &&
-                                      progress.status == ModelDownloadState.ready)
+                              onChanged: isHardwareEligible && isModelInstalled
                                   ? (val) => notifier.setOnDeviceAi(val)
                                   : null,
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 12),
                         const Divider(color: Color(0xFFE0DDD5), height: 1),
                         const SizedBox(height: 12),
-
-                        // Model Download & Hardware Requirements Gating Section
-                        if (profile.tier != HardwareTier.flagship) ...[
+                        if (!isHardwareEligible) ...[
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -175,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
                                 SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'HARDWARE GATED: On-device LiteRT AI execution is locked on Tier B / Tier A devices to prevent memory crashes. Cloud AI + d20 Rule Engine is active.',
+                                    'HARDWARE GATED: On-device execution locked to prevent memory collapse. Astral Cloud AI active.',
                                     style: TextStyle(color: Color(0xFFD97706), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -195,7 +194,13 @@ class SettingsScreen extends ConsumerWidget {
                 // Presentation & Visual Preferences
                 const Text(
                   'PRESENTATION & ACCESSIBILITY',
-                  style: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  style: TextStyle(
+                    fontFamily: 'serif',
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                    color: Color(0xFFB8860B),
+                  ),
                 ),
                 const SizedBox(height: 8),
 
@@ -210,9 +215,9 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       SwitchListTile(
                         activeColor: const Color(0xFFB8860B),
-                        title: const Text('CRT SCANLINES OVERLAY', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
+                        title: const Text('ANCIENT RUNE GLOW OVERLAY', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
                         subtitle: Text(
-                          'Retro CRT scanline effect (Adaptive Opacity: ${(settings.scanlineOpacity * 100).toStringAsFixed(1)}%)',
+                          'Subtle ancient rune aura overlay (Adaptive Opacity: ${(settings.scanlineOpacity * 100).toStringAsFixed(1)}%)',
                           style: const TextStyle(color: Color(0xFF666666), fontSize: 10),
                         ),
                         value: settings.enableCrtScanlines,
@@ -221,7 +226,7 @@ class SettingsScreen extends ConsumerWidget {
                       const Divider(color: Color(0xFFE0DDD5), height: 1),
                       SwitchListTile(
                         activeColor: const Color(0xFFB8860B),
-                        title: const Text('CHROMATIC ABERRATION & VIGNETTE', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
+                        title: const Text('AETHERIC VIGNETTE & SHADOWS', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
                         value: settings.enableChromaticAberration,
                         onChanged: (val) => notifier.toggleChromaticAberration(val),
                       ),

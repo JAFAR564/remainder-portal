@@ -105,25 +105,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   const SizedBox(height: 16),
                   
                   const Text(
-                    'SYSTEM ADMIN AUTHORIZATION',
+                    'WORLD ARBITER AWAKENING',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamily: 'serif',
+                      fontFamily: 'monospace',
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2.0,
                       color: Color(0xFFB8860B),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   const Text(
-                    'Establishes neural identity in the Sovereign Portal',
+                    'Binds your soul and consciousness to the Sovereign Realm',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF666666), fontSize: 11, fontWeight: FontWeight.w500),
+                    style: TextStyle(color: Color(0xFF666666), fontSize: 11),
                   ),
                   const SizedBox(height: 24),
 
-                  // Login / Register Toggle Tabs
+                  // Auth Mode Switcher
                   Row(
                     children: [
                       Expanded(
@@ -132,16 +132,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: _isSignUp ? const Color(0xFFD4AF37).withValues(alpha: 0.15) : const Color(0xFFFAF8F5),
+                              color: _isSignUp ? const Color(0xFFD4AF37).withValues(alpha: 0.15) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _isSignUp ? const Color(0xFFB8860B) : const Color(0xFFE0DDD5)),
+                              border: Border.all(color: _isSignUp ? const Color(0xFFD4AF37) : Colors.transparent),
                             ),
                             child: Text(
-                              'REGISTER OPERATOR',
+                              'AWAKEN TRAVELER',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: 'monospace',
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: _isSignUp ? const Color(0xFFB8860B) : const Color(0xFF777777),
                               ),
@@ -149,23 +149,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: GestureDetector(
                           onTap: () => setState(() => _isSignUp = false),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: !_isSignUp ? const Color(0xFF007791).withValues(alpha: 0.15) : const Color(0xFFFAF8F5),
+                              color: !_isSignUp ? const Color(0xFF007791).withValues(alpha: 0.15) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: !_isSignUp ? const Color(0xFF007791) : const Color(0xFFE0DDD5)),
+                              border: Border.all(color: !_isSignUp ? const Color(0xFF007791) : Colors.transparent),
                             ),
                             child: Text(
-                              'LOGIN LINK',
+                              'REJOIN REALM',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: 'monospace',
-                                fontSize: 10,
+                                fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: !_isSignUp ? const Color(0xFF007791) : const Color(0xFF777777),
                               ),
@@ -182,13 +182,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     controller: _nameController,
                     style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
-                      labelText: 'OPERATOR NAME',
+                      labelText: 'TRAVELER NAME',
                       labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
                       fillColor: const Color(0xFFFAF8F5),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFB8860B))),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -199,7 +198,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     dropdownColor: Colors.white,
                     style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
-                      labelText: 'SOVEREIGN SYSTEM TITLE',
+                      labelText: 'SOVEREIGN REALM TITLE',
                       labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
                       fillColor: const Color(0xFFFAF8F5),
@@ -245,7 +244,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                     onPressed: _submit,
                     child: Text(
-                      _isSignUp ? 'ENTHRONE OPERATOR PROFILE' : 'CONNECT NEURAL IDENTITY',
+                      _isSignUp ? 'ENTER THE SOVEREIGN REALM' : 'REJOIN THE SOVEREIGN REALM',
                       style: const TextStyle(
                         fontFamily: 'monospace',
                         color: Color(0xFF1A1A1A),
