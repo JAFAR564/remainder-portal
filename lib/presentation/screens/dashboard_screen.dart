@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
 import '../widgets/equipment_slots_widget.dart';
 import '../widgets/social_post_card.dart';
+import '../widgets/aether_resonance_oracle_widget.dart';
 import 'descent_screen.dart';
 import 'terminal_screen.dart';
 import 'expedition_screen.dart';
@@ -138,6 +139,8 @@ class DashboardScreen extends ConsumerWidget {
               // 2. MMORPG Equipment & Gear Slots Widget
               const EquipmentSlotsWidget(),
               const SizedBox(height: 16),
+
+              const AetherResonanceOracleWidget(),
 
               // 3. Solo Leveling Holographic System Quest Window
               Container(
