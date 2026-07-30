@@ -432,8 +432,9 @@ class SettingsScreen extends ConsumerWidget {
                 onPressed: () => notifier.deleteModelWeights(),
               ),
             ],
-          ),
-        ],
-      );
+          ],
+        ),
+      ],
+    );
   }
 }
