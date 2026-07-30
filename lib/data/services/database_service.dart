@@ -117,8 +117,8 @@ class ExpeditionMembers extends Table {
 // Phase 2: Inter-Player Endorsements Table
 class Endorsements extends Table {
   TextColumn get id => text()();
-  TextColumn get giverId => text().references(Users, #id, relationName: 'givenEndorsements')();
-  TextColumn get receiverId => text().references(Users, #id, relationName: 'receivedEndorsements')();
+  TextColumn get giverId => text().references(Users, #id)();
+  TextColumn get receiverId => text().references(Users, #id)();
   TextColumn get vector => text()(); // 'Vanguard', 'Arbiter', 'Merchant', 'Hacker'
   DateTimeColumn get timestamp => dateTime()();
 
@@ -211,8 +211,8 @@ class OfflineQueue extends Table {
 // Phase 3: Player Trades Table
 class PlayerTrades extends Table {
   TextColumn get id => text()();
-  TextColumn get initiatorId => text().references(Users, #id, relationName: 'initiatedTrades')();
-  TextColumn get receiverId => text().references(Users, #id, relationName: 'receivedTrades')();
+  TextColumn get initiatorId => text().references(Users, #id)();
+  TextColumn get receiverId => text().references(Users, #id)();
   IntColumn get status => integer().withDefault(const Constant(0))(); // 0: Pending, 1: EscrowLocked, 2: Completed, 3: Cancelled
   TextColumn get offeredItemIds => text()(); // JSON string array
   IntColumn get offeredEnergy => integer().withDefault(const Constant(0))();
