@@ -40,6 +40,16 @@ jobs:
     - name: Build Debug APK
       run: flutter build apk --debug
 
+    - name: Shorebird Cloud Code Push (Optional OTA Patch)
+      if: env.SHOREBIRD_TOKEN != ''
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/shorebirdtech/shorebird/main/bin/install.sh | bash
+        echo "$HOME/.shorebird/bin" >> $GITHUB_PATH
+        shorebird patch android --no-confirm
+      continue-on-error: true
+      env:
+        SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:

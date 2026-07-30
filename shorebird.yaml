@@ -1,0 +1,6 @@
+# Shorebird Over-The-Air (OTA) Cloud Code Push Configuration
+# Documentation: https://docs.shorebird.dev
+
+app_id: remainder-portal-app
+app_name: The Remainder Portal
+channel: stable
