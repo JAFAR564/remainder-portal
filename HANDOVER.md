@@ -1,9 +1,10 @@
 # 📱 MOBILE TERMUX MASTER HANDOVER & CONTEXT GUIDE
 
 **Repository:** `The Remainder Portal` (`https://github.com/JAFAR564/remainder-portal`)  
-**Active Branch:** `main` (Latest Commit: `2061493`)  
+**Active Branch:** `main` (Latest Commit: `f5d20be`)  
 **Current Version:** `1.1.0+4` (Public Store Beta Release)  
-**Last Updated:** July 31, 2026, 06:00 CEST  
+**Target Environment:** Honor X8 (Termux + Antigravity AGY CLI)  
+**Last Updated:** August 15, 2026  
 
 ---
 
@@ -23,29 +24,52 @@
 
 ---
 
-## 📲 2. Termux Phone Environment Setup Guide
+## 📲 2. Honor X8 Termux Setup & Migration Guide
 
-When continuing development on Android via Termux:
+When setting up development on the **Honor X8** phone in Termux:
 
-### Step 1: Clone Repository & Set Default
+### Step 1: Initial Termux & Git Setup on Honor X8
 ```bash
+# 1. Grant storage permission (maps /sdcard -> /storage/emulated/0)
+termux-setup-storage
+
+# 2. Update packages and install Git + GitHub CLI
+pkg update -y && pkg install git gh -y
+
+# 3. Authenticate GitHub CLI
+gh auth login
+
+# 4. Clone repository
 git clone https://github.com/JAFAR564/remainder-portal.git
 cd remainder-portal
-gh auth login
 gh repo set-default JAFAR564/remainder-portal
 ```
 
-### Step 2: Cloud CI Command Offloading (Rule)
-To keep Termux fast and conserve phone battery/RAM, **NEVER run heavy local `flutter` CLI commands**. Offload all compilation and testing to GitHub Actions:
+### Step 2: Offloading Builds & Running Cloud Tests (Rule)
+To keep the Honor X8 fast and conserve battery/RAM, **NEVER run heavy local `flutter` CLI compilations**. Offload all compilation and testing to GitHub Actions cloud runners:
 ```bash
-# Push changes to trigger cloud build
+# Push changes to trigger cloud build & tests
 git add . && git commit -m "feat: my change" && git push origin main
 
 # Check cloud CI workflow progress
 gh run list -L 1
 
-# View detailed CI logs if needed
-gh run view <run_id>
+# Manually trigger a test run anytime
+gh workflow run flutter-build.yml
+```
+
+### Step 3: Downloading & Testing the APK directly on Honor X8
+Once the cloud CI run passes:
+```bash
+# Download latest compiled debug APK
+gh run download -n remainder-portal-apk -D ./build_apk
+
+# Copy APK to public internal Download folder
+cp build_apk/app-debug.apk /sdcard/Download/remainder-portal.apk
+
+# (Optional) Notify Android indexer & open installer popup
+am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/remainder-portal.apk
+termux-open ./build_apk/app-debug.apk
 ```
 
 ---
@@ -115,18 +139,15 @@ system_instructions: |
 
 ---
 
-## 📝 6. Recent Implementation Summary (Commits `6b83a61` $\rightarrow$ `2061493`)
+## 📝 6. Recent Implementation Summary (Commits `2061493` $\rightarrow$ `f5d20be`)
 
-1. **8K Hellenic App Icon & Emblem ([`assets/icon/app_icon.jpg`](file:///home/vortex/remainder-portal/assets/icon/app_icon.jpg)):**
-   - Generated high-res Pentelic White Marble & Imperial Gold portal emblem.
-   - Configured `flutter_launcher_icons` in `pubspec.yaml` to replace the default Flutter icon.
+1. **Workflow Dispatch & Cloud CI Setup ([`.github/workflows/flutter-build.yml`](file:///data/data/com.termux/files/home/RP-community/.github/workflows/flutter-build.yml)):**
+   - Added `workflow_dispatch` trigger for manual workflow invocation via `gh workflow run`.
+   - Verified automated cloud build & unit testing pipeline in GitHub Actions.
 
-2. **Aether Resonance Oracle Widget ([`AetherResonanceOracleWidget`](file:///home/vortex/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart)):**
-   - Added interactive d20 oracle roller to `DashboardScreen` for testing dynamic OTA updates.
+2. **On-Device APK Delivery & Media Scanner Integration:**
+   - Automated cloud artifact downloading to `./build_apk/app-debug.apk`.
+   - Added Android media broadcast (`MEDIA_SCANNER_SCAN_FILE`) and `termux-open` integration to seamlessly launch the package installer on Android internal storage (`/sdcard/Download/remainder-portal.apk`).
 
-3. **Shorebird OTA Cloud Code Push ([`shorebird.yaml`](file:///home/vortex/remainder-portal/shorebird.yaml)):**
-   - Created Shorebird configuration and added automated cloud patch workflow to `.github/workflows/flutter-build.yml`.
-   - Created `OtaPatchBannerWidget` for presenting background cloud patch alerts.
-
-4. **UI Theme & Overflow Resolutions:**
-   - Resolved 110px dashboard overflow, 74px squad invite overflow, 12px settings header overflow, social post wrapping, and nav bar dark container removal.
+3. **Honor X8 Migration Guide:**
+   - Configured quick-start step-by-step Termux setup for seamless migration to the Honor X8.
