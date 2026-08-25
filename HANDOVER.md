@@ -58,18 +58,15 @@ gh run list -L 1
 gh workflow run flutter-build.yml
 ```
 
-### Step 3: Downloading & Testing the APK directly on Honor X8
+### Step 3: High-Speed APK Download & Install on Honor X8 (5–10 seconds)
 Once the cloud CI run passes:
 ```bash
-# Download latest compiled debug APK
-gh run download -n remainder-portal-apk -D ./build_apk
+# 1. Fast download from CDN release (~18MB arm64-v8a build)
+gh release download latest -p "remainder-portal-arm64.apk" -D /sdcard/Download/ --clobber
 
-# Copy APK to public internal Download folder
-cp build_apk/app-debug.apk /sdcard/Download/remainder-portal.apk
-
-# (Optional) Notify Android indexer & open installer popup
-am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/remainder-portal.apk
-termux-open ./build_apk/app-debug.apk
+# 2. Rename & launch installer popup immediately
+mv /sdcard/Download/remainder-portal-arm64.apk /sdcard/Download/remainder-portal.apk
+termux-open /sdcard/Download/remainder-portal.apk
 ```
 
 ---
