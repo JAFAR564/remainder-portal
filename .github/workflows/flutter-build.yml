@@ -70,11 +70,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create latest ./remainder-portal-arm64.apk \
-          --title "Latest Mobile Release" \
-          --notes "High-speed CDN mobile build for Honor X8 / arm64-v8a devices." \
-          --clobber || \
-        gh release upload latest ./remainder-portal-arm64.apk --clobber
+        gh release view latest >/dev/null 2>&1 && \
+          gh release upload latest ./remainder-portal-arm64.apk --clobber || \
+          gh release create latest ./remainder-portal-arm64.apk --title "Latest Mobile Release" --notes "High-speed CDN mobile build for Honor X8 / arm64-v8a devices."
 
   windows-build:
     name: Build Flutter Client (Windows)
