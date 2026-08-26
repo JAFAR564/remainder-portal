@@ -1,21 +1,57 @@
-# Napkin Scratchpad (Session Memory 100% Up-To-Date for Termux)
+# 📱 Napkin Notes (Antigravity CLI & Mobile Termux Workspace)
 
-## Core Directives & User Preferences (Hardcoded)
-- **Visual Identity:** Majestic Hellenic White Marble (`#F8F6F0`), Pure White Marble Cards (`#FFFFFF`), Imperial Olympus Gold Leaf borders (`#D4AF37` / `#B8860B`), Aegean Sky Cyan accents (`#007791`), Obsidian Charcoal typography (`#1A1A1A`).
-- **Lore & Tone:** Transcendent Fantasy Isekai / Roleplay Realm. All sci-fi / technical terms purged. The AI acts as the **World Arbiter (Cardinal)**.
-- **Conlang (Ethereal Scribe):** Merges Japanese phonetics, Greek cosmic weights, Old English kennings, and Romance grammar (*Amatsukrion*, *Wyrd-Kaze*, *Aetheromaru*, *Kami-Aether*).
-- **Command Offloading Rule:** ALWAYS offload heavy `flutter` & `dart` build/test commands to **GitHub Actions Cloud Runners**.
-- **Termux Phone Setup:** Follow guide in `HANDOVER.md` for git clone, subagent definitions, and cloud CI monitoring.
+## 🎯 Active Execution Context & Session State
+- **Session ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c`
+- **Target Device:** Honor X8 (Android / Termux environment)
+- **Active Branch:** `main` (Latest Commit: `b009d41`)
+- **Current Version:** `1.1.1+5`
+- **GitHub Account:** `@JAFAR564` (Authenticated via `gh`)
 
-## Completed Milestones (100% Verified)
-- [x] **Majestic Greek White Marble Theme Redesign:** Full refactor across all screens (`AuthScreen`, `DashboardScreen`, `SettingsScreen`, `TerminalScreen`, `ChronoLoomScreen`, `EquipmentSlotsWidget`, `SocialPostCard`, `CelestialBottomNavbar`, `ExpeditionScreen`, `GuildScreen`).
-- [x] **8K App Icon Emblem:** Replaced default Flutter launcher icon with 8K Pentelic White Marble & Imperial Gold emblem (`assets/icon/app_icon.jpg`).
-- [x] **Interactive Genesis Story Mode:** Created `StoryPrologueScreen` for first-time signups (`AWAKEN TRAVELER`) featuring Act I–III narrative slides and World Arbiter dialogues.
-- [x] **Aether Resonance Oracle Widget:** Added interactive d20 oracle roller to `DashboardScreen`.
-- [x] **Shorebird OTA Cloud Code Push:** Implemented `shorebird.yaml`, `OtaPatchBannerWidget`, and `.github/workflows/flutter-build.yml` cloud patch actions.
-- [x] **Firebase Test Lab Cloud Verification:** Matrix `6713737591174313499` Passed (0 crashes, 0 exceptions, 40 screenshots captured & verified).
+---
 
-## Active Repository State
-- **Current Version:** `1.1.0+4`
-- **Active Branch:** `main` (Pushed & up to date at commit `2061493`)
-- **CI/CD Build Status:** 100% PASSING (GitHub Actions Run `30566834279` / `30570634643`).
+## 🚀 Key Architectural & Operational Breakthroughs (Session 3)
+1. **High-Speed Cloud CI Pipeline (75%+ Reduction):**
+   - Implemented `--split-per-abi` in `.github/workflows/flutter-build.yml` targeting `arm64-v8a`.
+   - Download payload dropped from ~86MB (universal fat debug APK) to ~18MB (`remainder-portal-arm64.apk`).
+   - Download duration slashed from ~10 minutes to ~1 minute 20 seconds.
+   - Configured automated GitHub Release asset publishing (`latest` tag) over Fastly CDN.
+
+2. **Master Branding & Multi-Platform Emblem Deployment:**
+   - Source: `XU-USyTwFJorniq7vJAt0_ebVPvH8S.png` (1024x1024 master icon).
+   - Generated full Android mipmap suite (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+   - Generated iOS `AppIcon.appiconset` full resolution suite (20px – 1024px).
+   - Generated Web icons (`favicon.png`, `Icon-192.png`, `Icon-512.png`, maskable icons).
+   - Updated `pubspec.yaml` `flutter_launcher_icons` and bumped version to `1.1.1+5`.
+
+3. **Mobile Termux CI Operations Suite (`~/.bashrc`):**
+   - Installed `fzf`, `termux-api`, and `gh-dash` (GitHub TUI dashboard).
+   - `ci-watch`: Background run monitoring with native Android sound & vibration notifications.
+   - `ci-logs`: Interactive `fzf` failure log inspector.
+   - `ci-trigger`: Fuzzy-finder workflow dispatcher.
+   - `ci-install`: 5–10s one-liner release installer.
+
+4. **Agent Skills & Subagents Installed:**
+   - Skills (Workspace `.agents/skills/` & Global `~/.gemini/config/skills/`):
+     - `dart-run-static-analysis`
+     - `dart-add-unit-test`
+     - `flutter-fix-layout-issues`
+     - `gh-cli`
+     - `graphify`
+     - `napkin-memory`
+   - Defined Subagents: `ci-agent` (Cloud workflows), `qa-auditor` (Architecture & test compliance).
+
+---
+
+## 🏛️ Dependency Graph & Architectural Guardrails (`graphify`)
+```
+[Presentation Layer] (Riverpod StateNotifiers / Hellenic White Marble & Gold UI)
+       │  (dispatches & observes)
+       ▼
+[Domain Layer] (Entities / CalculateProgression / EvaluateConsensus / OKF Lore)
+       │  (interfaces)
+       ▼
+[Data Layer] (Drift SQLite DB / LiteRT / Gemma Downloader / P2P Relay / UpdateService)
+```
+- **Rule 1:** Presentation strictly consumes Domain/Data providers; never write direct database SQL in widgets.
+- **Rule 2:** Domain logic is 100% pure Dart, free from Flutter UI bindings.
+- **Rule 3:** Heavy Flutter/Dart compilations are always offloaded to GitHub Actions cloud runners (`gh workflow run`).

@@ -37,14 +37,39 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * **Firebase Cloud Test Lab Automation:** Enabled Google Cloud Testing APIs (`testing.googleapis.com`) and executed automated Robo tests on cloud virtual devices (`MediumPhone.arm`, Android 14). Confirmed zero crashes, zero layout freezes, and zero unhandled rendering exceptions.
 
 ### Modified Assets:
-* [lib/presentation/screens/dashboard_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/dashboard_screen.dart) (ConsumerWidget refactor, dynamic profile binding, header actions)
-* [lib/presentation/widgets/app_header.dart](file:///home/vortex/remainder-portal/lib/presentation/widgets/app_header.dart) (Subtitle and header action icon bar layout)
-* [lib/data/services/update_service.dart](file:///home/vortex/remainder-portal/lib/data/services/update_service.dart) (Sync taskkill, android ota streams, version changes)
-* [lib/presentation/screens/genesis_screen.dart](file:///home/vortex/remainder-portal/lib/presentation/screens/genesis_screen.dart) (Bouncy stat animation class)
-* [lib/presentation/widgets/horizontal_stat_card.dart](file:///home/vortex/remainder-portal/lib/presentation/widgets/horizontal_stat_card.dart) (Expanded layout overflow protection)
-* [test/widget_test.dart](file:///home/vortex/remainder-portal/test/widget_test.dart) (GenesisScreen test target alignment)
-* [android/app/src/main/AndroidManifest.xml](file:///home/vortex/remainder-portal/android/app/src/main/AndroidManifest.xml) (Sideloading permissions, queries, and provider configurations)
-* [android/app/src/main/res/xml/file_paths.xml](file:///home/vortex/remainder-portal/android/app/src/main/res/xml/file_paths.xml) (Provider paths XML cache definition)
-* [android/app/build.gradle.kts](file:///home/vortex/remainder-portal/android/app/build.gradle.kts) (Core library desugaring properties and dependency libraries)
-* [pubspec.yaml](file:///home/vortex/remainder-portal/pubspec.yaml) (OtaUpdate dependency, version bump)
-* [.gitignore](file:///home/vortex/remainder-portal/.gitignore) (Added build artifact folder untracking)
+* [lib/presentation/screens/dashboard_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart) (ConsumerWidget refactor, dynamic profile binding, header actions)
+* [lib/presentation/widgets/app_header.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/app_header.dart) (Subtitle and header action icon bar layout)
+* [lib/data/services/update_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/update_service.dart) (Sync taskkill, android ota streams, version changes)
+* [lib/presentation/screens/genesis_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/genesis_screen.dart) (Bouncy stat animation class)
+* [lib/presentation/widgets/horizontal_stat_card.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/horizontal_stat_card.dart) (Expanded layout overflow protection)
+* [test/widget_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/widget_test.dart) (GenesisScreen test target alignment)
+* [android/app/src/main/AndroidManifest.xml](file:///data/data/com.termux/files/home/remainder-portal/android/app/src/main/AndroidManifest.xml) (Sideloading permissions, queries, and provider configurations)
+* [android/app/src/main/res/xml/file_paths.xml](file:///data/data/com.termux/files/home/remainder-portal/android/app/src/main/res/xml/file_paths.xml) (Provider paths XML cache definition)
+* [android/app/build.gradle.kts](file:///data/data/com.termux/files/home/remainder-portal/android/app/build.gradle.kts) (Core library desugaring properties and dependency libraries)
+* [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml) (OtaUpdate dependency, version bump)
+* [.gitignore](file:///data/data/com.termux/files/home/remainder-portal/.gitignore) (Added build artifact folder untracking)
+
+---
+
+## 3. Brain Session 3 (Mobile Termux Onboarding, Master Icon Redesign, and High-Speed CI Suite)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Current Session)
+* **Session Date:** August 25, 2026
+
+### Core Objectives & Accomplishments:
+* **Mobile Environment & Authentication:** Resolved interrupted dpkg package state via `dpkg --configure -a`. Installed and authenticated GitHub CLI (`gh`) under `@JAFAR564` and cloned `remainder-portal` into Termux.
+* **Specialized Agent Skills & Subagents:** Implemented and registered 6 core skills (`dart-run-static-analysis`, `dart-add-unit-test`, `flutter-fix-layout-issues`, `gh-cli`, `graphify`, `napkin-memory`) in both workspace `.agents/skills` and global `~/.gemini/config/skills`. Defined subagents `ci-agent` and `qa-auditor`.
+* **Master App Icon Overhaul:** Converted source master emblem `XU-USyTwFJorniq7vJAt0_ebVPvH8S.png` (1024x1024) across all mipmaps (`android/app/src/main/res/mipmap-*`), iOS (`AppIcon.appiconset`), and Web (`web/icons/`, `favicon.png`). Bumped version to `1.1.1+5`.
+* **CI/CD High-Speed Build Pipeline:** Integrated `--split-per-abi` into `.github/workflows/flutter-build.yml` to target 64-bit ARM architecture (`arm64-v8a`), reducing payload by 75%+ (down from ~86MB to ~18MB) and cutting download times from ~10 minutes to ~1 minute 20 seconds.
+* **Mobile CI Operations Suite:** Installed `fzf`, `termux-api`, and `gh-dash`. Packaged shell functions (`ci-watch`, `ci-logs`, `ci-trigger`, `ci-install`) into `~/.bashrc` with native Android vibration/sound notifications.
+* **Delivery & Installation:** Successfully built, downloaded, and triggered Android Package Installer on the target Honor X8 device.
+
+### Modified Assets:
+* [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml) (Version bump to `1.1.1+5`, updated icon asset path)
+* [.github/workflows/flutter-build.yml](file:///data/data/com.termux/files/home/remainder-portal/.github/workflows/flutter-build.yml) (ABI-split fast APK build and GitHub release publishing)
+* [HANDOVER.md](file:///data/data/com.termux/files/home/remainder-portal/HANDOVER.md) (High-speed download commands and session updates)
+* [.agents/skills/](file:///data/data/com.termux/files/home/remainder-portal/.agents/skills) (6 new skill definitions)
+* [android/app/src/main/res/mipmap-*](file:///data/data/com.termux/files/home/remainder-portal/android/app/src/main/res) (Generated Android launcher icons)
+* [ios/Runner/Assets.xcassets/AppIcon.appiconset/](file:///data/data/com.termux/files/home/remainder-portal/ios/Runner/Assets.xcassets/AppIcon.appiconset) (Generated iOS icons)
+* [web/icons/](file:///data/data/com.termux/files/home/remainder-portal/web/icons) & [web/favicon.png](file:///data/data/com.termux/files/home/remainder-portal/web/favicon.png) (Generated Web icons)
+* [~/.bashrc](file:///data/data/com.termux/files/home/.bashrc) (Added Mobile CI operations suite)
+
