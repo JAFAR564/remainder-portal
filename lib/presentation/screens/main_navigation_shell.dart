@@ -27,7 +27,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,

@@ -63,7 +63,7 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -79,10 +79,10 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
-                    border: Border.all(color: const Color(0xFFD4AF37), width: 2.5),
+                    border: Border.all(color: const Color(0xFFA78D78), width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFD4AF37).withValues(alpha: 0.35),
+                        color: const Color(0xFF6E473B).withValues(alpha: 0.25),
                         blurRadius: 20,
                       ),
                     ],
@@ -95,10 +95,10 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                         height: 70,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFF008CA8).withValues(alpha: 0.5), width: 1.5),
+                          border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5), width: 1.5),
                         ),
                       ),
-                      const Icon(Icons.hub_outlined, color: Color(0xFFB8860B), size: 36),
+                      const Icon(Icons.hub_outlined, color: Color(0xFF6E473B), size: 36),
                     ],
                   ),
                 ),
@@ -112,18 +112,18 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                   fontFamily: 'monospace',
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFB8860B),
+                  color: Color(0xFF6E473B),
                 ),
               ),
               const SizedBox(height: 12),
               
-              // Linear Gold Progress Bar
+              // Progress Bar
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: _progress / 100.0,
-                  backgroundColor: const Color(0xFFEFECE6),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFB8860B)),
+                  backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.4),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6E473B)),
                   minHeight: 6,
                 ),
               ),
@@ -137,7 +137,7 @@ class _LoadingScreenState extends State<LoadingScreen> with SingleTickerProvider
                   fontFamily: 'monospace',
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF007791),
+                  color: Color(0xFF291C0E),
                   letterSpacing: 1.2,
                 ),
               ),

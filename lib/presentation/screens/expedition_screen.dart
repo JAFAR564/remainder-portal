@@ -32,15 +32,15 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFFFAF8F5),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFD4AF37), width: 1.8),
+          side: const BorderSide(color: Color(0xFFA78D78), width: 1.8),
         ),
         title: Text(
           result.statusTitle,
           style: const TextStyle(
-            color: Color(0xFFB8860B),
+            color: Color(0xFF6E473B),
             fontSize: 14,
             fontWeight: FontWeight.bold,
             fontFamily: 'serif',
@@ -48,13 +48,13 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
         ),
         content: Text(
           'Score: ${result.finalScore} (Base D20: ${result.baseD20}, Stats: +${result.totalStatContribution.toStringAsFixed(1)}, Trust: +${result.totalTrustBonus})\n\n${result.narrativeDescription}',
-          style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, height: 1.4),
+          style: const TextStyle(color: Color(0xFF291C0E), fontSize: 12, height: 1.4),
         ),
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD4AF37),
-              foregroundColor: const Color(0xFF1A1A1A),
+              backgroundColor: const Color(0xFF6E473B),
+              foregroundColor: const Color(0xFFE1D4C2),
             ),
             onPressed: () => Navigator.pop(context),
             child: const Text('ACKNOWLEDGE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10)),
@@ -71,7 +71,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
     final relayService = ref.watch(p2pSquadRelayProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       appBar: AppBar(
         title: const Text(
           'SANCTUARY SQUAD MATRIX',
@@ -79,13 +79,13 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
             fontSize: 14,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
-            color: Color(0xFFB8860B),
+            color: Color(0xFF6E473B),
             fontFamily: 'serif',
           ),
         ),
-        backgroundColor: const Color(0xFFFAF8F5),
+        backgroundColor: Colors.white,
         elevation: 1,
-        shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+        shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
         centerTitle: true,
         actions: [
           Padding(
@@ -95,11 +95,11 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: relayService.isOnline
-                      ? const Color(0xFF007791).withValues(alpha: 0.1)
-                      : Colors.orange.withValues(alpha: 0.1),
+                      ? const Color(0xFF6E473B).withValues(alpha: 0.1)
+                      : const Color(0xFFA78D78).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: relayService.isOnline ? const Color(0xFF007791) : Colors.orange,
+                    color: relayService.isOnline ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
                   ),
                 ),
                 child: Text(
@@ -108,7 +108,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     fontSize: 9,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'monospace',
-                    color: relayService.isOnline ? const Color(0xFF007791) : Colors.orange,
+                    color: relayService.isOnline ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
                   ),
                 ),
               ),
@@ -129,10 +129,10 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
+                      border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                          color: const Color(0xFF6E473B).withValues(alpha: 0.12),
                           blurRadius: 12,
                         ),
                       ],
@@ -140,12 +140,12 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.group_add, color: Color(0xFFB8860B), size: 48),
+                        const Icon(Icons.group_add, color: Color(0xFF6E473B), size: 48),
                         const SizedBox(height: 12),
                         const Text(
                           'NO ACTIVE SANCTUARY SQUAD',
                           style: TextStyle(
-                            color: Color(0xFF1A1A1A),
+                            color: Color(0xFF291C0E),
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                             fontFamily: 'serif',
@@ -155,13 +155,13 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                         const Text(
                           'Initialize a tactical squad to combine traveler stats for cooperative skill checks.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Color(0xFF666666), fontSize: 11),
+                          style: TextStyle(color: Color(0xFF6E473B), fontSize: 11),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD4AF37),
-                            foregroundColor: const Color(0xFF1A1A1A),
+                            backgroundColor: const Color(0xFF6E473B),
+                            foregroundColor: const Color(0xFFE1D4C2),
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
@@ -188,10 +188,10 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+                    border: Border.all(color: const Color(0xFFA78D78), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+                        color: const Color(0xFF6E473B).withValues(alpha: 0.1),
                         blurRadius: 8,
                       ),
                     ],
@@ -207,7 +207,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Color(0xFFB8860B),
+                                color: Color(0xFF6E473B),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
                                 fontFamily: 'serif',
@@ -216,7 +216,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                             const SizedBox(height: 2),
                             Text(
                               'SANCTUARY: ${expedition.sectorId} | ROSTER: ${expedition.members.length}/5',
-                              style: const TextStyle(color: Color(0xFF007791), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Color(0xFF291C0E), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -224,8 +224,8 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                       const SizedBox(width: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD4AF37),
-                          foregroundColor: const Color(0xFF1A1A1A),
+                          backgroundColor: const Color(0xFF6E473B),
+                          foregroundColor: const Color(0xFFE1D4C2),
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           elevation: 1,
@@ -257,11 +257,11 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                   children: [
                     Text(
                       'SQUAD ROSTER & ROLES',
-                      style: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                      style: TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                     ),
                     Text(
                       'LIVE P2P SYNCED',
-                      style: TextStyle(color: Color(0xFF007791), fontSize: 9, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Color(0xFF291C0E), fontSize: 9, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -278,10 +278,10 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.7), width: 1.2),
+                          border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
+                              color: const Color(0xFF6E473B).withValues(alpha: 0.08),
                               blurRadius: 6,
                             ),
                           ],
@@ -299,20 +299,20 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                                           m.userName,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'serif'),
+                                          style: const TextStyle(color: Color(0xFF291C0E), fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'serif'),
                                         ),
                                       ),
                                       const SizedBox(width: 6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+                                          color: const Color(0xFF6E473B).withValues(alpha: 0.15),
                                           borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: const Color(0xFFD4AF37)),
+                                          border: Border.all(color: const Color(0xFF6E473B)),
                                         ),
                                         child: Text(
                                           m.assignedRole,
-                                          style: const TextStyle(color: Color(0xFFB8860B), fontSize: 9, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                                          style: const TextStyle(color: Color(0xFF6E473B), fontSize: 9, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ],
@@ -320,13 +320,13 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'Stat: ${m.primaryStat} | Mutual Trust: ${(m.trustScore * 100).toStringAsFixed(0)}%',
-                                    style: const TextStyle(color: Color(0xFF666666), fontSize: 10),
+                                    style: const TextStyle(color: Color(0xFF6E473B), fontSize: 10),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.thumb_up_outlined, color: Color(0xFF007791), size: 18),
+                              icon: const Icon(Icons.thumb_up_outlined, color: Color(0xFF6E473B), size: 18),
                               tooltip: 'Endorse Squad Member',
                               onPressed: () {
                                 ref.read(expeditionProvider.notifier).updateMemberTrust(m.userId, m.trustScore + 0.05);
@@ -347,7 +347,7 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                 // Activity & Timeline Stream Log
                 const Text(
                   'SQUAD EVENT TIMELINE',
-                  style: TextStyle(color: Color(0xFFB8860B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                  style: TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                 ),
                 const SizedBox(height: 6),
                 Expanded(
@@ -357,16 +357,16 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.7), width: 1.2),
+                      border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
                     ),
                     child: ListView.builder(
                       itemCount: expedition.squadLogs.length,
                       itemBuilder: (context, index) {
                         final log = expedition.squadLogs[index];
-                        Color logColor = const Color(0xFF1A1A1A);
-                        if (log.startsWith('[JOIN]')) logColor = const Color(0xFF007791);
-                        if (log.startsWith('[COOP CHECK]')) logColor = const Color(0xFFB8860B);
-                        if (log.startsWith('[SYSTEM]')) logColor = Colors.purple;
+                        Color logColor = const Color(0xFF291C0E);
+                        if (log.startsWith('[JOIN]')) logColor = const Color(0xFF6E473B);
+                        if (log.startsWith('[COOP CHECK]')) logColor = const Color(0xFFA78D78);
+                        if (log.startsWith('[SYSTEM]')) logColor = const Color(0xFF291C0E);
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
                           child: Text(
@@ -396,20 +396,20 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     Expanded(
                       child: TextField(
                         controller: _actionController,
-                        style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontFamily: 'monospace'),
+                        style: const TextStyle(color: Color(0xFF291C0E), fontSize: 12, fontFamily: 'monospace'),
                         decoration: InputDecoration(
                           hintText: '> enter squad action command...',
-                          hintStyle: const TextStyle(color: Color(0xFF999999), fontSize: 12),
+                          hintStyle: const TextStyle(color: Color(0xFFBEB5A9), fontSize: 12),
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: Color(0xFFD4AF37)),
+                            borderSide: const BorderSide(color: Color(0xFFA78D78)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: Color(0xFFB8860B), width: 1.8),
+                            borderSide: const BorderSide(color: Color(0xFF6E473B), width: 1.8),
                           ),
                         ),
                       ),
@@ -417,8 +417,8 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37),
-                        foregroundColor: const Color(0xFF1A1A1A),
+                        backgroundColor: const Color(0xFF6E473B),
+                        foregroundColor: const Color(0xFFE1D4C2),
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),

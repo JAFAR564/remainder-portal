@@ -44,10 +44,10 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD4AF37), width: 1.8),
+        border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -61,12 +61,12 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
             children: [
               const Row(
                 children: [
-                  Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 18),
+                  Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 18),
                   SizedBox(width: 8),
                   Text(
                     'AETHER RESONANCE ORACLE',
                     style: TextStyle(
-                      color: Color(0xFFB8860B),
+                      color: Color(0xFF6E473B),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       fontFamily: 'serif',
@@ -77,14 +77,14 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF007791).withValues(alpha: 0.1),
+                  color: const Color(0xFF6E473B).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF007791)),
+                  border: Border.all(color: const Color(0xFF6E473B)),
                 ),
                 child: Text(
                   'D20 ORACLE: $_lastRoll',
                   style: const TextStyle(
-                    color: Color(0xFF007791),
+                    color: Color(0xFF6E473B),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'monospace',
@@ -97,14 +97,14 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAF8F5),
+              color: const Color(0xFFE1D4C2).withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.4)),
+              border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.5)),
             ),
             child: Text(
               _isCommuning ? 'Communing with the Cardinal Scribes...' : _divineBlessing,
               style: const TextStyle(
-                color: Color(0xFF1A1A1A),
+                color: Color(0xFF291C0E),
                 fontSize: 11,
                 height: 1.4,
                 fontStyle: FontStyle.italic,
@@ -116,8 +116,8 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4AF37),
-                foregroundColor: const Color(0xFF1A1A1A),
+                backgroundColor: const Color(0xFF6E473B),
+                foregroundColor: const Color(0xFFE1D4C2),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 elevation: 1,
@@ -126,7 +126,7 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
                   ? const SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF1A1A1A)),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFE1D4C2)),
                     )
                   : const Icon(Icons.casino_outlined, size: 16),
               label: Text(

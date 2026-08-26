@@ -59,7 +59,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
     final profile = ref.watch(playerProfileProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -75,7 +75,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                       fontFamily: 'monospace',
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFB8860B),
+                      color: Color(0xFF6E473B),
                       letterSpacing: 1.2,
                     ),
                   ),
@@ -85,7 +85,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                       fontFamily: 'serif',
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF007791),
+                      color: Color(0xFF291C0E),
                     ),
                   ),
                 ],
@@ -97,8 +97,8 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
                   value: (_currentStep + 1) / _slides.length,
-                  backgroundColor: const Color(0xFFE0DDD5),
-                  color: const Color(0xFFD4AF37),
+                  backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.4),
+                  color: const Color(0xFF6E473B),
                   minHeight: 6,
                 ),
               ),
@@ -111,7 +111,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                   elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
-                    side: const BorderSide(color: Color(0xFFD4AF37), width: 2),
+                    side: const BorderSide(color: Color(0xFFA78D78), width: 1.8),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -126,7 +126,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                               fontFamily: 'serif',
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFB8860B),
+                              color: Color(0xFF6E473B),
                               letterSpacing: 1.5,
                             ),
                           ),
@@ -137,7 +137,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                             slide.narrative,
                             style: const TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF2C2C2C),
+                              color: Color(0xFF291C0E),
                               height: 1.5,
                             ),
                           ),
@@ -147,16 +147,16 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                           Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFAF8F5),
+                              color: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.6)),
+                              border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.6)),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Row(
                                   children: [
-                                    Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 16),
+                                    Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 16),
                                     SizedBox(width: 6),
                                     Text(
                                       'WORLD ARBITER (CARDINAL)',
@@ -164,7 +164,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                                         fontFamily: 'monospace',
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        color: Color(0xFFB8860B),
+                                        color: Color(0xFF6E473B),
                                       ),
                                     ),
                                   ],
@@ -175,7 +175,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                                   style: const TextStyle(
                                     fontStyle: FontStyle.italic,
                                     fontSize: 12,
-                                    color: Color(0xFF1A1A1A),
+                                    color: Color(0xFF291C0E),
                                     height: 1.4,
                                   ),
                                 ),
@@ -198,8 +198,8 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37),
-                        foregroundColor: const Color(0xFF1A1A1A),
+                        backgroundColor: const Color(0xFF6E473B),
+                        foregroundColor: const Color(0xFFE1D4C2),
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 2,

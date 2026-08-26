@@ -20,11 +20,19 @@ class TrustBadgeWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF161520),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFE53170).withValues(alpha: 0.3),
+          color: const Color(0xFFA78D78),
+          width: 1.5,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF291C0E).withValues(alpha: 0.05),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,7 +43,7 @@ class TrustBadgeWidget extends ConsumerWidget {
               Text(
                 'TRUST VECTOR AURA: $targetUserName'.toUpperCase(),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF291C0E),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'monospace',
@@ -44,13 +52,14 @@ class TrustBadgeWidget extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF38B000).withValues(alpha: 0.2),
+                  color: const Color(0xFF6E473B).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: const Color(0xFF6E473B), width: 0.8),
                 ),
                 child: Text(
                   'SCORE: ${(trustState.overallTrustScore * 100).toStringAsFixed(0)}%',
                   style: const TextStyle(
-                    color: Color(0xFF38B000),
+                    color: Color(0xFF6E473B),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'monospace',
@@ -68,7 +77,7 @@ class TrustBadgeWidget extends ConsumerWidget {
                 ref,
                 'VANGUARD',
                 trustState.vanguardScore,
-                const Color(0xFFE53170),
+                const Color(0xFF6E473B),
                 TrustVector.vanguard,
               ),
               _buildVectorChip(
@@ -76,7 +85,7 @@ class TrustBadgeWidget extends ConsumerWidget {
                 ref,
                 'ARBITER',
                 trustState.arbiterScore,
-                const Color(0xFFFF8E3C),
+                const Color(0xFFA78D78),
                 TrustVector.arbiter,
               ),
               _buildVectorChip(
@@ -84,15 +93,15 @@ class TrustBadgeWidget extends ConsumerWidget {
                 ref,
                 'MERCHANT',
                 trustState.merchantScore,
-                const Color(0xFFFFD166),
+                const Color(0xFFBEB5A9),
                 TrustVector.merchant,
               ),
               _buildVectorChip(
                 context,
                 ref,
-                'HACKER',
+                'SCRIBE',
                 trustState.hackerScore,
-                const Color(0xFF00F0FF),
+                const Color(0xFF291C0E),
                 TrustVector.hacker,
               ),
             ],
@@ -155,7 +164,7 @@ class TrustBadgeWidget extends ConsumerWidget {
             Text(
               '${(score * 100).toStringAsFixed(0)}%',
               style: const TextStyle(
-                color: Colors.white,
+                color: Color(0xFF291C0E),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),

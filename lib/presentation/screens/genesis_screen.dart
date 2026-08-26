@@ -181,26 +181,20 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: CrtOverlay(
         child: Container(
-          decoration: const BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment.center,
-              radius: 1.2,
-              colors: [Color(0xFF1D1B26), Color(0xFF0F0E17)],
-            ),
-          ),
+          color: const Color(0xFFE1D4C2),
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
               child: Card(
-                elevation: 16,
-                color: const Color(0xFF161520).withValues(alpha: 0.9),
+                elevation: 8,
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24.0),
-                  side: BorderSide(
-                    color: const Color(0xFFFF8E3C).withValues(alpha: 0.3),
+                  side: const BorderSide(
+                    color: Color(0xFFA78D78),
                     width: 1.5,
                   ),
                 ),
@@ -215,9 +209,9 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'SYSTEM SECURE PORTAL v1.0.1',
+                        'SYSTEM SECURE PORTAL v1.1.1',
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: const Color(0xFF291C0E).withValues(alpha: 0.4),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2.0,
@@ -258,7 +252,7 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Color(0xFF6E473B),
             letterSpacing: 2.5,
           ),
         ),
@@ -267,7 +261,7 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           'COGNITIVE COUPLING PROTOCOL',
           style: TextStyle(
             fontSize: 11,
-            color: const Color(0xFFE53170).withValues(alpha: 0.9),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.9),
             letterSpacing: 1.5,
             fontWeight: FontWeight.bold,
           ),
@@ -277,7 +271,7 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           'A quiet wind sweeps through the unallocated void. You are not whole. The boundaries of your physical form have unraveled. In order to anchor your consciousness, you must establish an identity anchor.',
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: const Color(0xFF291C0E).withValues(alpha: 0.8),
             fontSize: 14,
             height: 1.5,
           ),
@@ -285,21 +279,21 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         const SizedBox(height: 28),
         TextField(
           controller: _nameController,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Color(0xFF291C0E)),
           decoration: InputDecoration(
             labelText: 'DESIGNATION IDENTIFIER (NAME)',
-            labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11),
+            labelStyle: TextStyle(color: const Color(0xFF6E473B).withValues(alpha: 0.8), fontSize: 11),
             filled: true,
-            fillColor: const Color(0xFF0F0E17).withValues(alpha: 0.5),
+            fillColor: const Color(0xFFE1D4C2).withValues(alpha: 0.3),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+              borderSide: const BorderSide(color: Color(0xFFA78D78)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFFF8E3C)),
+              borderSide: const BorderSide(color: Color(0xFF6E473B), width: 2),
             ),
-            prefixIcon: const Icon(Icons.shield_outlined, color: Color(0xFFFF8E3C)),
+            prefixIcon: const Icon(Icons.shield_outlined, color: Color(0xFF6E473B)),
           ),
         ),
         const SizedBox(height: 24),
@@ -309,8 +303,8 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           child: ElevatedButton(
             onPressed: _onDesignate,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE53170),
-              foregroundColor: Colors.white,
+              backgroundColor: const Color(0xFF6E473B),
+              foregroundColor: const Color(0xFFE1D4C2),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('ESTABLISH SIGNATURE', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
@@ -328,33 +322,33 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         const SizedBox(height: 20),
         const Text(
           'SELECT ORIGIN PATHWAY',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2.0),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF6E473B), letterSpacing: 2.0),
         ),
         const SizedBox(height: 16),
         Text(
           'Select how your raw soul aligns with the cosmic matrix. This will anchor your primary focus.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
+          style: TextStyle(color: const Color(0xFF291C0E).withValues(alpha: 0.7), fontSize: 13),
         ),
         const SizedBox(height: 24),
         _buildPathCard(
           title: 'AETHER-WAKE',
           description: 'A portal dreamer. Melancholic wonder, existential curiosity, and linguistic magic. (Focus: Energy)',
-          color: const Color(0xFF00B4D8),
+          color: const Color(0xFF6E473B),
           onTap: () => _onSelectPath('Aether-Wake'),
         ),
         const SizedBox(height: 12),
         _buildPathCard(
           title: 'AMATSUKRION SYNC',
           description: 'A sentinel of absolute order and celestial geometry. Quiet, analytical, and logical. (Focus: Compute)',
-          color: const Color(0xFF38B000),
+          color: const Color(0xFFA78D78),
           onTap: () => _onSelectPath('Amatsukrion Sync'),
         ),
         const SizedBox(height: 12),
         _buildPathCard(
           title: 'WYRD-BORN',
           description: 'A legend reclaimed from a collapsed historical timeline. Heavy, battle-worn, and bound by duty. (Focus: Shield)',
-          color: const Color(0xFFE53170),
+          color: const Color(0xFF291C0E),
           onTap: () => _onSelectPath('Wyrd-Born'),
         ),
       ],
@@ -373,9 +367,15 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: const Color(0xFF0F0E17).withValues(alpha: 0.6),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
+          border: Border.all(color: color, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.1),
+              blurRadius: 8,
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -390,7 +390,7 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
                   const SizedBox(height: 6),
                   Text(
                     description,
-                    style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7), height: 1.4),
+                    style: TextStyle(fontSize: 12, color: const Color(0xFF291C0E).withValues(alpha: 0.7), height: 1.4),
                   ),
                 ],
               ),
@@ -413,7 +413,7 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFFFF8E3C).withValues(alpha: 0.9),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.9),
             letterSpacing: 2.0,
           ),
         ),
@@ -421,15 +421,15 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F0E17).withValues(alpha: 0.6),
+            color: const Color(0xFFE1D4C2).withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            border: Border.all(color: const Color(0xFFA78D78)),
           ),
           child: Text(
             _pathPrompts[_selectedPath] ?? '',
             textAlign: TextAlign.center,
             style: const TextStyle(
-              color: Colors.white70,
+              color: Color(0xFF291C0E),
               fontSize: 14,
               fontStyle: FontStyle.italic,
               height: 1.5,
@@ -440,19 +440,19 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         TextField(
           controller: _narrativeController,
           maxLines: 4,
-          style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+          style: const TextStyle(color: Color(0xFF291C0E), fontSize: 14, height: 1.4),
           decoration: InputDecoration(
             hintText: 'Speak your thoughts. Your word-will will shape your starting attributes...',
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+            hintStyle: TextStyle(color: const Color(0xFF6E473B).withValues(alpha: 0.5), fontSize: 13),
             filled: true,
-            fillColor: const Color(0xFF0F0E17).withValues(alpha: 0.4),
+            fillColor: const Color(0xFFE1D4C2).withValues(alpha: 0.2),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+              borderSide: const BorderSide(color: Color(0xFFA78D78)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFFF8E3C)),
+              borderSide: const BorderSide(color: Color(0xFF6E473B), width: 2),
             ),
           ),
         ),
@@ -463,8 +463,8 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
               child: OutlinedButton(
                 onPressed: () => _transitionTo(OnboardingStep.pathSelection),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                  foregroundColor: const Color(0xFF6E473B),
+                  side: const BorderSide(color: Color(0xFFA78D78)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -476,8 +476,8 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
               child: ElevatedButton(
                 onPressed: _onCrystallize,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFE53170),
-                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFF6E473B),
+                  foregroundColor: const Color(0xFFE1D4C2),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -498,14 +498,14 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         const SizedBox(height: 20),
         const Text(
           'CRYSTALLIZATION COMPLETE',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2.0),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF6E473B), letterSpacing: 2.0),
         ),
         const SizedBox(height: 8),
         Text(
           'YOUR PROFILE HAS ANCHORED IN THE COSMIC LOOM',
           style: TextStyle(
             fontSize: 10,
-            color: const Color(0xFFE53170).withValues(alpha: 0.9),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.9),
             fontWeight: FontWeight.bold,
             letterSpacing: 1.5,
           ),
@@ -514,14 +514,14 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         Text(
           'Under the rules of the Stat Shifter matrix, your initial word-will has determined your core attributes:',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13, height: 1.4),
+          style: TextStyle(color: const Color(0xFF291C0E).withValues(alpha: 0.8), fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 28),
-        AnimatedStatRow(name: 'Compute Power', value: _computeStat, color: const Color(0xFFE53170), icon: Icons.bolt),
+        AnimatedStatRow(name: 'Compute Power', value: _computeStat, color: const Color(0xFF6E473B), icon: Icons.bolt),
         const SizedBox(height: 12),
-        AnimatedStatRow(name: 'Shield Integrity', value: _shieldStat, color: const Color(0xFF38B000), icon: Icons.shield),
+        AnimatedStatRow(name: 'Shield Integrity', value: _shieldStat, color: const Color(0xFFA78D78), icon: Icons.shield),
         const SizedBox(height: 12),
-        AnimatedStatRow(name: 'Energy Reserve', value: _energyStat, color: const Color(0xFF00B4D8), icon: Icons.battery_charging_full),
+        AnimatedStatRow(name: 'Energy Reserve', value: _energyStat, color: const Color(0xFF291C0E), icon: Icons.battery_charging_full),
         const SizedBox(height: 36),
         SizedBox(
           width: double.infinity,
@@ -529,8 +529,8 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
           child: ElevatedButton(
             onPressed: _onCompleteDescent,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF8E3C),
-              foregroundColor: Colors.white,
+              backgroundColor: const Color(0xFF6E473B),
+              foregroundColor: const Color(0xFFE1D4C2),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('INITIATE DESCENT', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5)),
@@ -548,19 +548,17 @@ class _GenesisScreenState extends ConsumerState<GenesisScreen> with SingleTicker
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFE53170).withValues(alpha: 0.4),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.25),
             blurRadius: 15,
             spreadRadius: 1,
           )
         ],
-        gradient: const LinearGradient(
-          colors: [Color(0xFFE53170), Color(0xFFFF8E3C)],
-        ),
+        color: const Color(0xFF6E473B),
       ),
       child: Icon(
         icon,
         size: 32,
-        color: Colors.white,
+        color: const Color(0xFFE1D4C2),
       ),
     );
   }
@@ -613,9 +611,9 @@ class _AnimatedStatRowState extends State<AnimatedStatRow> with SingleTickerProv
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F0E17).withValues(alpha: 0.7),
+        color: const Color(0xFFE1D4C2).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: widget.color.withValues(alpha: 0.25), width: 1.0),
+        border: Border.all(color: widget.color.withValues(alpha: 0.4), width: 1.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -626,7 +624,7 @@ class _AnimatedStatRowState extends State<AnimatedStatRow> with SingleTickerProv
               const SizedBox(width: 12),
               Text(
                 widget.name.toUpperCase(),
-                style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                style: const TextStyle(color: Color(0xFF291C0E), fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1.0),
               ),
             ],
           ),
@@ -646,7 +644,7 @@ class _AnimatedStatRowState extends State<AnimatedStatRow> with SingleTickerProv
                         size: 14,
                         color: opacity > 0.0
                             ? widget.color.withValues(alpha: opacity)
-                            : Colors.white12,
+                            : const Color(0xFFBEB5A9).withValues(alpha: 0.3),
                       ),
                     ),
                   );

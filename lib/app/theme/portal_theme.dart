@@ -6,27 +6,22 @@ import 'package:flutter/material.dart';
 /// conforming to the visual specifications of the UI analysis.
 @immutable
 class PortalTheme extends ThemeExtension<PortalTheme> {
-  // --- Color Palette ---
-  /// Deep Space Gray background color (#1A1A24).
+  // --- Master 5-Color Palette (from 97f2a71f96978724029cf44e5ced6eda.jpg) ---
+  static const Color espresso = Color(0xFF291C0E);
+  static const Color terracotta = Color(0xFF6E473B);
+  static const Color taupe = Color(0xFFA78D78);
+  static const Color cashmere = Color(0xFFBEB5A9);
+  static const Color cream = Color(0xFFE1D4C2);
+
+  // --- Theme Token Properties ---
   final Color baseBackground;
-
-  /// Transparent Frost White overlay color (rgba(255,255,255, 0.03)).
   final Color surfaceOverlay;
-
-  /// Electric Cyan accent color (#00E5FF).
   final Color primaryAccent;
-
-  /// Soft Silver-Gray text and secondary detail color (#B0B3C1).
   final Color secondaryText;
-
-  /// Delicate glass border color (translucent silver-gray, rgba(176, 179, 193, 0.2)).
   final Color glassBorder;
 
   // --- Glow & Shadow Effects ---
-  /// Cyan neon glowing shadows for active elements.
   final List<BoxShadow> neonGlow;
-
-  /// Whisper-soft shadows for glassmorphic elements.
   final List<BoxShadow> glassShadow;
 
   const PortalTheme({
@@ -39,25 +34,25 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
     required this.glassShadow,
   });
 
-  /// Factory configuration for Majestic Hellenic White Marble & Imperial Gold.
+  /// Factory configuration for the Warm Espresso & Terracotta Cream Theme.
   factory PortalTheme.dark() {
     return PortalTheme(
-      baseBackground: const Color(0xFFF8F6F0),
-      surfaceOverlay: const Color(0xFFFFFFFF),
-      primaryAccent: const Color(0xFFD4AF37),
-      secondaryText: const Color(0xFF4A4A4A),
-      glassBorder: const Color(0xFFD4AF37),
+      baseBackground: cream,
+      surfaceOverlay: Colors.white,
+      primaryAccent: terracotta,
+      secondaryText: espresso,
+      glassBorder: taupe,
       neonGlow: [
         BoxShadow(
-          color: const Color(0xFFD4AF37).withValues(alpha: 0.35),
-          blurRadius: 18.0,
+          color: terracotta.withValues(alpha: 0.25),
+          blurRadius: 16.0,
           spreadRadius: 1.0,
         ),
       ],
       glassShadow: [
         BoxShadow(
-          color: const Color(0xFF000000).withValues(alpha: 0.08),
-          blurRadius: 16.0,
+          color: espresso.withValues(alpha: 0.08),
+          blurRadius: 14.0,
           spreadRadius: 2.0,
         ),
       ],
@@ -81,12 +76,11 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
   static const double spaceXL = 32.0;
 
   // --- Typography Specs ---
-  /// Typography rules matching high legibility sans-serif requirements.
   static TextStyle get titleStyle => const TextStyle(
-        fontFamily: 'Inter', // Fallback to system sans-serif if unavailable
+        fontFamily: 'Inter',
         fontSize: 32.0,
-        fontWeight: FontWeight.w400,
-        color: Colors.white,
+        fontWeight: FontWeight.w600,
+        color: espresso,
         letterSpacing: -0.5,
       );
 
@@ -94,7 +88,7 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
         fontFamily: 'Inter',
         fontSize: 14.0,
         fontWeight: FontWeight.normal,
-        color: Color(0xFFB0B3C1),
+        color: terracotta,
         letterSpacing: 0.2,
       );
 
@@ -102,7 +96,7 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
         fontFamily: 'Inter',
         fontSize: 14.0,
         fontWeight: FontWeight.w600,
-        color: Color(0xFFB0B3C1),
+        color: espresso,
         letterSpacing: 0.2,
       );
 
@@ -110,7 +104,7 @@ class PortalTheme extends ThemeExtension<PortalTheme> {
         fontFamily: 'Inter',
         fontSize: 12.0,
         fontWeight: FontWeight.normal,
-        color: Color(0xFFB0B3C1),
+        color: espresso,
       );
 
   @override

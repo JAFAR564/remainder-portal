@@ -50,7 +50,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -60,15 +60,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFD4AF37), width: 2.0),
+                border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                    color: const Color(0xFF6E473B).withValues(alpha: 0.15),
                     blurRadius: 24,
                     spreadRadius: 2,
                   ),
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: const Color(0xFF291C0E).withValues(alpha: 0.05),
                     blurRadius: 10,
                     spreadRadius: 1,
                   ),
@@ -86,10 +86,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
-                        border: Border.all(color: const Color(0xFFD4AF37), width: 2),
+                        border: Border.all(color: const Color(0xFFA78D78), width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+                            color: const Color(0xFF6E473B).withValues(alpha: 0.2),
                             blurRadius: 12,
                           ),
                         ],
@@ -97,9 +97,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(35),
                         child: Image.asset(
-                          'assets/icon/app_icon.jpg',
+                          'assets/icon/app_icon.png',
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 36),
+                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 36),
                         ),
                       ),
                     ),
@@ -114,14 +114,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2.0,
-                      color: Color(0xFFB8860B),
+                      color: Color(0xFF6E473B),
                     ),
                   ),
                   const SizedBox(height: 6),
                   const Text(
                     'Binds your soul and consciousness to the Sovereign Realm',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF666666), fontSize: 11),
+                    style: TextStyle(color: Color(0xFF291C0E), fontSize: 11),
                   ),
                   const SizedBox(height: 24),
 
@@ -134,9 +134,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: _isSignUp ? const Color(0xFFD4AF37).withValues(alpha: 0.15) : Colors.transparent,
+                              color: _isSignUp ? const Color(0xFF6E473B).withValues(alpha: 0.15) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: _isSignUp ? const Color(0xFFD4AF37) : Colors.transparent),
+                              border: Border.all(color: _isSignUp ? const Color(0xFF6E473B) : Colors.transparent),
                             ),
                             child: Text(
                               'AWAKEN TRAVELER',
@@ -145,7 +145,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 fontFamily: 'monospace',
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: _isSignUp ? const Color(0xFFB8860B) : const Color(0xFF777777),
+                                color: _isSignUp ? const Color(0xFF6E473B) : const Color(0xFFBEB5A9),
                               ),
                             ),
                           ),
@@ -158,9 +158,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: !_isSignUp ? const Color(0xFF007791).withValues(alpha: 0.15) : Colors.transparent,
+                              color: !_isSignUp ? const Color(0xFFA78D78).withValues(alpha: 0.15) : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: !_isSignUp ? const Color(0xFF007791) : Colors.transparent),
+                              border: Border.all(color: !_isSignUp ? const Color(0xFFA78D78) : Colors.transparent),
                             ),
                             child: Text(
                               'REJOIN REALM',
@@ -169,7 +169,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                                 fontFamily: 'monospace',
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: !_isSignUp ? const Color(0xFF007791) : const Color(0xFF777777),
+                                color: !_isSignUp ? const Color(0xFF291C0E) : const Color(0xFFBEB5A9),
                               ),
                             ),
                           ),
@@ -182,14 +182,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   // Profile Name Input
                   TextField(
                     controller: _nameController,
-                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: Color(0xFF291C0E), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'TRAVELER NAME',
-                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(color: Color(0xFF6E473B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFFFAF8F5),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      fillColor: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF6E473B), width: 2)),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -198,14 +199,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedTitle,
                     dropdownColor: Colors.white,
-                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: Color(0xFF291C0E), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'SOVEREIGN REALM TITLE',
-                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(color: Color(0xFF6E473B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFFFAF8F5),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      fillColor: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF6E473B), width: 2)),
                     ),
                     items: _titles.map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
                     onChanged: (val) {
@@ -218,14 +220,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   DropdownButtonFormField<String>(
                     value: _selectedClass,
                     dropdownColor: Colors.white,
-                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: Color(0xFF291C0E), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       labelText: 'CLASS ARCHETYPE',
-                      labelStyle: const TextStyle(color: Color(0xFFB8860B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                      labelStyle: const TextStyle(color: Color(0xFF6E473B), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: const Color(0xFFFAF8F5),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE0DDD5))),
+                      fillColor: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA78D78))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF6E473B), width: 2)),
                     ),
                     items: _classes.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
                     onChanged: (val) {
@@ -237,19 +240,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   // Submit Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4AF37),
-                      foregroundColor: const Color(0xFF1A1A1A),
+                      backgroundColor: const Color(0xFF6E473B),
+                      foregroundColor: const Color(0xFFE1D4C2),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 4,
-                      shadowColor: const Color(0xFFB8860B).withValues(alpha: 0.4),
+                      shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.3),
                     ),
                     onPressed: _submit,
                     child: Text(
                       _isSignUp ? 'ENTER THE SOVEREIGN REALM' : 'REJOIN THE SOVEREIGN REALM',
                       style: const TextStyle(
                         fontFamily: 'monospace',
-                        color: Color(0xFF1A1A1A),
+                        color: Color(0xFFE1D4C2),
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
                         fontSize: 12,

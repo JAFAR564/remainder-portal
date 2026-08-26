@@ -63,15 +63,15 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD4AF37) : Colors.white,
+          color: isSelected ? const Color(0xFF6E473B) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFFD4AF37),
+            color: const Color(0xFFA78D78),
             width: 1.2,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+              color: const Color(0xFF6E473B).withValues(alpha: 0.15),
               blurRadius: 6,
             ),
           ],
@@ -79,7 +79,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? const Color(0xFF1A1A1A) : const Color(0xFFB8860B),
+            color: isSelected ? const Color(0xFFE1D4C2) : const Color(0xFF6E473B),
             fontSize: 10,
             fontWeight: FontWeight.bold,
             fontFamily: 'monospace',
@@ -101,21 +101,21 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFAF8F5),
+        backgroundColor: Colors.white,
         elevation: 1,
-        shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+        shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'SOVEREIGN REALM & WORLD ARBITER CHAT',
-              style: TextStyle(fontFamily: 'serif', fontSize: 13, color: Color(0xFFB8860B), fontWeight: FontWeight.bold),
+              style: TextStyle(fontFamily: 'serif', fontSize: 13, color: Color(0xFF6E473B), fontWeight: FontWeight.bold),
             ),
             Text(
               'WORLD ARBITER (CARDINAL) ONLINE',
-              style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Color(0xFF007791), fontWeight: FontWeight.bold),
+              style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Color(0xFF291C0E), fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -137,21 +137,21 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
       ),
       body: Column(
         children: [
-          // System Admin AI Announcement Banner
+          // System Admin Announcement Banner
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
-              color: Color(0xFFFAF8F5),
-              border: Border(bottom: BorderSide(color: Color(0xFFD4AF37), width: 1.0)),
+              color: Color(0xFFE1D4C2),
+              border: Border(bottom: BorderSide(color: Color(0xFFA78D78), width: 1.0)),
             ),
             child: const Row(
               children: [
-                Icon(Icons.campaign_outlined, color: Color(0xFFB8860B), size: 16),
+                Icon(Icons.campaign_outlined, color: Color(0xFF6E473B), size: 16),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'SYSTEM ANNOUNCEMENT: Monster Wave in Sector 4. Roleplay consensus rules active.',
-                    style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Color(0xFF007791), fontWeight: FontWeight.bold),
+                    style: TextStyle(fontFamily: 'monospace', fontSize: 9, color: Color(0xFF291C0E), fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -172,15 +172,15 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isGM ? const Color(0xFFFAF8F5) : Colors.white,
+                    color: isGM ? const Color(0xFFE1D4C2).withValues(alpha: 0.35) : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isGM ? const Color(0xFFB8860B) : const Color(0xFFD4AF37),
+                      color: isGM ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
                       width: isGM ? 1.8 : 1.2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+                        color: const Color(0xFF6E473B).withValues(alpha: 0.1),
                         blurRadius: 8,
                       ),
                     ],
@@ -195,7 +195,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                             children: [
                               Icon(
                                 isGM ? Icons.auto_awesome : Icons.person_outline,
-                                color: isGM ? const Color(0xFFB8860B) : const Color(0xFF007791),
+                                color: isGM ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
                                 size: 14,
                               ),
                               const SizedBox(width: 6),
@@ -205,7 +205,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                                   fontFamily: 'monospace',
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: isGM ? const Color(0xFFB8860B) : const Color(0xFF007791),
+                                  color: isGM ? const Color(0xFF6E473B) : const Color(0xFF291C0E),
                                 ),
                               ),
                             ],
@@ -213,9 +213,9 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: msg.isIC ? Colors.purple.withValues(alpha: 0.1) : Colors.blue.withValues(alpha: 0.1),
+                              color: msg.isIC ? const Color(0xFF6E473B).withValues(alpha: 0.12) : const Color(0xFFA78D78).withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: msg.isIC ? Colors.purple : Colors.blue),
+                              border: Border.all(color: msg.isIC ? const Color(0xFF6E473B) : const Color(0xFFA78D78)),
                             ),
                             child: Text(
                               msg.isIC ? 'IC' : 'OOC',
@@ -223,7 +223,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                                 fontFamily: 'monospace',
                                 fontSize: 8,
                                 fontWeight: FontWeight.bold,
-                                color: msg.isIC ? Colors.purple.shade700 : Colors.blue.shade700,
+                                color: msg.isIC ? const Color(0xFF6E473B) : const Color(0xFF291C0E),
                               ),
                             ),
                           ),
@@ -232,7 +232,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                       const SizedBox(height: 6),
                       Text(
                         msg.content,
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF1A1A1A), height: 1.4),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF291C0E), height: 1.4),
                       ),
                     ],
                   ),
@@ -246,14 +246,14 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
             padding: const EdgeInsets.all(12),
             decoration: const BoxDecoration(
               color: Colors.white,
-              border: Border(top: BorderSide(color: Color(0xFFD4AF37), width: 1.5)),
+              border: Border(top: BorderSide(color: Color(0xFFA78D78), width: 1.5)),
             ),
             child: Row(
               children: [
                 IconButton(
                   icon: Icon(
                     _isICInput ? Icons.record_voice_over : Icons.chat_bubble_outline,
-                    color: _isICInput ? const Color(0xFFB8860B) : const Color(0xFF666666),
+                    color: _isICInput ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
                     size: 20,
                   ),
                   onPressed: () {
@@ -267,17 +267,17 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                   child: TextField(
                     controller: _inputController,
                     onSubmitted: (_) => _onSubmit(),
-                    style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: Color(0xFF291C0E), fontSize: 13, fontWeight: FontWeight.w600),
                     decoration: InputDecoration(
                       hintText: _isICInput ? 'Speak in-character...' : 'Speak out-of-character...',
-                      hintStyle: const TextStyle(color: Color(0xFF888888), fontSize: 12),
+                      hintStyle: const TextStyle(color: Color(0xFFBEB5A9), fontSize: 12),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send, color: Color(0xFFB8860B), size: 20),
+                  icon: const Icon(Icons.send, color: Color(0xFF6E473B), size: 20),
                   onPressed: _onSubmit,
                 ),
               ],

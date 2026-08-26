@@ -20,14 +20,14 @@ class SettingsScreen extends ConsumerWidget {
         : (profile.tier == HardwareTier.midRange ? 'TIER A (MID-RANGE)' : 'TIER B (BUDGET)');
 
     final Color tierColor = profile.tier == HardwareTier.flagship
-        ? const Color(0xFF00F0FF)
-        : (profile.tier == HardwareTier.midRange ? const Color(0xFFFFD166) : const Color(0xFFFF8E3C));
+        ? const Color(0xFF6E473B)
+        : (profile.tier == HardwareTier.midRange ? const Color(0xFFA78D78) : const Color(0xFF291C0E));
 
     final bool isHardwareEligible = profile.tier == HardwareTier.flagship;
     final bool isModelInstalled = progress.status == ModelDownloadState.ready;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       appBar: AppBar(
         title: const Text(
           'SOVEREIGN REALM & WORLD SETTINGS',
@@ -35,12 +35,12 @@ class SettingsScreen extends ConsumerWidget {
             fontSize: 13,
             fontWeight: FontWeight.bold,
             letterSpacing: 2.0,
-            color: Color(0xFFB8860B),
+            color: Color(0xFF6E473B),
           ),
         ),
-        backgroundColor: const Color(0xFFFAF8F5),
+        backgroundColor: Colors.white,
         elevation: 1,
-        shadowColor: const Color(0xFFD4AF37).withValues(alpha: 0.3),
+        shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -55,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
                 elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
+                  side: const BorderSide(color: Color(0xFFA78D78), width: 1.5),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -71,7 +71,7 @@ class SettingsScreen extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Color(0xFF1A1A1A),
+                                color: Color(0xFF291C0E),
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'monospace',
@@ -98,161 +98,161 @@ class SettingsScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'PLATFORM: ${profile.platformName} | SPIRIT CORES: ${profile.processorCores} | ESSENCE: ${profile.totalRamMb} MB',
-                          style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'DIVINE ACCELERATOR: ${profile.hasDedicatedNpu ? "ACTIVE" : "UNAVAILABLE"}',
-                          style: const TextStyle(color: Color(0xFF777777), fontSize: 10, fontFamily: 'monospace'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Experimental On-Device AI Section Card
-                Card(
-                  color: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'ON-DEVICE SPIRITUAL ARBITER (GEMMA)',
-                                    style: TextStyle(
-                                      color: Color(0xFF1A1A1A),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'monospace',
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'On-demand inner realm intelligence execution.',
-                                    style: TextStyle(color: Color(0xFF666666), fontSize: 10),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Switch(
-                              activeColor: const Color(0xFFB8860B),
-                              value: settings.enableOnDeviceAi,
-                              onChanged: isHardwareEligible && isModelInstalled
-                                  ? (val) => notifier.setOnDeviceAi(val)
-                                  : null,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const Divider(color: Color(0xFFE0DDD5), height: 1),
-                        const SizedBox(height: 12),
-                        if (!isHardwareEligible) ...[
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF8E3C).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFFF8E3C).withValues(alpha: 0.4)),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 20),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    'HARDWARE GATED: On-device execution locked to prevent memory collapse. Astral Cloud AI active.',
-                                    style: TextStyle(color: Color(0xFFD97706), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ] else ...[
-                          _buildModelDownloaderControls(context, ref, progress, notifier),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Presentation & Visual Preferences
-                const Text(
-                  'PRESENTATION & ACCESSIBILITY',
-                  style: TextStyle(
-                    fontFamily: 'serif',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: Color(0xFFB8860B),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                Card(
-                  color: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Color(0xFFD4AF37), width: 1.5),
-                  ),
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        activeColor: const Color(0xFFB8860B),
-                        title: const Text('ANCIENT RUNE GLOW OVERLAY', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
-                        subtitle: Text(
-                          'Subtle ancient rune aura overlay (Adaptive Opacity: ${(settings.scanlineOpacity * 100).toStringAsFixed(1)}%)',
-                          style: const TextStyle(color: Color(0xFF666666), fontSize: 10),
-                        ),
-                        value: settings.enableCrtScanlines,
-                        onChanged: (val) => notifier.toggleCrtScanlines(val),
+                      const SizedBox(height: 10),
+                      Text(
+                        'PLATFORM: ${profile.platformName} | SPIRIT CORES: ${profile.processorCores} | ESSENCE: ${profile.totalRamMb} MB',
+                        style: const TextStyle(color: Color(0xFF291C0E), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.w600),
                       ),
-                      const Divider(color: Color(0xFFE0DDD5), height: 1),
-                      SwitchListTile(
-                        activeColor: const Color(0xFFB8860B),
-                        title: const Text('AETHERIC VIGNETTE & SHADOWS', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
-                        value: settings.enableChromaticAberration,
-                        onChanged: (val) => notifier.toggleChromaticAberration(val),
-                      ),
-                      const Divider(color: Color(0xFFE0DDD5), height: 1),
-                      SwitchListTile(
-                        activeColor: const Color(0xFFB8860B),
-                        title: const Text('REDUCED MOTION MODE', style: TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600)),
-                        subtitle: const Text(
-                          'Disables animations, scanlines, and particle effects for accessibility.',
-                          style: TextStyle(color: Color(0xFF666666), fontSize: 10),
-                        ),
-                        value: settings.reducedMotion,
-                        onChanged: (val) => notifier.toggleReducedMotion(val),
+                      const SizedBox(height: 4),
+                      Text(
+                        'DIVINE ACCELERATOR: ${profile.hasDedicatedNpu ? "ACTIVE" : "UNAVAILABLE"}',
+                        style: const TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontFamily: 'monospace'),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // AI Section Card
+              Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFFA78D78), width: 1.5),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ON-DEVICE SPIRITUAL ARBITER (GEMMA)',
+                                  style: TextStyle(
+                                    color: Color(0xFF291C0E),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'On-demand inner realm intelligence execution.',
+                                  style: TextStyle(color: Color(0xFF6E473B), fontSize: 10),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch(
+                            activeColor: const Color(0xFF6E473B),
+                            value: settings.enableOnDeviceAi,
+                            onChanged: isHardwareEligible && isModelInstalled
+                                ? (val) => notifier.setOnDeviceAi(val)
+                                : null,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(color: Color(0xFFBEB5A9), height: 1),
+                      const SizedBox(height: 12),
+                      if (!isHardwareEligible) ...[
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.4)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.warning_amber_rounded, color: Color(0xFF6E473B), size: 20),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'HARDWARE GATED: On-device execution locked to prevent memory collapse. Astral Cloud AI active.',
+                                  style: TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else ...[
+                        _buildModelDownloaderControls(context, ref, progress, notifier),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Presentation & Visual Preferences
+              const Text(
+                'PRESENTATION & ACCESSIBILITY',
+                style: TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.5,
+                  color: Color(0xFF6E473B),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Color(0xFFA78D78), width: 1.5),
+                ),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      activeColor: const Color(0xFF6E473B),
+                      title: const Text('ANCIENT RUNE GLOW OVERLAY', style: TextStyle(color: Color(0xFF291C0E), fontSize: 12, fontWeight: FontWeight.w600)),
+                      subtitle: Text(
+                        'Subtle ancient rune aura overlay (Adaptive Opacity: ${(settings.scanlineOpacity * 100).toStringAsFixed(1)}%)',
+                        style: const TextStyle(color: Color(0xFF6E473B), fontSize: 10),
+                      ),
+                      value: settings.enableCrtScanlines,
+                      onChanged: (val) => notifier.toggleCrtScanlines(val),
+                    ),
+                    const Divider(color: Color(0xFFBEB5A9), height: 1),
+                    SwitchListTile(
+                      activeColor: const Color(0xFF6E473B),
+                      title: const Text('AETHERIC VIGNETTE & SHADOWS', style: TextStyle(color: Color(0xFF291C0E), fontSize: 12, fontWeight: FontWeight.w600)),
+                      value: settings.enableChromaticAberration,
+                      onChanged: (val) => notifier.toggleChromaticAberration(val),
+                    ),
+                    const Divider(color: Color(0xFFBEB5A9), height: 1),
+                    SwitchListTile(
+                      activeColor: const Color(0xFF6E473B),
+                      title: const Text('REDUCED MOTION MODE', style: TextStyle(color: Color(0xFF291C0E), fontSize: 12, fontWeight: FontWeight.w600)),
+                      subtitle: const Text(
+                        'Disables animations, scanlines, and particle effects for accessibility.',
+                        style: TextStyle(color: Color(0xFF6E473B), fontSize: 10),
+                      ),
+                      value: settings.reducedMotion,
+                      onChanged: (val) => notifier.toggleReducedMotion(val),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 
   Widget _buildModelDownloaderControls(
@@ -267,28 +267,28 @@ class SettingsScreen extends ConsumerWidget {
     switch (progress.status) {
       case ModelDownloadState.ready:
         badgeText = 'INSTALLED & READY';
-        badgeColor = const Color(0xFF38B000);
+        badgeColor = const Color(0xFF6E473B);
         break;
       case ModelDownloadState.downloading:
         badgeText = 'DOWNLOADING (${progress.percentage.toStringAsFixed(0)}%)';
-        badgeColor = const Color(0xFF00F0FF);
+        badgeColor = const Color(0xFFA78D78);
         break;
       case ModelDownloadState.paused:
         badgeText = 'PAUSED';
-        badgeColor = const Color(0xFFFFD166);
+        badgeColor = const Color(0xFFBEB5A9);
         break;
       case ModelDownloadState.verifying:
         badgeText = 'VERIFYING SHA-256';
-        badgeColor = const Color(0xFF9D4EDD);
+        badgeColor = const Color(0xFF6E473B);
         break;
       case ModelDownloadState.error:
         badgeText = 'ERROR';
-        badgeColor = const Color(0xFFE53170);
+        badgeColor = const Color(0xFF291C0E);
         break;
       case ModelDownloadState.notDownloaded:
       default:
         badgeText = 'NOT INSTALLED';
-        badgeColor = Colors.white54;
+        badgeColor = const Color(0xFFBEB5A9);
         break;
     }
 
@@ -303,14 +303,14 @@ class SettingsScreen extends ConsumerWidget {
           children: [
             const Text(
               'GEMMA 3 (1B) WEIGHTS (1.5 GB)',
-              style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace'),
+              style: TextStyle(color: Color(0xFF291C0E), fontSize: 11, fontFamily: 'monospace', fontWeight: FontWeight.bold),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: badgeColor.withValues(alpha: 0.2),
+                color: badgeColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: badgeColor.withValues(alpha: 0.5)),
+                border: Border.all(color: badgeColor),
               ),
               child: Text(
                 badgeText,
@@ -335,7 +335,7 @@ class SettingsScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: progress.status == ModelDownloadState.verifying ? null : (progress.percentage / 100.0),
-              backgroundColor: Colors.white12,
+              backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.3),
               valueColor: AlwaysStoppedAnimation<Color>(badgeColor),
               minHeight: 6,
             ),
@@ -346,12 +346,12 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               Text(
                 '${mbDownloaded.toStringAsFixed(1)} MB / ${mbTotal.toStringAsFixed(1)} MB (${progress.percentage.toStringAsFixed(1)}%)',
-                style: const TextStyle(color: Colors.white54, fontSize: 10, fontFamily: 'monospace'),
+                style: const TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontFamily: 'monospace'),
               ),
               if (progress.status == ModelDownloadState.downloading)
                 Text(
                   '${progress.downloadSpeedMbS.toStringAsFixed(2)} MB/s',
-                  style: const TextStyle(color: Color(0xFF00F0FF), fontSize: 10, fontFamily: 'monospace'),
+                  style: const TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                 ),
             ],
           ),
@@ -363,7 +363,7 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Text(
               'ERROR: ${progress.errorMessage}',
-              style: const TextStyle(color: Color(0xFFE53170), fontSize: 10, fontFamily: 'monospace'),
+              style: const TextStyle(color: Color(0xFF291C0E), fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -375,8 +375,8 @@ class SettingsScreen extends ConsumerWidget {
                 progress.status == ModelDownloadState.error) ...[
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00F0FF),
-                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFF6E473B),
+                  foregroundColor: const Color(0xFFE1D4C2),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
@@ -390,8 +390,8 @@ class SettingsScreen extends ConsumerWidget {
             ] else if (progress.status == ModelDownloadState.downloading) ...[
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFFFD166),
-                  side: const BorderSide(color: Color(0xFFFFD166)),
+                  foregroundColor: const Color(0xFF6E473B),
+                  side: const BorderSide(color: Color(0xFF6E473B)),
                 ),
                 icon: const Icon(Icons.pause_rounded, size: 16),
                 label: const Text('PAUSE', style: TextStyle(fontSize: 11, fontFamily: 'monospace')),
@@ -399,7 +399,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFFE53170)),
+                style: TextButton.styleFrom(foregroundColor: const Color(0xFF291C0E)),
                 icon: const Icon(Icons.cancel_rounded, size: 16),
                 label: const Text('CANCEL', style: TextStyle(fontSize: 11, fontFamily: 'monospace')),
                 onPressed: () => notifier.cancelModelDownload(),
@@ -407,8 +407,8 @@ class SettingsScreen extends ConsumerWidget {
             ] else if (progress.status == ModelDownloadState.paused) ...[
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00F0FF),
-                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFF6E473B),
+                  foregroundColor: const Color(0xFFE1D4C2),
                 ),
                 icon: const Icon(Icons.play_arrow_rounded, size: 16),
                 label: const Text('RESUME', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'monospace')),
@@ -416,7 +416,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               TextButton.icon(
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFFE53170)),
+                style: TextButton.styleFrom(foregroundColor: const Color(0xFF291C0E)),
                 icon: const Icon(Icons.cancel_rounded, size: 16),
                 label: const Text('CANCEL', style: TextStyle(fontSize: 11, fontFamily: 'monospace')),
                 onPressed: () => notifier.cancelModelDownload(),
@@ -424,8 +424,8 @@ class SettingsScreen extends ConsumerWidget {
             ] else if (progress.status == ModelDownloadState.ready) ...[
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFE53170),
-                  side: const BorderSide(color: Color(0xFFE53170)),
+                  foregroundColor: const Color(0xFF6E473B),
+                  side: const BorderSide(color: Color(0xFF6E473B)),
                 ),
                 icon: const Icon(Icons.delete_outline_rounded, size: 16),
                 label: const Text('DELETE MODEL', style: TextStyle(fontSize: 11, fontFamily: 'monospace')),
@@ -435,6 +435,5 @@ class SettingsScreen extends ConsumerWidget {
           ],
         ),
       ],
-    );
   }
 }

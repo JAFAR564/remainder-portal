@@ -10,10 +10,10 @@ class EquipmentSlotsWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+        border: Border.all(color: const Color(0xFFA78D78), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+            color: const Color(0xFF6E473B).withValues(alpha: 0.12),
             blurRadius: 12,
             spreadRadius: 1,
           ),
@@ -24,15 +24,15 @@ class EquipmentSlotsWidget extends StatelessWidget {
         children: [
           const Row(
             children: [
-              Icon(Icons.shield_outlined, color: Color(0xFFB8860B), size: 16),
+              Icon(Icons.shield_outlined, color: Color(0xFF6E473B), size: 16),
               SizedBox(width: 6),
               Text(
-                'MMORPG EQUIPMENT & GEAR SLOTS',
+                'EQUIPMENT & GEAR SLOTS',
                 style: TextStyle(
                   fontFamily: 'serif',
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFB8860B),
+                  color: Color(0xFF6E473B),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -60,26 +60,26 @@ class EquipmentSlotsWidget extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: const Color(0xFFFAF8F5),
+            color: const Color(0xFFE1D4C2).withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+            border: Border.all(color: const Color(0xFFA78D78), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+                color: const Color(0xFF291C0E).withValues(alpha: 0.04),
                 blurRadius: 6,
               ),
             ],
           ),
-          child: Icon(icon, color: const Color(0xFFB8860B), size: 22),
+          child: Icon(icon, color: const Color(0xFF6E473B), size: 22),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFF007791), fontWeight: FontWeight.bold),
+          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFF6E473B), fontWeight: FontWeight.bold),
         ),
         Text(
           item,
-          style: const TextStyle(fontSize: 9, color: Color(0xFF4A4A4A), fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 9, color: Color(0xFF291C0E), fontWeight: FontWeight.bold),
         ),
       ],
     );

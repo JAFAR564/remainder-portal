@@ -16,30 +16,26 @@ class DescentScreen extends ConsumerWidget {
     final sectors = repo.getAllConcepts().where((c) => c.type == 'Spatial_Sector').toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0E17),
+      backgroundColor: const Color(0xFFE1D4C2),
       appBar: AppBar(
         title: const Text(
           'SECTOR MATRIX SELECTOR',
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             letterSpacing: 2.0,
-            color: Colors.white,
+            color: Color(0xFF6E473B),
+            fontFamily: 'serif',
           ),
         ),
-        backgroundColor: const Color(0xFF161520),
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
         centerTitle: true,
       ),
       body: CrtOverlay(
         child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF161520), Color(0xFF0F0E17)],
-            ),
-          ),
+          color: const Color(0xFFE1D4C2),
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,10 +43,11 @@ class DescentScreen extends ConsumerWidget {
               // Player HUD
               if (profile != null) ...[
                 Card(
-                  color: const Color(0xFF161520),
+                  color: Colors.white,
+                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
-                    side: const BorderSide(color: Color(0xFFFF8E3C), width: 1.0),
+                    side: const BorderSide(color: Color(0xFFA78D78), width: 1.5),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -62,12 +59,12 @@ class DescentScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'OPERATOR: ${profile.name.toUpperCase()}',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Color(0xFF291C0E), fontWeight: FontWeight.bold, fontFamily: 'serif'),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'ORIGIN: ${profile.origin.toUpperCase()}',
-                              style: const TextStyle(color: Color(0xFFFF8E3C), fontSize: 12),
+                              style: const TextStyle(color: Color(0xFF6E473B), fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -75,16 +72,16 @@ class DescentScreen extends ConsumerWidget {
                           children: [
                             const Text(
                               'STATS',
-                              style: TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Color(0xFF6E473B), fontSize: 10, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                _buildStatIcon(Icons.bolt, profile.stats.computePower.toString(), const Color(0xFFE53170)),
+                                _buildStatIcon(Icons.bolt, profile.stats.computePower.toString(), const Color(0xFF6E473B)),
                                 const SizedBox(width: 12),
-                                _buildStatIcon(Icons.shield, profile.stats.shieldIntegrity.toString(), const Color(0xFF38B000)),
+                                _buildStatIcon(Icons.shield, profile.stats.shieldIntegrity.toString(), const Color(0xFFA78D78)),
                                 const SizedBox(width: 12),
-                                _buildStatIcon(Icons.battery_charging_full, profile.stats.energyReserve.toString(), const Color(0xFF00B4D8)),
+                                _buildStatIcon(Icons.battery_charging_full, profile.stats.energyReserve.toString(), const Color(0xFF291C0E)),
                               ],
                             )
                           ],
@@ -99,10 +96,11 @@ class DescentScreen extends ConsumerWidget {
               const Text(
                 'AVAILABLE SPATIAL SECTORS',
                 style: TextStyle(
-                  color: Colors.white70,
+                  color: Color(0xFF6E473B),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
+                  fontFamily: 'monospace',
                 ),
               ),
               const SizedBox(height: 16),
@@ -114,7 +112,7 @@ class DescentScreen extends ConsumerWidget {
                         child: Text(
                           'NO SECTORS DISCOVERED YET.\nINITIALIZE REPOSITORY INGEST.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.4), letterSpacing: 1.0),
+                          style: TextStyle(color: const Color(0xFF291C0E).withValues(alpha: 0.6), letterSpacing: 1.0, fontFamily: 'monospace'),
                         ),
                       )
                     : ListView.builder(
@@ -139,12 +137,13 @@ class DescentScreen extends ConsumerWidget {
                                 );
                               },
                               child: Card(
-                                color: const Color(0xFF161520),
+                                color: Colors.white,
+                                elevation: 2,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16.0),
-                                  side: BorderSide(
-                                    color: Colors.white.withValues(alpha: 0.1),
-                                    width: 1.0,
+                                  side: const BorderSide(
+                                    color: Color(0xFFA78D78),
+                                    width: 1.2,
                                   ),
                                 ),
                                 child: Padding(
@@ -160,12 +159,13 @@ class DescentScreen extends ConsumerWidget {
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.white,
+                                              color: Color(0xFF291C0E),
+                                              fontFamily: 'serif',
                                             ),
                                           ),
                                           const Icon(
                                             Icons.chevron_right,
-                                            color: Color(0xFFFF8E3C),
+                                            color: Color(0xFF6E473B),
                                           )
                                         ],
                                       ),
@@ -174,7 +174,7 @@ class DescentScreen extends ConsumerWidget {
                                         sector.description ?? 'No description coordinates provided.',
                                         style: TextStyle(
                                           fontSize: 13,
-                                          color: Colors.white.withValues(alpha: 0.6),
+                                          color: const Color(0xFF291C0E).withValues(alpha: 0.8),
                                         ),
                                       ),
                                       const SizedBox(height: 16),
@@ -186,15 +186,17 @@ class DescentScreen extends ConsumerWidget {
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.bold,
-                                              color: stability > 0.8 ? const Color(0xFF38B000) : const Color(0xFFFF8E3C),
+                                              color: stability > 0.8 ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
+                                              fontFamily: 'monospace',
                                             ),
                                           ),
                                           Text(
                                             'GENRES: ${List<String>.from(sector.attributes['genre_dependencies'] ?? []).join(', ').toUpperCase()}',
                                             style: TextStyle(
                                               fontSize: 10,
-                                              color: Colors.white.withValues(alpha: 0.4),
+                                              color: const Color(0xFF291C0E).withValues(alpha: 0.6),
                                               letterSpacing: 1.0,
+                                              fontFamily: 'monospace',
                                             ),
                                           ),
                                         ],
@@ -222,7 +224,7 @@ class DescentScreen extends ConsumerWidget {
         const SizedBox(width: 4),
         Text(
           value,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Color(0xFF291C0E), fontWeight: FontWeight.bold),
         ),
       ],
     );

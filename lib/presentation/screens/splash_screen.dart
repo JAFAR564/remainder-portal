@@ -56,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFE1D4C2),
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
@@ -77,22 +77,22 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Custom Golden Astrolabe App Icon
+                      // Master App Emblem
                       Container(
                         width: 140,
                         height: 140,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
-                          border: Border.all(color: const Color(0xFFD4AF37), width: 3),
+                          border: Border.all(color: const Color(0xFFA78D78), width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
+                              color: const Color(0xFF6E473B).withValues(alpha: 0.35),
                               blurRadius: 30,
                               spreadRadius: 4,
                             ),
                             BoxShadow(
-                              color: const Color(0xFF008CA8).withValues(alpha: 0.2),
+                              color: const Color(0xFF291C0E).withValues(alpha: 0.1),
                               blurRadius: 20,
                               spreadRadius: 1,
                             ),
@@ -101,11 +101,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(70),
                           child: Image.asset(
-                            'assets/icon/app_icon.jpg',
+                            'assets/icon/app_icon.png',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => Container(
-                              color: const Color(0xFFFAF8F5),
-                              child: const Icon(Icons.auto_awesome, color: Color(0xFFB8860B), size: 64),
+                              color: const Color(0xFFE1D4C2),
+                              child: const Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 64),
                             ),
                           ),
                         ),
@@ -118,10 +118,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 4.0,
-                          color: Color(0xFFB8860B),
+                          color: Color(0xFF6E473B),
                           shadows: [
                             Shadow(
-                              color: Color(0xFFD4AF37),
+                              color: Color(0xFFA78D78),
                               blurRadius: 6,
                             ),
                           ],
@@ -135,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           fontSize: 10,
                           letterSpacing: 2.0,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF007791).withValues(alpha: 0.95),
+                          color: const Color(0xFF291C0E).withValues(alpha: 0.95),
                         ),
                       ),
                     ],

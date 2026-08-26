@@ -20,25 +20,32 @@ class SyncStatusWidget extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF161520).withValues(alpha: 0.8),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isOnline ? const Color(0xFF38B000).withValues(alpha: 0.3) : const Color(0xFFFF8E3C).withValues(alpha: 0.3),
+          color: const Color(0xFFA78D78),
+          width: 1.2,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF291C0E).withValues(alpha: 0.05),
+            blurRadius: 6,
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             isOnline ? Icons.cloud_done : Icons.cloud_off,
-            color: isOnline ? const Color(0xFF38B000) : const Color(0xFFFF8E3C),
+            color: isOnline ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
             size: 14,
           ),
           const SizedBox(width: 6),
           Text(
             isOnline ? 'DELTA SYNC: ACTIVE' : 'OFFLINE MODE',
             style: TextStyle(
-              color: isOnline ? const Color(0xFF38B000) : const Color(0xFFFF8E3C),
+              color: isOnline ? const Color(0xFF6E473B) : const Color(0xFFA78D78),
               fontSize: 9,
               fontWeight: FontWeight.bold,
               fontFamily: 'monospace',
@@ -49,13 +56,13 @@ class SyncStatusWidget extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFFE53170).withValues(alpha: 0.25),
+                color: const Color(0xFF6E473B).withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 'QUEUE: $pendingCount',
                 style: const TextStyle(
-                  color: Color(0xFFE53170),
+                  color: Color(0xFF291C0E),
                   fontSize: 8,
                   fontWeight: FontWeight.bold,
                   fontFamily: 'monospace',
@@ -67,7 +74,7 @@ class SyncStatusWidget extends ConsumerWidget {
             const SizedBox(width: 6),
             InkWell(
               onTap: onManualSync,
-              child: const Icon(Icons.sync, color: Colors.white70, size: 14),
+              child: const Icon(Icons.sync, color: Color(0xFF6E473B), size: 14),
             ),
           ],
         ],

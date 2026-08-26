@@ -47,12 +47,12 @@ class AppHeader extends StatelessWidget {
               Text(
                 title,
                 style: PortalTheme.titleStyle.copyWith(
-                  color: Colors.white.withValues(alpha: 0.95),
+                  color: PortalTheme.espresso,
                   shadows: [
                     Shadow(
                       color: theme.primaryAccent.withValues(alpha: 0.15),
-                      offset: const Offset(0.0, 2.0),
-                      blurRadius: 8.0,
+                      offset: const Offset(0.0, 1.0),
+                      blurRadius: 4.0,
                     ),
                   ],
                 ),
