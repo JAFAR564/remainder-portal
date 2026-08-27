@@ -58,15 +58,27 @@ class CelestialBottomNavbar extends StatelessWidget {
                   color: isSelected ? const Color(0xFF6E473B) : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                   border: isSelected ? Border.all(color: const Color(0xFF291C0E)) : null,
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF6E473B).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   children: [
-                    Image.asset(
-                      item.assetPath,
-                      width: 22,
-                      height: 22,
-                      color: isSelected ? const Color(0xFFE1D4C2) : const Color(0xFFA78D78),
-                      colorBlendMode: BlendMode.srcIn,
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 200),
+                      opacity: isSelected ? 1.0 : 0.60,
+                      child: Image.asset(
+                        item.assetPath,
+                        width: 24,
+                        height: 24,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     if (isSelected) ...[
                       const SizedBox(width: 6),
