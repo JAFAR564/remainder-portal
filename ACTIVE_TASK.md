@@ -17,6 +17,7 @@
 - [x] Sideload and launch verified `remainder-portal-arm64.apk` on Honor X8.
 - [x] Standardize 4-Layer Operating Protocol (Architect / Orchestrator / Specialists / Persistent Artifacts).
 - [x] Integrate custom hand-drawn navigation icons into `CelestialBottomNavbar` (`assets/icon/nav/`).
+- [x] Fix floating navbar footer glitch via `Scaffold.extendBody: true` and 96dp bottom scroll insets.
 - [ ] Follow-up Session: Code verification, cloud CI compilation, and on-device testing.
 
 ---

@@ -28,7 +28,7 @@ class DashboardScreen extends ConsumerWidget {
       backgroundColor: const Color(0xFFE1D4C2),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

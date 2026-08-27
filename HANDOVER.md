@@ -2,7 +2,7 @@
 
 **Repository:** `The Remainder Portal` (`https://github.com/JAFAR564/remainder-portal`)  
 **Active Branch:** `main`  
-**Current Version:** `1.1.3+7` (Custom Navigation Icon & Master Theme Edition)  
+**Current Version:** `1.1.5+9` (Floating Navbar Scroll Fix & Full Color Icons)  
 **Target Environment:** Honor X8 (Termux + Antigravity AGY CLI)  
 **Last Updated:** August 27, 2026  
 

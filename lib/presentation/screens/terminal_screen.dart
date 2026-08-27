@@ -243,7 +243,12 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
 
           // Message Input Bar
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.fromLTRB(
+              12,
+              8,
+              12,
+              MediaQuery.viewInsetsOf(context).bottom > 0 ? 12 : 88,
+            ),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: Color(0xFFA78D78), width: 1.5)),

@@ -128,4 +128,27 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [ACTIVE_TASK.md](file:///data/data/com.termux/files/home/remainder-portal/ACTIVE_TASK.md)
 * [implementation_plan.md](file:///data/data/com.termux/files/home/remainder-portal/implementation_plan.md)
 
+---
+
+## 6. Brain Session 6 (Floating Navbar & Scroll Footer Glitch Fix)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Continuation Session)
+* **Session Date:** August 27, 2026
+
+### Core Objectives & Accomplishments:
+* **Floating Navbar Glitch Fix:** Resolved the opaque rectangular background slot behind `CelestialBottomNavbar` by setting `extendBody: true` on `MainNavigationShell`'s root `Scaffold`.
+* **Scroll View Inset Standardization:** Added $96\text{dp}$ bottom scroll padding across all root screens (`DashboardScreen`, `ExpeditionScreen`, `GuildScreen`, `SettingsScreen`) so that all content can scroll completely clear of the floating pill.
+* **Terminal Chat Bar Dynamic Inset:** Added dynamic bottom padding in `TerminalScreen` (`MediaQuery.viewInsetsOf(context).bottom > 0 ? 12 : 88`) to ensure the message input bar floats cleanly above the navbar when the keyboard is dismissed and hugs the keyboard when open.
+* **Full-Color Icon Optimization:** Updated `CelestialBottomNavbar` to render the custom hand-drawn glyphs in full original color with 60% idle opacity and 100% active opacity with warm glow.
+* **Version Control:** Bumped application build parameters to `1.1.5+9`.
+
+### Modified Assets:
+* [lib/presentation/screens/main_navigation_shell.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/main_navigation_shell.dart) (`extendBody: true`)
+* [lib/presentation/screens/dashboard_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart) (Bottom scroll insets)
+* [lib/presentation/screens/expedition_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/expedition_screen.dart) (Bottom scroll insets)
+* [lib/presentation/screens/guild_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/guild_screen.dart) (Bottom scroll insets)
+* [lib/presentation/screens/settings_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/settings_screen.dart) (Bottom scroll insets)
+* [lib/presentation/screens/terminal_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/terminal_screen.dart) (Dynamic input bar inset)
+* [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml) (Version bump to `1.1.5+9`)
+
+
 
