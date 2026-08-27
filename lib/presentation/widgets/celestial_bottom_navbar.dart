@@ -12,12 +12,12 @@ class CelestialBottomNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<_NavbarItem> items = [
-      _NavbarItem(icon: Icons.account_balance_outlined, activeIcon: Icons.account_balance, label: 'DASHBOARD'),
-      _NavbarItem(icon: Icons.forum_outlined, activeIcon: Icons.forum, label: 'NEXUS CHAT'),
-      _NavbarItem(icon: Icons.shield_outlined, activeIcon: Icons.shield, label: 'SQUADS'),
-      _NavbarItem(icon: Icons.fort_outlined, activeIcon: Icons.fort, label: 'GUILDS'),
-      _NavbarItem(icon: Icons.settings_outlined, activeIcon: Icons.settings, label: 'SETTINGS'),
+    final List<_NavbarItem> items = const [
+      _NavbarItem(assetPath: 'assets/icon/nav/nav_dashboard.png', label: 'DASHBOARD'),
+      _NavbarItem(assetPath: 'assets/icon/nav/nav_terminal.png', label: 'NEXUS CHAT'),
+      _NavbarItem(assetPath: 'assets/icon/nav/nav_expeditions.png', label: 'SQUADS'),
+      _NavbarItem(assetPath: 'assets/icon/nav/nav_guilds.png', label: 'GUILDS'),
+      _NavbarItem(assetPath: 'assets/icon/nav/nav_profile.png', label: 'SETTINGS'),
     ];
 
     return SafeArea(
@@ -61,10 +61,12 @@ class CelestialBottomNavbar extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      isSelected ? item.activeIcon : item.icon,
+                    Image.asset(
+                      item.assetPath,
+                      width: 22,
+                      height: 22,
                       color: isSelected ? const Color(0xFFE1D4C2) : const Color(0xFFA78D78),
-                      size: 20,
+                      colorBlendMode: BlendMode.srcIn,
                     ),
                     if (isSelected) ...[
                       const SizedBox(width: 6),
@@ -85,19 +87,17 @@ class CelestialBottomNavbar extends StatelessWidget {
             );
           }),
         ),
-    ),
-  );
-}
+      ),
+    );
+  }
 }
 
 class _NavbarItem {
-  final IconData icon;
-  final IconData activeIcon;
+  final String assetPath;
   final String label;
 
-  _NavbarItem({
-    required this.icon,
-    required this.activeIcon,
+  const _NavbarItem({
+    required this.assetPath,
     required this.label,
   });
 }

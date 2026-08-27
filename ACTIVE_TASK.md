@@ -16,11 +16,12 @@
 - [x] Fix compilation & code generation errors in cloud CI.
 - [x] Sideload and launch verified `remainder-portal-arm64.apk` on Honor X8.
 - [x] Standardize 4-Layer Operating Protocol (Architect / Orchestrator / Specialists / Persistent Artifacts).
-- [ ] Next Planned Feature / Milestone (Awaiting Developer Direction).
+- [x] Integrate custom hand-drawn navigation icons into `CelestialBottomNavbar` (`assets/icon/nav/`).
+- [ ] Follow-up Session: Code verification, cloud CI compilation, and on-device testing.
 
 ---
 
 ## 📋 Task Checklist & Next Recommended Actions
-1. **Developer Architectural Review**: Confirm 5-color theme on device.
-2. **Next Feature Scoping**: Define upcoming domain logic or gameplay expansion.
-3. **Execution Pattern**: Follow `/plan` $\rightarrow$ `implementation_plan.md` $\rightarrow$ subagent delegation $\rightarrow$ cloud CI verification.
+1. **Follow-up Session Responsibility**: Run test verification, code analysis, cloud CI build (`gh workflow run flutter-build.yml`), and on-device verification.
+2. **Next Feature Scoping**: Expand domain gameplay logic, dialogue trees, or on-device Gemma integration once verified.
+3. **Execution Pattern**: Follow `/plan` $\rightarrow$ `implementation_plan.md` $\rightarrow$ atomic execution.
