@@ -99,7 +99,10 @@ void main() {
       expect(find.text('AWAKEN SOUL VESSEL & VIEW DOSSIER'), findsOneWidget);
 
       // Tap submit button
-      await tester.tap(find.text('AWAKEN SOUL VESSEL & VIEW DOSSIER'));
+      final submitFinder = find.text('AWAKEN SOUL VESSEL & VIEW DOSSIER');
+      await tester.ensureVisible(submitFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(submitFinder);
       await tester.pumpAndSettle();
 
       // Verifies navigation to CharacterDossierScreen
