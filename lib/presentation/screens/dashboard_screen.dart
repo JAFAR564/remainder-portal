@@ -11,6 +11,7 @@ import 'expedition_screen.dart';
 import 'guild_screen.dart';
 import 'chrono_loom_screen.dart';
 import 'trade_screen.dart';
+import 'character_dossier_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -138,21 +139,30 @@ class DashboardScreen extends ConsumerWidget {
               children: [
                 // 1. System Administrator Header Card
                 Semantics(
-                  label: 'Player Header: $playerName, $playerOrigin, Level 88',
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF6E473B).withValues(alpha: 0.15),
-                          blurRadius: 16,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
+                  label: 'Player Header: $playerName, $playerOrigin, Level 88. Tap to open UTRCS Character Dossier.',
+                  button: true,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CharacterDossierScreen()),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF6E473B).withValues(alpha: 0.15),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
                     child: Row(
                       children: [
                         // Operator Avatar Emblem
@@ -241,7 +251,8 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+              ),
+              const SizedBox(height: 16),
 
                 // 2. Equipment Slots Widget
                 const EquipmentSlotsWidget(),
@@ -346,14 +357,16 @@ class DashboardScreen extends ConsumerWidget {
 
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final int crossAxisCount = constraints.maxWidth > 500 ? 3 : (constraints.maxWidth < 340 ? 2 : 3);
+                    final double width = constraints.maxWidth;
+                    final int crossAxisCount = width > 720 ? 6 : (width > 480 ? 3 : (width < 340 ? 2 : 3));
+                    final double childAspectRatio = width < 340 ? 1.3 : (width > 720 ? 1.05 : 1.15);
                     return GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
-                      childAspectRatio: 1.15,
+                      childAspectRatio: childAspectRatio,
                       children: [
                         _buildSubsystemCard(
                           context,

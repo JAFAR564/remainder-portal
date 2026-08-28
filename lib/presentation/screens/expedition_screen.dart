@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/expedition_provider.dart';
 import '../providers/game_provider.dart';
 import '../providers/trust_provider.dart';
+import '../providers/utrcs_provider.dart';
+import '../widgets/utrcs_live_play_card.dart';
 import '../../data/services/p2p_squad_relay_service.dart';
 import '../widgets/trust_badge_widget.dart';
 
@@ -88,6 +90,16 @@ class _ExpeditionScreenState extends ConsumerState<ExpeditionScreen> {
         shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.badge_outlined, color: Color(0xFF6E473B)),
+            tooltip: 'UTRCS Live Play Card',
+            onPressed: () {
+              final character = ref.read(utrcsCharacterProvider);
+              if (character != null) {
+                UtrcsLivePlayCard.show(context, character);
+              }
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(

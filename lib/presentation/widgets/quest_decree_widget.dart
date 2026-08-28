@@ -142,47 +142,57 @@ class QuestDecreeWidget extends ConsumerWidget {
           const SizedBox(height: 12),
 
           // Rewards & Departure Button
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              // Rewards Chips
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.stars_outlined, size: 12, color: Color(0xFF6E473B)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '+${quest.rewardEssence} ESSENCE',
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Rewards Chips
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE1D4C2).withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.military_tech_outlined, size: 12, color: Color(0xFF6E473B)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '+${quest.rewardLaurels} LAURELS',
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.stars_outlined, size: 12, color: Color(0xFF6E473B)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '+${quest.rewardEssence} ESSENCE',
+                          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE1D4C2).withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.military_tech_outlined, size: 12, color: Color(0xFF6E473B)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '+${quest.rewardLaurels} LAURELS',
+                          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
 
               // Depart Button
               ElevatedButton.icon(

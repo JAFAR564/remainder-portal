@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
+import '../providers/utrcs_provider.dart';
+import '../widgets/utrcs_live_play_card.dart';
 import '../../data/models/okf_concept.dart';
 
 class TerminalScreen extends ConsumerStatefulWidget {
@@ -119,6 +121,18 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.badge_outlined, color: Color(0xFF6E473B)),
+            tooltip: 'UTRCS Live Play Card',
+            onPressed: () {
+              final character = ref.read(utrcsCharacterProvider);
+              if (character != null) {
+                UtrcsLivePlayCard.show(context, character);
+              }
+            },
+          ),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
           child: Padding(
