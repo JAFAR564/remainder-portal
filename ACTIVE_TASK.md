@@ -22,6 +22,7 @@
 - [x] Configure Patrol native Android E2E testing framework (`patrol`, `PatrolJUnitRunner`, `MainActivityTest.kt`).
 - [x] Create Patrol E2E test suite (`integration_test/app_boot_and_navigation_test.dart`, `integration_test/oracle_and_chat_flow_test.dart`).
 - [x] Add dedicated Patrol Android E2E CI workflow (`.github/workflows/patrol-e2e.yml`).
+- [x] Upgrade DashboardScreen to production readiness (Equipment inspection modal, QuestDecreeWidget departure, animated stat meters, vessel telemetry sheet, pull-to-refresh).
 
 ---
 

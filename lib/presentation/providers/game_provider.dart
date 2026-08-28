@@ -216,3 +216,216 @@ final chatHistoryProvider = StateNotifierProvider<ChatHistoryNotifier, List<Mess
   final ai = ref.watch(litertServiceProvider);
   return ChatHistoryNotifier(ai, ref);
 });
+
+// Equipment Models & Providers
+enum EquipmentRarity { common, rare, celestial, sovereign }
+
+class EquippedGearItem {
+  final String id;
+  final String slot;
+  final String name;
+  final EquipmentRarity rarity;
+  final String statBonus;
+  final String description;
+  final IconData icon;
+
+  const EquippedGearItem({
+    required this.id,
+    required this.slot,
+    required this.name,
+    required this.rarity,
+    required this.statBonus,
+    required this.description,
+    required this.icon,
+  });
+}
+
+class EquippedGearNotifier extends StateNotifier<List<EquippedGearItem>> {
+  EquippedGearNotifier()
+      : super(const [
+          EquippedGearItem(
+            id: 'gear_wep_1',
+            slot: 'WEAPON',
+            name: 'Shadow Dagger',
+            rarity: EquipmentRarity.celestial,
+            statBonus: '+15 Physical ATK, +8 Shadow Resonance',
+            description: 'Forged in the abyss beneath Sanctuary 4. Strikes weave ethereal shadows that bypass arcane wards.',
+            icon: Icons.colorize,
+          ),
+          EquippedGearItem(
+            id: 'gear_arm_1',
+            slot: 'ARMOR',
+            name: 'Aegis Cuirass',
+            rarity: EquipmentRarity.sovereign,
+            statBonus: '+20 Shield Integrity, +10 Vitality',
+            description: 'Masterwork armor inscribed with Cardinal protection runes. Reduces dimensional anomaly shock by 25%.',
+            icon: Icons.shield,
+          ),
+          EquippedGearItem(
+            id: 'gear_rel_1',
+            slot: 'RELIC',
+            name: 'Astrolabe Core',
+            rarity: EquipmentRarity.celestial,
+            statBonus: '+14 Compute Power, +12 Aether Reserve',
+            description: 'A spinning celestial mechanism synchronizing soul vessel pulse directly with World Arbiter decrees.',
+            icon: Icons.auto_awesome,
+          ),
+          EquippedGearItem(
+            id: 'gear_chm_1',
+            slot: 'CHARM',
+            name: 'Ionic Crystal',
+            rarity: EquipmentRarity.rare,
+            statBonus: '+6 Aether Regeneration per Round',
+            description: 'Condensed starlight harvested from ancient sky temples. Radiates soothing celestial warmth.',
+            icon: Icons.diamond_outlined,
+          ),
+        ]);
+
+  void unequipItem(String id) {
+    state = state.where((item) => item.id != id).toList();
+  }
+}
+
+final equippedGearProvider = StateNotifierProvider<EquippedGearNotifier, List<EquippedGearItem>>((ref) {
+  return EquippedGearNotifier();
+});
+
+// Active Quest Decree Model & Provider
+class ActiveQuestModel {
+  final String id;
+  final String title;
+  final String sectorId;
+  final String sectorName;
+  final String decreeText;
+  final int rewardEssence;
+  final int rewardLaurels;
+  final double progress;
+  final bool isUrgent;
+  final String difficulty;
+
+  const ActiveQuestModel({
+    required this.id,
+    required this.title,
+    required this.sectorId,
+    required this.sectorName,
+    required this.decreeText,
+    required this.rewardEssence,
+    required this.rewardLaurels,
+    this.progress = 0.65,
+    this.isUrgent = true,
+    this.difficulty = 'S-RANK',
+  });
+}
+
+final activeQuestProvider = StateProvider<ActiveQuestModel>((ref) {
+  return const ActiveQuestModel(
+    id: 'quest_sanctuary_4',
+    title: 'Clear Anomaly Wave in Sanctuary 4 (Aether Spire)',
+    sectorId: 'sectors_neon_bastion_4',
+    sectorName: 'Sanctuary 4 (Aether Spire)',
+    decreeText: 'The World Arbiter (Cardinal) has detected dimensional chaos. Assemble squad matrix or engage solo descent.',
+    rewardEssence: 750,
+    rewardLaurels: 50,
+    progress: 0.65,
+    isUrgent: true,
+    difficulty: 'S-RANK',
+  );
+});
+
+// Social Feed Model & Provider
+class SocialPostModel {
+  final String id;
+  final String authorName;
+  final String authorTitle;
+  final String avatarPath;
+  final String timeAgo;
+  final String content;
+  final bool isIC;
+  final int laurels;
+  final int comments;
+  final bool hasLaureled;
+
+  const SocialPostModel({
+    required this.id,
+    required this.authorName,
+    required this.authorTitle,
+    required this.avatarPath,
+    required this.timeAgo,
+    required this.content,
+    required this.isIC,
+    required this.laurels,
+    required this.comments,
+    this.hasLaureled = false,
+  });
+
+  SocialPostModel copyWith({
+    int? laurels,
+    int? comments,
+    bool? hasLaureled,
+  }) {
+    return SocialPostModel(
+      id: id,
+      authorName: authorName,
+      authorTitle: authorTitle,
+      avatarPath: avatarPath,
+      timeAgo: timeAgo,
+      content: content,
+      isIC: isIC,
+      laurels: laurels ?? this.laurels,
+      comments: comments ?? this.comments,
+      hasLaureled: hasLaureled ?? this.hasLaureled,
+    );
+  }
+}
+
+class SocialFeedNotifier extends StateNotifier<List<SocialPostModel>> {
+  SocialFeedNotifier()
+      : super(const [
+          SocialPostModel(
+            id: 'post_1',
+            authorName: 'Aegis Commander Kaelen',
+            authorTitle: 'High Guardian | Guild: Covenant of Aegis',
+            avatarPath: 'assets/icon/app_icon.png',
+            timeAgo: '12m ago',
+            content: 'Barrier wards holding strong at Sanctuary 4. Looking for two high-Aether sorcerers to join our raid party against the Shadow Serpent wave tonight!',
+            isIC: true,
+            laurels: 24,
+            comments: 7,
+          ),
+          SocialPostModel(
+            id: 'post_2',
+            authorName: 'Archmage Nyx',
+            authorTitle: 'Master Sorcerer | Guild: Spellweavers',
+            avatarPath: 'assets/icon/app_icon.png',
+            timeAgo: '45m ago',
+            content: 'OOC: Just finished designing the new lore proposal for the Ancient Aether Spire in the Chrono-Loom! Please check out the proposal thread and cast your vote!',
+            isIC: false,
+            laurels: 41,
+            comments: 12,
+          ),
+        ]);
+
+  void toggleLaurel(String postId) {
+    state = state.map((post) {
+      if (post.id == postId) {
+        final newHasLaureled = !post.hasLaureled;
+        final newLaurels = newHasLaureled ? post.laurels + 1 : post.laurels - 1;
+        return post.copyWith(
+          laurels: newLaurels,
+          hasLaureled: newHasLaureled,
+        );
+      }
+      return post;
+    }).toList();
+  }
+
+  Future<void> refreshFeed() async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    // Keeps live state intact with fresh timestamp simulation
+  }
+}
+
+final socialFeedProvider = StateNotifierProvider<SocialFeedNotifier, List<SocialPostModel>>((ref) {
+  return SocialFeedNotifier();
+});
+
