@@ -1,9 +1,9 @@
 # 📌 Active Task & Milestone Tracker
 
-**Current Version:** `1.1.2+6`  
+**Current Version:** `1.1.5+9`  
 **Active Milestone:** Operating Model Standardization & 5-Color Theme Stabilization  
 **Session ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c`  
-**Last Synchronized:** August 26, 2026  
+**Last Synchronized:** August 28, 2026  
 
 ---
 
@@ -18,7 +18,10 @@
 - [x] Standardize 4-Layer Operating Protocol (Architect / Orchestrator / Specialists / Persistent Artifacts).
 - [x] Integrate custom hand-drawn navigation icons into `CelestialBottomNavbar` (`assets/icon/nav/`).
 - [x] Fix floating navbar footer glitch via `Scaffold.extendBody: true` and 96dp bottom scroll insets.
-- [ ] Follow-up Session: Code verification, cloud CI compilation, and on-device testing.
+- [x] Code verification, cloud CI compilation (`v1.1.5+9` build passed `✓`), and on-device testing.
+- [x] Configure Patrol native Android E2E testing framework (`patrol`, `PatrolJUnitRunner`, `MainActivityTest.kt`).
+- [x] Create Patrol E2E test suite (`integration_test/app_boot_and_navigation_test.dart`, `integration_test/oracle_and_chat_flow_test.dart`).
+- [x] Add dedicated Patrol Android E2E CI workflow (`.github/workflows/patrol-e2e.yml`).
 
 ---
 

@@ -150,5 +150,33 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [lib/presentation/screens/terminal_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/terminal_screen.dart) (Dynamic input bar inset)
 * [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml) (Version bump to `1.1.5+9`)
 
+---
+
+## 7. Brain Session 7 (Patrol Native Android E2E Testing Integration)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Continuation Session)
+* **Session Date:** August 28, 2026
+
+### Core Objectives & Accomplishments:
+* **Patrol Dependencies & Configuration:** Added `patrol: ^3.11.0` to `dev_dependencies` and declared `patrol` configuration block with package name `com.remainder.portal.remainder_portal` in `pubspec.yaml`.
+* **Android Gradle Test Runner:** Configured `pl.leancode.patrol.PatrolJUnitRunner` with `clearPackageData = "true"` in `android/app/build.gradle.kts` alongside AndroidX test runner, Espresso, and UIAutomator dependencies.
+* **Native Kotlin Test Harness:** Added `android/app/src/androidTest/kotlin/com/remainder/portal/remainder_portal/MainActivityTest.kt` linking `PatrolTestRule<MainActivity>` to `PatrolTestRunner`.
+* **Patrol E2E Test Suite:**
+  - `integration_test/app_boot_and_navigation_test.dart`: Complete cold app boot, splash dismiss, and 5-tab navigation verification.
+  - `integration_test/oracle_and_chat_flow_test.dart`: Aether Resonance Oracle roll interaction and Nexus Chat IC/OOC filter chip verification.
+* **Dedicated CI E2E Workflow:** Created `.github/workflows/patrol-e2e.yml` running hardware-accelerated Android Emulator (API 34, Pixel 6, x86_64, KVM) in GitHub Actions on PRs and manual dispatch, with automated screenshot/report artifact archiving.
+* **Version Control:** Bumped application build parameters to `1.1.6+10`.
+
+### Modified & Created Assets:
+* [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml) (Patrol config & version bump to `1.1.6+10`)
+* [android/app/build.gradle.kts](file:///data/data/com.termux/files/home/remainder-portal/android/app/build.gradle.kts) (PatrolJUnitRunner & androidTest dependencies)
+* [android/app/src/androidTest/kotlin/com/remainder/portal/remainder_portal/MainActivityTest.kt](file:///data/data/com.termux/files/home/remainder-portal/android/app/src/androidTest/kotlin/com/remainder/portal/remainder_portal/MainActivityTest.kt)
+* [integration_test/app_boot_and_navigation_test.dart](file:///data/data/com.termux/files/home/remainder-portal/integration_test/app_boot_and_navigation_test.dart)
+* [integration_test/oracle_and_chat_flow_test.dart](file:///data/data/com.termux/files/home/remainder-portal/integration_test/oracle_and_chat_flow_test.dart)
+* [.github/workflows/patrol-e2e.yml](file:///data/data/com.termux/files/home/remainder-portal/.github/workflows/patrol-e2e.yml)
+* [ACTIVE_TASK.md](file:///data/data/com.termux/files/home/remainder-portal/ACTIVE_TASK.md)
+* [implementation_plan.md](file:///data/data/com.termux/files/home/remainder-portal/implementation_plan.md)
+* [HANDOVER.md](file:///data/data/com.termux/files/home/remainder-portal/HANDOVER.md)
+
+
 
 
