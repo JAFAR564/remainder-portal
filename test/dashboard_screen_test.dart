@@ -69,7 +69,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on Shadow Dagger slot
-      await tester.tap(find.text('Shadow Dagger'));
+      final daggerFinder = find.text('Shadow Dagger');
+      await tester.ensureVisible(daggerFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(daggerFinder);
       await tester.pumpAndSettle();
 
       // Verify bottom sheet content
@@ -97,7 +100,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on INSPECT ℹ button
-      await tester.tap(find.text('INSPECT ℹ'));
+      final inspectFinder = find.text('INSPECT ℹ');
+      await tester.ensureVisible(inspectFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(inspectFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('SOUL VESSEL ATTRIBUTE TELEMETRY'), findsOneWidget);
