@@ -10,7 +10,7 @@ void main() {
       final service = LiteRtService(cloudEndpoint: 'http://invalid.invalid:9999/api/gm');
       final response = await service.generateStoryResponse('Overriding firewall security', characterClass: 'Vanguard');
 
-      expect(response, contains('[OFFLINE RULE ENGINE]'));
+      expect(response, contains('[OFFLINE D20 RULE ENGINE]'));
       expect(response, contains('D20 Roll:'));
       expect(response, contains('Vanguard'));
     });

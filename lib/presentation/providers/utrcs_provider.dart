@@ -10,10 +10,20 @@ class UtrcsCharacterNotifier extends StateNotifier<UtrcsCharacterModel?> {
   final AppDatabase _db;
 
   UtrcsCharacterNotifier(this._ref, this._db) : super(null) {
-    _initialize();
+    _initDefaultState();
+    _loadPersistedCharacter();
   }
 
-  Future<void> _initialize() async {
+  void _initDefaultState() {
+    final legacyProfile = _ref.read(playerProfileProvider);
+    if (legacyProfile != null) {
+      state = UtrcsCharacterModel.synthesizeFromLegacy(legacyProfile);
+    } else {
+      state = _buildDefaultCharacter();
+    }
+  }
+
+  Future<void> _loadPersistedCharacter() async {
     try {
       final savedRow = await _db.getActiveUtrcsCharacter();
       if (savedRow != null && savedRow['raw_json_payload'] != null) {
@@ -21,18 +31,16 @@ class UtrcsCharacterNotifier extends StateNotifier<UtrcsCharacterModel?> {
         state = UtrcsCharacterModel.fromJson(jsonMap);
         return;
       }
+      if (state != null) {
+        await _persist(state!);
+      }
     } catch (_) {
       // Fallback if database query fails
     }
+  }
 
-    final legacyProfile = _ref.read(playerProfileProvider);
-    if (legacyProfile != null) {
-      final synthesized = UtrcsCharacterModel.synthesizeFromLegacy(legacyProfile);
-      state = synthesized;
-      _persist(synthesized);
-    } else {
-      // Default baseline character
-      final defaultChar = UtrcsCharacterModel(
+  static UtrcsCharacterModel _buildDefaultCharacter() {
+    return UtrcsCharacterModel(
         id: 'utrcs_default_player',
         completionDepth: CompletionDepth.quick,
         createdAt: DateTime.now(),
@@ -134,9 +142,6 @@ class UtrcsCharacterNotifier extends StateNotifier<UtrcsCharacterModel?> {
           ],
         ),
       );
-      state = defaultChar;
-      _persist(defaultChar);
-    }
   }
 
   Future<void> _persist(UtrcsCharacterModel char) async {

@@ -162,7 +162,7 @@ void main() {
 
       expect(service.hasValidModelWeights, isFalse);
       final response = await service.generateStoryResponse('Test command');
-      expect(response, contains('[OFFLINE RULE ENGINE]'));
+      expect(response, contains('[OFFLINE D20 RULE ENGINE]'));
     });
   });
 
