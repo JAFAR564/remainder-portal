@@ -25,10 +25,12 @@
 - [x] Upgrade DashboardScreen to production readiness (Equipment inspection modal, QuestDecreeWidget departure, animated stat meters, vessel telemetry sheet, pull-to-refresh).
 - [x] Implement Universal Roleplay Character System (UTRCS): 6-layer data model, progressive completion (Quick/Standard/Deep), `CharacterDossierScreen`, `UtrcsLivePlayCard` bottom sheet, `UtrcsExportService` (JSON/Markdown/Discord), and chat/expedition hooks.
 - [x] Thread B Execution: Drift SQLite UtrcsCharacters persistence table (Schema v4), Sanctuary Chat message hydration & persistence, configurable BACKEND_URL AI pipeline, and bi-directional Dossier editing.
+- [x] CI Test Suite Stabilization (Commit c898ba6): Resolved Drift matcher shadowing in `test/database_test.dart`, synchronous UTRCS default initialization in `utrcs_provider.dart`, and aligned D20 test assertion tags across `test/phase1_test.dart` and `test/phase4_test.dart`.
+- [x] Cloud CI Verification (Run 34050242868): 100% passed across Android, Windows, Web, and Backend runners. Auto-downloaded and launched `remainder-portal.apk` on Honor X8.
 
 ---
 
 ## 📋 Task Checklist & Next Recommended Actions
-1. **Follow-up Session Responsibility**: Run test verification, code analysis, cloud CI build (`gh workflow run flutter-build.yml`), and on-device verification.
-2. **Next Feature Scoping**: Expand domain gameplay logic, dialogue trees, or on-device Gemma integration once verified.
-3. **Execution Pattern**: Follow `/plan` $\rightarrow$ `implementation_plan.md` $\rightarrow$ atomic execution.
+1. **Active Milestone**: Phase 4 — Visual Luxury Redesign of Character Dossier & UTRCS Live Play Card.
+2. **Implementation Plan Staged**: `implementation_plan.md` (Celestial astrolabe parchment overhaul, Want vs. Need balance scale, 8-stage cognitive processing loop, 8-register voice player, and 4-part anti-Mary-Sue capability anatomy).
+3. **Execution Pattern**: Follow `/plan` $\rightarrow$ `implementation_plan.md` $\rightarrow$ Thread B atomic execution.
