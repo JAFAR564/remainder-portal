@@ -10,11 +10,16 @@ class LiteRtService {
   final String? _modelWeightPath;
   final MonitoringService _monitoring = MonitoringService();
 
+  static const String defaultEndpoint = String.fromEnvironment(
+    'BACKEND_URL',
+    defaultValue: 'http://localhost:8080/api/gm',
+  );
+
   LiteRtService({
     String? cloudEndpoint,
     bool? isOnDeviceEnabled,
     String? modelWeightPath,
-  })  : _cloudEndpoint = cloudEndpoint ?? 'http://localhost:8080/api/gm',
+  })  : _cloudEndpoint = cloudEndpoint ?? defaultEndpoint,
         // On-device inference is blocked at startup for Tier A devices (e.g. Samsung Galaxy A04s)
         // because of low RAM (< 4GB) and no dedicated NPU accelerator.
         _isOnDeviceEnabled = isOnDeviceEnabled ?? false,
@@ -38,40 +43,51 @@ class LiteRtService {
       // Local LiteRT-LM Gemma 3 (1B) execution placeholder (for Tier S/A+ devices with verified model weights)
       await trace.stop();
       return '[On-Device Gemma 3 (1B) via LiteRT-LM]: $prompt';
-    } else {
-      // Hardware-routed Cloud fallback using Firebase Genkit API
-      try {
-        final response = await http.post(
-          Uri.parse(_cloudEndpoint),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'prompt': prompt,
-            if (characterClass != null) 'characterClass': characterClass,
-          }),
-        );
+    }
 
-        await trace.stop();
+    // On mobile devices (Android/iOS), connecting to localhost attempts to hit device loopback.
+    // Proactively route to offline rule engine with clear explanation rather than silent network timeout.
+    if ((Platform.isAndroid || Platform.isIOS) && _cloudEndpoint.contains('localhost')) {
+      await trace.stop();
+      return _generateOfflineStoryResponse(
+        prompt,
+        characterClass,
+        reason: 'Mobile device offline / no remote BACKEND_URL configured',
+      );
+    }
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
-          if (data.containsKey('response')) {
-            return data['response'] as String;
-          } else if (data.containsKey('error')) {
-            await _monitoring.logError('Cloud Generation Error: ${data['error']}', null, reason: 'api_error');
-            return _generateOfflineStoryResponse(prompt, characterClass);
-          }
+    // Hardware-routed Cloud fallback using Firebase Genkit API
+    try {
+      final response = await http.post(
+        Uri.parse(_cloudEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'prompt': prompt,
+          if (characterClass != null) 'characterClass': characterClass,
+        }),
+      ).timeout(const Duration(seconds: 5));
+
+      await trace.stop();
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        if (data.containsKey('response')) {
+          return data['response'] as String;
+        } else if (data.containsKey('error')) {
+          await _monitoring.logError('Cloud Generation Error: ${data['error']}', null, reason: 'api_error');
+          return _generateOfflineStoryResponse(prompt, characterClass, reason: 'Backend API Error: ${data['error']}');
         }
-        await _monitoring.logError('Network Error: Status code ${response.statusCode}', null, reason: 'network_error');
-        return _generateOfflineStoryResponse(prompt, characterClass);
-      } catch (e, stack) {
-        await trace.stop();
-        await _monitoring.logError(e, stack, reason: 'request_failed');
-        return _generateOfflineStoryResponse(prompt, characterClass);
       }
+      await _monitoring.logError('Network Error: Status code ${response.statusCode}', null, reason: 'network_error');
+      return _generateOfflineStoryResponse(prompt, characterClass, reason: 'HTTP Status ${response.statusCode}');
+    } catch (e, stack) {
+      await trace.stop();
+      await _monitoring.logError(e, stack, reason: 'request_failed');
+      return _generateOfflineStoryResponse(prompt, characterClass, reason: 'Network unreachable');
     }
   }
 
-  String _generateOfflineStoryResponse(String prompt, String? characterClass) {
+  String _generateOfflineStoryResponse(String prompt, String? characterClass, {String? reason}) {
     final random = math.Random();
     final d20 = random.nextInt(20) + 1;
     final modifier = (characterClass == 'Vanguard' || characterClass == 'Cyber Hacker') ? 3 : 2;
@@ -94,7 +110,8 @@ class LiteRtService {
       narrativeDescription = 'Local sector firewalls rejected the instruction "$prompt". Defense countermeasures engaged.';
     }
 
-    return '[OFFLINE RULE ENGINE]\n'
+    final reasonTag = reason != null ? ' ($reason)' : '';
+    return '[OFFLINE D20 RULE ENGINE]$reasonTag\n'
            'D20 Roll: $d20 + $modifier (${characterClass ?? "Unknown"}) = $total\n'
            'Status: $outcomeTitle\n\n'
            '$narrativeDescription';

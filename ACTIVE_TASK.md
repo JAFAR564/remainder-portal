@@ -1,9 +1,9 @@
 # 📌 Active Task & Milestone Tracker
 
-**Current Version:** `1.1.5+9`  
-**Active Milestone:** Operating Model Standardization & 5-Color Theme Stabilization  
+**Current Version:** `1.1.8+12`  
+**Active Milestone:** Phase 1 — Persistence Foundation & AI Engine Reality  
 **Session ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c`  
-**Last Synchronized:** August 28, 2026  
+**Last Synchronized:** September 6, 2026  
 
 ---
 
@@ -24,6 +24,7 @@
 - [x] Add dedicated Patrol Android E2E CI workflow (`.github/workflows/patrol-e2e.yml`).
 - [x] Upgrade DashboardScreen to production readiness (Equipment inspection modal, QuestDecreeWidget departure, animated stat meters, vessel telemetry sheet, pull-to-refresh).
 - [x] Implement Universal Roleplay Character System (UTRCS): 6-layer data model, progressive completion (Quick/Standard/Deep), `CharacterDossierScreen`, `UtrcsLivePlayCard` bottom sheet, `UtrcsExportService` (JSON/Markdown/Discord), and chat/expedition hooks.
+- [x] Thread B Execution: Drift SQLite UtrcsCharacters persistence table (Schema v4), Sanctuary Chat message hydration & persistence, configurable BACKEND_URL AI pipeline, and bi-directional Dossier editing.
 
 ---
 

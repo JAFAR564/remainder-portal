@@ -90,4 +90,25 @@ void main() {
     expect(message.content, 'Analyzing portal signals.');
     expect(message.syncStatus, 0);
   });
+
+  test('Drift Schema Offline Ingestion: UTRCS character persistence saves and retrieves raw JSON payload', () async {
+    final now = DateTime.now();
+    const testJson = '{"id":"utrcs_test_1","name":"Operator Kael","concept":"Aether Vanguard"}';
+
+    await database.saveUtrcsCharacter(
+      id: 'utrcs_test_1',
+      userId: null,
+      schemaVersion: '1.0.0',
+      completionDepth: 'quick',
+      rawJsonPayload: testJson,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    final characterRow = await database.getActiveUtrcsCharacter();
+    expect(characterRow, isNotNull);
+    expect(characterRow!['id'], 'utrcs_test_1');
+    expect(characterRow['completion_depth'], 'quick');
+    expect(characterRow['raw_json_payload'], testJson);
+  });
 }

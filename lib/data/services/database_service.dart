@@ -253,6 +253,20 @@ class CreatorContent extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// Phase 4: Dedicated UTRCS Characters Persistence Table
+class UtrcsCharacters extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text().nullable().references(Users, #id)();
+  TextColumn get schemaVersion => text().withDefault(const Constant('1.0.0'))();
+  TextColumn get completionDepth => text()(); // 'quick', 'standard', 'deep'
+  TextColumn get rawJsonPayload => text()();   // Full serialized UtrcsCharacterModel JSON
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   Users,
   StoryThreads,
@@ -272,12 +286,13 @@ class CreatorContent extends Table {
   PlayerTrades,
   TradeEscrow,
   CreatorContent,
+  UtrcsCharacters,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -302,12 +317,76 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(tradeEscrow);
           await m.createTable(creatorContent);
         }
+        if (from < 4) {
+          await customStatement('''
+            CREATE TABLE IF NOT EXISTS utrcs_characters (
+              id TEXT NOT NULL PRIMARY KEY,
+              user_id TEXT REFERENCES users (id),
+              schema_version TEXT NOT NULL DEFAULT '1.0.0',
+              completion_depth TEXT NOT NULL,
+              raw_json_payload TEXT NOT NULL,
+              created_at INTEGER NOT NULL,
+              updated_at INTEGER NOT NULL
+            );
+          ''');
+        }
       },
       beforeOpen: (OpeningDetails details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
         await customStatement('PRAGMA journal_mode = WAL;');
+        // Ensure utrcs_characters table exists on cold boots & in-memory testing
+        await customStatement('''
+          CREATE TABLE IF NOT EXISTS utrcs_characters (
+            id TEXT NOT NULL PRIMARY KEY,
+            user_id TEXT REFERENCES users (id),
+            schema_version TEXT NOT NULL DEFAULT '1.0.0',
+            completion_depth TEXT NOT NULL,
+            raw_json_payload TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL
+          );
+        ''');
       },
     );
+  }
+
+  // UTRCS Character Persistence Helpers
+  Future<void> saveUtrcsCharacter({
+    required String id,
+    String? userId,
+    required String schemaVersion,
+    required String completionDepth,
+    required String rawJsonPayload,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) async {
+    await customStatement('''
+      INSERT INTO utrcs_characters (id, user_id, schema_version, completion_depth, raw_json_payload, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        completion_depth = excluded.completion_depth,
+        raw_json_payload = excluded.raw_json_payload,
+        updated_at = excluded.updated_at;
+    ''', [
+      id,
+      userId,
+      schemaVersion,
+      completionDepth,
+      rawJsonPayload,
+      createdAt.millisecondsSinceEpoch,
+      updatedAt.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<Map<String, dynamic>?> getActiveUtrcsCharacter() async {
+    final rows = await customSelect('''
+      SELECT id, user_id, schema_version, completion_depth, raw_json_payload, created_at, updated_at
+      FROM utrcs_characters
+      ORDER BY updated_at DESC
+      LIMIT 1;
+    ''').get();
+    if (rows.isEmpty) return null;
+    return rows.first.data;
   }
 }
 

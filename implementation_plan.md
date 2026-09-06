@@ -1,258 +1,158 @@
-# 📋 UTRCS Integration — Architecture Analysis & Implementation Plan
+# 📋 Implementation Plan: Phase 1 — Persistence Foundation & AI Engine Reality
 
-**Feature:** Universal Roleplay Character System (UTRCS) Character Template & Bio Viewer  
-**Stage:** 🟢 **Executed & Completed**  
-**Target Location:** `/data/data/com.termux/files/home/remainder-portal/implementation_plan.md`  
-**Date:** August 28, 2026  
-
----
-
-## 1. Executive Summary
-
-### What Exists Today [VERIFIED]
-* **Minimal 3-Attribute Character Sheet:** `CharacterSheet` with `computePower`, `shieldIntegrity`, and `energyReserve` stored in Drift SQLite (`Users` table).
-* **Linear Genesis Onboarding:** `GenesisScreen` capturing basic character name, path selection (`Aether-Wake`, `Amatsukrion Sync`, `Wyrd-Born`), and allocating initial stats.
-* **Basic Chat & Expedition Integration:** `TerminalScreen` with IC/OOC toggle passing only `characterClass` string to `LiteRtService`; `ExpeditionScreen` running d20 checks via `EvaluateCooperativeCheck` based on raw stat sums and trust scores.
-
-### What UTRCS Adds [PROPOSED]
-* **6-Layer Character Architecture:** Invariant Identity (Wound, Lie, Want/Need, Fear, Contradictions), Setting, Role, Tripartite Relationships, Mechanical Capabilities (Scope, Cost, Condition, Failure), and Presentation.
-* **Progressive Completion Depths:** Quick (5-min entry), Standard (full group RP/expeditions), and Deep (long-term chronicles/lore).
-* **Machine-Readable Capability Engine:** Capabilities with structured operational tags consumed directly by the Expedition d20 resolver.
-* **AI Behavioral & Voice Context Projections:** Converting character traits, voice cadence, and reaction matrices into token-efficient context packets for on-device Gemma LiteRT and cloud World Arbiter inference.
-* **Portable Export & At-a-Glance Live-Play Card:** Instant character export and a scannable live-play card accessible during active chat and expeditions.
-
-### Recommended Integration Strategy [PROPOSED]
-* **Progressive Schema Extension:** Extend Drift SQLite with a new dedicated `UtrcsCharacters` table (storing structured JSON documents versioned by schema) while maintaining backward compatibility with the existing `Users` and `CharacterSheet` tables.
-* **Tiered Context Projections:** Rather than dumping the entire Deep character dossier into the AI context window, generate targeted, token-budgeted projections (*Identity Context*, *Voice/Dialogue Context*, *Mechanical Capability Context*).
-* **Unified Character Dossier UI:** Create an adaptive, tabbed `CharacterDossierScreen` supporting Quick/Standard/Deep views with an interactive **At-a-Glance Bottom Sheet Card** for in-game reference.
-
-### Major Architectural Decisions & Risks [PROPOSED]
-1. **Decision:** Use a structured, versioned JSON payload (`schemaVersion: "1.0.0"`) inside Drift SQLite for flexible UTRCS layers rather than fragmenting 40+ dynamic fields across separate relational SQL tables.
-2. **Primary Risk:** AI context budget overflow when passing character data on low-memory mobile devices (Honor X8). Mitigated by strict token budgets ($<250$ tokens for local LiteRT, $<600$ tokens for cloud).
+**Target Repository:** `The Remainder Portal` (`https://github.com/JAFAR564/remainder-portal`)  
+**Active Branch:** `main`  
+**Current Version:** `1.1.8+12`  
+**Mode:** 🟢 **Thread B: Executed & Completed**  
 
 ---
 
-## 2. Repository Findings
+## 1. Goal Description
 
-| Component | Repository Fact | Verification Status |
-| :--- | :--- | :---: |
-| **Framework & Language** | Flutter 3.44.4 / Dart 3.12.2, Null-Safety | **VERIFIED** |
-| **State Management** | Flutter Riverpod (`StateNotifierProvider`, `Provider`, `StateProvider`) | **VERIFIED** |
-| **Persistence Engine** | Drift SQLite (`AppDatabase` with Native SQLite bindings) | **VERIFIED** |
-| **Local AI Engine** | `LiteRtService` routing to local LiteRT-LM (Gemma 3 1B) for Tier S/A+ devices or Cloud Genkit / Deterministic d20 Fallback | **VERIFIED** |
-| **Active Player Profile** | `playerProfileProvider` (`PlayerProfileNotifier`) managing single active profile | **VERIFIED** |
-| **Combat & Check Resolvers**| `EvaluateCooperativeCheck` evaluating d20 rolls with stat contributions & trust scores | **VERIFIED** |
-| **Chat System** | `TerminalScreen` with `isIC` filter toggles and `ChatHistoryNotifier` | **VERIFIED** |
-| **UI Theme Tokens** | 5-Color Master Palette: Deep Espresso (`#291C0E`), Warm Terracotta (`#6E473B`), Almond Taupe (`#A78D78`), Cashmere Stone (`#BEB5A9`), Frosted Cream Sand (`#E1D4C2`) | **VERIFIED** |
-| **Testing Architecture** | Unit tests (`flutter_test`), Widget tests, and Patrol E2E tests (`integration_test/`) | **VERIFIED** |
+The Remainder Portal is designed as a **Persistent Social Storytelling Metaverse (PSSM)**. However, an architectural audit revealed that core game entities—specifically **UTRCS character dossiers** and **Sanctuary chat messages**—reside exclusively in volatile RAM (`StateNotifier` memory). If Android terminates the background process or the user restarts the app, their carefully constructed psychological profile and chat history are wiped. Furthermore, the AI service defaults to `http://localhost:8080/api/gm`, causing physical mobile devices (Honor X8) to silently fail and fall back to offline dice rolls without notifying the user.
+
+This plan details the exact changes for **Thread B Execution** to:
+1. **Make UTRCS Persistence Real:** Add a dedicated `UtrcsCharacters` table to Drift SQLite (Schema v4), hydrate the active profile on app startup, and persist edits atomically.
+2. **Make Chat Persistence Real:** Wire `ChatHistoryNotifier` to Drift's `ChatMessages` table, hydrating conversation history on boot and saving every player action and GM narrative response.
+3. **Operationalize the AI Pipeline:** Allow environment-injected Cloud Run backend URLs, eliminate silent mobile localhost failures, and provide clear in-UI status for offline D20 fallback vs. Cloud Gemini responses.
+4. **Harmonize Versions & Link Orphaned Flows:** Align `update_service.dart` with `pubspec.yaml` (`1.1.8+12`) and link `UtrcsCreationScreen` from `CharacterDossierScreen` for character editing.
 
 ---
 
-## 3. UTRCS Gap Analysis
+## 2. User Review Required
 
-| UTRCS Layer / Subsystem | UTRCS Specification Requirement | Existing Repository Equivalent | Gap | Recommended Treatment |
-| :--- | :--- | :--- | :--- | :---: |
-| **Layer 1: Identity** | Wound, Lie, Want/Need, Fear, Values, Contradictions | `PlayerProfile.origin` string | No psychological or internal conflict modeling | **NEW** (Store in UTRCS model) |
-| **Layer 2: Setting** | World metaphors, faction standing, lore anchor | `PlayerProfile.activeSector` | Only simple sector string exists | **EXTEND** (Link to OKF lore) |
-| **Layer 3: Role** | Tactical archetype, squad position | `reputationRanks` JSON string | Untyped JSON string without role mechanics | **EXTEND** (Structured role model) |
-| **Layer 4: Relationship** | Tripartite model (Belief / Canon Fact / OOC Consent) | `Endorsements` & `ExpeditionMembers` | Only numeric trust scores exist | **NEW** (Tripartite relationship ledger) |
-| **Layer 5: Mechanical** | Capabilities with Scope, Cost, Condition, Failure | `CharacterSheet` (3 numeric ints) | No structured skills or power limits | **NEW** (Structured capability model) |
-| **Layer 6: Presentation**| Voice syntax, samples, nonverbal micro-actions | Display name & avatar path | No dialogue modeling | **NEW** (Voice & syntax rules) |
-| **Behavioral Pipeline** | 8-stage stimulus-response decision loop | `_generateOfflineStoryResponse` | Hardcoded d20 outcome text | **DERIVED** (Project into AI prompts) |
-| **Reaction Matrix** | 5-10 row trigger-response tendency table | None | No pre-configured behavioral impulses | **NEW** (Standard/Deep optional) |
-| **Continuity Ledger** | High-value state tracking (debts, injuries) | `SyncLedger` | Only technical database sync tracked | **EXTEND** (Player state ledger) |
-| **Evolution Tracker** | 4-state arc progression (Start, Current, Emerging, Future) | Level int (`88`) | No narrative arc tracking | **DEFERRED** (Future Phase 6) |
+> [!IMPORTANT]
+> **Drift SQLite Schema Migration (Version 3 &rarr; Version 4):**
+> We are adding a new `UtrcsCharacters` table to `AppDatabase`. A migration step `if (from < 4) await m.createTable(utrcsCharacters);` will be registered in `migration.onUpgrade`. Because code generation (`database_service.g.dart`) requires `build_runner`, we will supply the table definition and migration logic cleanly. Existing local database tables (`Users`, `StoryThreads`, etc.) will NOT be dropped or wiped.
+
+> [!WARNING]
+> **Chat Foreign Key Constraint to `StoryThreads`:**
+> In Drift SQLite, `ChatMessages.threadId` references `StoryThreads.id`. To ensure chat messages can be inserted without foreign-key constraint violations on fresh installs, `ChatHistoryNotifier` will automatically ensure a root story thread (`thread_sanctuary_main`) exists before saving messages.
 
 ---
 
-## 4. Proposed Data Model
+## 3. Open Questions
+
+1. **Cloud Run Production Endpoint:**
+   - *Current default:* `http://localhost:8080/api/gm`.
+   - *Proposed approach:* Support `--dart-define=BACKEND_URL=https://<service-url>` during build, falling back to a configurable constant, while displaying an explicit "OFFLINE D20 FALLBACK" tag when unreachable rather than pretending it was a cloud generation.
+
+---
+
+## 4. Proposed Changes
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        UtrcsCharacterModel                             │
+│                        THREAD B EXECUTION PIPELINE                     │
 ├────────────────────────────────────────────────────────────────────────┤
-│ • id: String (UUID)                 • schemaVersion: "1.0.0"           │
-│ • completionDepth: Quick | Standard | Deep                             │
-│ • createdAt / updatedAt: DateTime   • syncStatus: Int                  │
-├────────────────────────────────────────────────────────────────────────┤
-│ 1. IdentityLayer (Invariant Core)                                      │
-│    - name: String                   - concept: String (one-liner)      │
-│    - coreWound: String?             - internalLie: String?             │
-│    - externalWant: String           - internalNeed: String?            │
-│    - coreFear: String               - values: List<String>             │
-│    - contradictions: List<String>   - defaultBaseline: DefaultState?   │
-├────────────────────────────────────────────────────────────────────────┤
-│ 2. SettingLayer & 3. RoleLayer                                         │
-│    - sectorOrigin: String           - factionAffiliation: String?      │
-│    - tacticalArchetype: String      - guildRole: String?               │
-├────────────────────────────────────────────────────────────────────────┤
-│ 4. RelationshipLayer (Tripartite)                                      │
-│    - relationships: List<UtrcsRelationshipEntry>                       │
-│      [targetId, targetName, icBelief, establishedFact, oocAgreement]   │
-├────────────────────────────────────────────────────────────────────────┤
-│ 5. MechanicalLayer (Capabilities & Stats)                              │
-│    - baseStats: CharacterSheet (compute, shield, energy)               │
-│    - capabilities: List<UtrcsCapability>                               │
-│      [name, type, scope, cost, condition, failureState, d20Modifier]   │
-│    - weaknesses: List<UtrcsWeakness> [name, description, invocableBy]  │
-├────────────────────────────────────────────────────────────────────────┤
-│ 6. PresentationLayer (Voice & Format)                                  │
-│    - voiceSyntax: String (cadence/formality)                           │
-│    - voiceSamples: Map<String, String> (insult, compliment, argue...)  │
-│    - nonverbalTells: List<String>                                      │
-│    - oocConsentLimits: List<String> (content boundaries / hard limits) │
+│ 1. Data Layer: database_service.dart (Schema v4, UtrcsCharacters)       │
+│ 2. State Layer: utrcs_provider.dart (SQLite Hydration & Save on Edit)  │
+│ 3. State Layer: game_provider.dart (Chat Hydration & Message Inserts)  │
+│ 4. Service Layer: litert_service.dart (Configurable Cloud Run URL)     │
+│ 5. UI Layer: character_dossier_screen.dart (Link UtrcsCreationScreen)  │
+│ 6. Verification: test/utrcs_model_test.dart & database_test.dart       │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Progressive Completion Requirements
-
-| Field / Section | Quick Mode | Standard Mode | Deep Mode |
-| :--- | :---: | :---: | :---: |
-| **Name & Concept** | **Required** | **Required** | **Required** |
-| **External Want & Core Fear** | **Required** | **Required** | **Required** |
-| **Core Wound & Internal Need** | *Optional* | **Required** | **Required** |
-| **Contradictions** | *Optional* | **Required (1-2)** | **Required (2-3)** |
-| **Capabilities (Scope/Cost/Fail)** | 1 Basic | 2-3 Balanced | 4-5 Detailed |
-| **Voice Syntax & Samples** | 1 Sample Line | 4 Registers | 8 Registers |
-| **Tripartite Relationships** | *Optional* | 2-3 Key Contacts | Complete Web |
-| **Reaction Matrix (5-10 rows)** | *Omitted* | 5 Rows | 10 Rows |
-| **Continuity Ledger** | *Omitted* | *Optional* | Active Tracking |
-
 ---
 
-## 5. Screen & UX Architecture
+### Component 1: Drift SQLite Persistence Layer
 
-### 1. Creation Flow: Progressive Disclosure
-* **UX Strategy:** Rather than an intimidating multi-page form, start in **Quick Mode (3 minutes)**.
-* Upon completing Quick Mode, an optional banner offers: *"Deepen Character Psychology (Standard/Deep)"*, unlocking deeper tabs without invalidating the character.
+#### [MODIFY] [`lib/data/services/database_service.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart)
+* Define table `UtrcsCharacters` storing character ID, foreign-key link to `Users`, schema version, depth, raw JSON payload, and timestamps.
+* Bump `schemaVersion => 4`.
+* Add migration logic in `migration.onUpgrade` for `from < 4`.
 
-### 2. Character Dossier (`CharacterDossierScreen`)
-* **Tab 1: Overview & Persona:** High concept, visual emblem, core want/need, values, and default downtime state.
-* **Tab 2: Capabilities & Loadout:** Structured capability cards with clear badges for Scope, Cost, Condition, and Failure consequences.
-* **Tab 3: Psychology & Voice:** Core wound/lie, contradictions, voice registers, and dialogue sample selector.
-* **Tab 4: Relationships & Lore:** Tripartite relationship ledger and OKF sector links.
+```dart
+// Phase 4: Dedicated UTRCS Characters Persistence Table
+class UtrcsCharacters extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text().nullable().references(Users, #id)();
+  TextColumn get schemaVersion => text().withDefault(const Constant('1.0.0'))();
+  TextColumn get completionDepth => text()(); // 'quick', 'standard', 'deep'
+  TextColumn get rawJsonPayload => text()();   // Full serialized UtrcsCharacterModel JSON
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
-### 3. At-a-Glance Live-Play Card (`UtrcsLivePlayCard`)
-* Modal bottom sheet accessible via a quick icon in **Sanctuary Chat (`TerminalScreen`)** and **Squad Matrix (`ExpeditionScreen`)**.
-* Contains: Concept, immediate want, 3 traits with tells, 1 voice sample, active capabilities summary, and hard OOC boundaries.
-
----
-
-## 6. Integration Architecture & Data Flows
-
-```
-[Genesis / Dossier UI]
-        │
-        ▼
-[UtrcsCharacterModel] ───(Validate & Store)───► [Drift SQLite: UtrcsCharacters]
-        │
-        ├─────────────────────────────────────────┬────────────────────────────────────────┐
-        ▼                                         ▼                                        ▼
-[Mechanical Projection]                   [AI Context Builder]                    [Portable JSON Export]
-        │                                         │                                        │
-        ▼                                         ▼                                        ▼
-[EvaluateCooperativeCheck]             [LiteRt / Gemma Context]                   [Clipboard / File Export]
-  • Capability Modifiers                 • Identity & Want/Need (40 tok)            • Portable UTRCS JSON
-  • Scope & Failure Rules                • Voice & Dialogue Cadence (30 tok)        • Human-readable text
-  • Expedition d20 Matrix                • Behavioral Boundaries (30 tok)           • Discord card format
+  @override
+  Set<Column> get primaryKey => {id};
+}
 ```
 
 ---
 
-## 7. Phased Implementation Plan
+### Component 2: UTRCS State & Hydration Layer
 
-```
-Phase 0 ──► Phase 1 ──► Phase 2 ──► Phase 3 ──► Phase 4 ──► Phase 5
-(Core Mod)  (Quick UI)  (Deep UI)   (Export)    (Expedition)(AI Context)
-```
-
-### Phase 0: Domain Models & Drift Database Foundation
-* **Objective:** Define immutable UTRCS domain models and Drift SQLite persistence table with JSON serialization.
-* **Repository Areas:** `lib/data/models/utrcs_character.dart`, `lib/data/services/database_service.dart`, `lib/presentation/providers/utrcs_provider.dart`.
-* **Size:** **M** | **Risk:** Low.
-* **Exit Criteria:** Unit tests pass verifying serialization, deserialization, and schema validation.
-
-### Phase 1: Quick Mode Creation & Dossier Viewer
-* **Objective:** Deliver the complete create $\rightarrow$ save $\rightarrow$ inspect loop in Quick Mode.
-* **Repository Areas:** `lib/presentation/screens/utrcs_creation_screen.dart`, `lib/presentation/screens/character_dossier_screen.dart`, `lib/presentation/widgets/utrcs_live_play_card.dart`.
-* **Size:** **L** | **Risk:** Low.
-* **Exit Criteria:** Player can create a Quick character, inspect the dossier, and view the At-a-Glance card.
-
-### Phase 2: Standard & Deep Expansion (Psychology & Voice)
-* **Objective:** Add progressive disclosure tabs for Want/Need quads, 4-part capabilities, and voice registers.
-* **Repository Areas:** `lib/presentation/widgets/utrcs_capability_card.dart`, `lib/presentation/widgets/utrcs_psychology_tab.dart`.
-* **Size:** **M** | **Risk:** Low.
-* **Exit Criteria:** Player can expand an existing Quick character to Standard or Deep.
-
-### Phase 3: Portable Export & Formatting
-* **Objective:** Implement UTRCS JSON export and Discord/Forum text formatters.
-* **Repository Areas:** `lib/data/services/utrcs_export_service.dart`.
-* **Size:** **S** | **Risk:** Low.
-* **Exit Criteria:** Character can be copied to clipboard as UTRCS JSON or Discord card.
-
-### Phase 4: Expedition Mechanical Integration
-* **Objective:** Feed capability scopes, costs, and modifiers into `EvaluateCooperativeCheck`.
-* **Repository Areas:** `lib/domain/usecases/evaluate_cooperative_check.dart`, `lib/presentation/screens/expedition_screen.dart`.
-* **Size:** **M** | **Risk:** Medium.
-* **Exit Criteria:** Active character's capabilities appear as selectable skills in squad checks.
-
-### Phase 5: World Arbiter & Gemma LiteRT Context Integration
-* **Objective:** Project voice and behavioral rules into `LiteRtService` prompt pipelines.
-* **Repository Areas:** `lib/data/services/litert_service.dart`, `lib/presentation/providers/game_provider.dart`.
-* **Size:** **M** | **Risk:** Medium.
-* **Exit Criteria:** World Arbiter responses reflect character traits within token limits.
+#### [MODIFY] [`lib/presentation/providers/utrcs_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/utrcs_provider.dart)
+* Pass `AppDatabase` into `UtrcsCharacterNotifier`.
+* On startup, check `db.select(db.utrcsCharacters).getSingleOrNull()`.
+* If found, deserialize `UtrcsCharacterModel.fromJson(json.decode(row.rawJsonPayload))`.
+* If not found, synthesize from `playerProfileProvider` and immediately persist the baseline to SQLite.
+* Update `saveCharacter()`, `addCapability()`, and `updateDepth()` to write directly to SQLite via `insertOnConflictUpdate()`.
 
 ---
 
-## 8. Testing Strategy
+### Component 3: Sanctuary Chat Persistence Layer
 
-1. **Data Layer Tests (`test/utrcs_model_test.dart`)**:
-   - Verify Quick, Standard, and Deep JSON round-trip serialization.
-   - Verify validation fails on missing required fields for each depth level.
-2. **UI & Widget Tests (`test/character_dossier_test.dart`)**:
-   - Verify tab navigation across Overview, Capabilities, Psychology, and Lore.
-   - Verify `UtrcsLivePlayCard` bottom sheet rendering.
-3. **Mechanics & Expedition Tests (`test/utrcs_expedition_test.dart`)**:
-   - Test capability modifiers and failure consequences inside `EvaluateCooperativeCheck`.
-4. **AI Context Budget Tests (`test/utrcs_ai_projection_test.dart`)**:
-   - Ensure generated prompt projections remain under 150 tokens.
+#### [MODIFY] [`lib/presentation/providers/game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart)
+* Update `ChatHistoryNotifier` to take `AppDatabase` from `databaseProvider`.
+* On startup, query `db.chatMessages` (ordered by timestamp ascending).
+* If messages exist in DB, hydrate `state` from database rows; if empty, seed the initial greeting and save it to SQLite.
+* In `sendPlayerAction()`:
+  - Ensure `'thread_sanctuary_main'` exists in `StoryThreads`.
+  - Insert user's `MessageModel` into `db.chatMessages`.
+  - When GM response arrives, insert GM response into `db.chatMessages`.
 
 ---
 
-## 9. Risk Assessment & Mitigations
+### Component 4: AI Service & Endpoint Hardening
 
-| Risk | Prob. | Impact | Evidence | Mitigation Strategy | Phase |
-| :--- | :---: | :---: | :--- | :--- | :---: |
-| **Low-Memory Mobile Overhead** | Low | Med | Honor X8 has 4-6GB RAM | Use lightweight JSON caching in Drift SQLite; lazy-load Deep tabs. | Phase 0 |
-| **AI Prompt Token Explosion** | High | High | Gemma 3 1B has tight context limits | Enforce token-budgeted projections ($<150$ tokens) rather than raw dossiers. | Phase 5 |
-| **Data Migration of Legacy Profiles** | Low | Low | Only `Users` table currently exists | Auto-synthesize a valid Quick UTRCS character from legacy profile name/class. | Phase 0 |
-| **Form Fatigue During Creation** | High | Med | Deep mode has 30+ fields | Enforce Quick Mode by default with optional progressive deepening. | Phase 1 |
+#### [MODIFY] [`lib/data/services/litert_service.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/litert_service.dart)
+* Inject `backendUrl` via `const String.fromEnvironment('BACKEND_URL', defaultValue: 'http://localhost:8080/api/gm')`.
+* If running on mobile (`Platform.isAndroid || Platform.isIOS`) and using default localhost, log a clear diagnostic and immediately engage the local D20 RPG engine with clear status badging (`[OFFLINE D20 RULE ENGINE]`).
+* Update comments and docs to reflect that on-device LiteRT is an upcoming native binding, avoiding claims of active on-device inference until C++ FFI is compiled.
 
 ---
 
-## 10. Deferred / Simplified UTRCS Systems
+### Component 5: Navigation & Orphaned Screen Reintegration
 
-* **Evolution Tracker (4-State Arcs):** Deferred to Phase 6 to prevent overcomplicating initial release.
-* **Full Multi-User Consent Web:** Simplified to local OOC boundary tags and relationship notes in v1.
-* **10-Row Reaction Matrix:** Simplified to 5 standard triggers in Standard Mode; full 10 rows optional in Deep Mode.
+#### [MODIFY] [`lib/presentation/screens/character_dossier_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/character_dossier_screen.dart)
+* Add an "EDIT BIO / EXPAND PSYCHOLOGY" action button in the AppBar and Overview tab navigating to `UtrcsCreationScreen()`.
+* When saved in `UtrcsCreationScreen()`, return to `CharacterDossierScreen()` with the updated profile immediately reflected from SQLite.
 
----
-
-## 11. Open Questions
-
-### Non-Blocking Decisions (Sensible Defaults Recommended)
-1. **Default Storage Mode:**
-   - *Recommendation:* Store UTRCS character payload as a versioned JSON string in Drift SQLite table `UtrcsCharacters`.
-2. **Export Format:**
-   - *Recommendation:* Support both machine-readable JSON and human-readable Markdown/Discord card format.
+#### [MODIFY] [`lib/data/services/update_service.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/update_service.dart)
+* Update `static const String currentVersion = '1.1.8';` to eliminate version mismatch with `pubspec.yaml`.
 
 ---
 
-## 12. Thread B Execution Handoff
+## 5. Verification Plan
 
-### Approved Architecture
-* Modular 6-layer UTRCS architecture supporting Quick $\rightarrow$ Standard $\rightarrow$ Deep progressive disclosure.
-* Drift SQLite persistence with typed JSON serialization and AI context projection pipelines.
+### Automated Tests
+1. **UTRCS Model & Persistence Tests:**
+   ```bash
+   flutter test test/utrcs_model_test.dart
+   ```
+   * Verify round-trip serialization and database JSON schema stability.
+2. **Database Schema & Table Tests:**
+   ```bash
+   flutter test test/database_test.dart
+   ```
+   * Verify table creation, insertions, and querying for `UtrcsCharacters` and `ChatMessages`.
+3. **Full CI Matrix Validation:**
+   ```bash
+   gh workflow run flutter-build.yml
+   ```
+   * Verify Android, Windows, Web, and Backend compile cleanly with 0 analyzer warnings.
 
-### First Implementation Task in Thread B
-* Create `lib/data/models/utrcs_character.dart` and add `UtrcsCharacters` table to `lib/data/services/database_service.dart`.
+### Manual Verification
+1. **Cold Boot Character Continuity:**
+   - Launch app on Honor X8.
+   - Tap Operator Header &rarr; Open Dossier &rarr; Add a custom Capability ("Shadow Aegis").
+   - Force-close app from Android App Switcher (`Kill process`).
+   - Reopen app &rarr; Open Dossier &rarr; Verify "Shadow Aegis" is still present.
+2. **Chat History Continuity:**
+   - Enter Nexus Chat (`TerminalScreen`).
+   - Send: `"Scanning perimeter for anomaly spikes."`
+   - Observe Game Master narrative response.
+   - Force-close app & reopen &rarr; Enter Nexus Chat.
+   - Verify previous exchange is visible in message stream.

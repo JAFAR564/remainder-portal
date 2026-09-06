@@ -179,6 +179,28 @@ class UtrcsCapability {
     'failureState': failureState,
     'd20Modifier': d20Modifier,
   };
+
+  UtrcsCapability copyWith({
+    String? id,
+    String? name,
+    String? type,
+    String? scope,
+    String? cost,
+    String? condition,
+    String? failureState,
+    int? d20Modifier,
+  }) {
+    return UtrcsCapability(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      scope: scope ?? this.scope,
+      cost: cost ?? this.cost,
+      condition: condition ?? this.condition,
+      failureState: failureState ?? this.failureState,
+      d20Modifier: d20Modifier ?? this.d20Modifier,
+    );
+  }
 }
 
 class UtrcsWeakness {

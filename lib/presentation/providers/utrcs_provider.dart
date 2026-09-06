@@ -1,22 +1,38 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/utrcs_character.dart';
 import '../../data/models/character_sheet.dart';
+import '../../data/services/database_service.dart';
 import 'game_provider.dart';
 
 class UtrcsCharacterNotifier extends StateNotifier<UtrcsCharacterModel?> {
   final Ref _ref;
+  final AppDatabase _db;
 
-  UtrcsCharacterNotifier(this._ref) : super(null) {
+  UtrcsCharacterNotifier(this._ref, this._db) : super(null) {
     _initialize();
   }
 
-  void _initialize() {
+  Future<void> _initialize() async {
+    try {
+      final savedRow = await _db.getActiveUtrcsCharacter();
+      if (savedRow != null && savedRow['raw_json_payload'] != null) {
+        final Map<String, dynamic> jsonMap = json.decode(savedRow['raw_json_payload'] as String);
+        state = UtrcsCharacterModel.fromJson(jsonMap);
+        return;
+      }
+    } catch (_) {
+      // Fallback if database query fails
+    }
+
     final legacyProfile = _ref.read(playerProfileProvider);
     if (legacyProfile != null) {
-      state = UtrcsCharacterModel.synthesizeFromLegacy(legacyProfile);
+      final synthesized = UtrcsCharacterModel.synthesizeFromLegacy(legacyProfile);
+      state = synthesized;
+      _persist(synthesized);
     } else {
       // Default baseline character
-      state = UtrcsCharacterModel(
+      final defaultChar = UtrcsCharacterModel(
         id: 'utrcs_default_player',
         completionDepth: CompletionDepth.quick,
         createdAt: DateTime.now(),
@@ -118,52 +134,85 @@ class UtrcsCharacterNotifier extends StateNotifier<UtrcsCharacterModel?> {
           ],
         ),
       );
+      state = defaultChar;
+      _persist(defaultChar);
+    }
+  }
+
+  Future<void> _persist(UtrcsCharacterModel char) async {
+    try {
+      await _db.saveUtrcsCharacter(
+        id: char.id,
+        schemaVersion: char.schemaVersion,
+        completionDepth: char.completionDepth.name,
+        rawJsonPayload: json.encode(char.toJson()),
+        createdAt: char.createdAt,
+        updatedAt: char.updatedAt,
+      );
+    } catch (_) {
+      // Non-blocking log/ignore on in-memory error
     }
   }
 
   void saveCharacter(UtrcsCharacterModel character) {
-    state = character.copyWith(updatedAt: DateTime.now());
+    final updated = character.copyWith(updatedAt: DateTime.now());
+    state = updated;
+    _persist(updated);
   }
 
   void setCompletionDepth(CompletionDepth depth) {
     if (state != null) {
-      state = state!.copyWith(completionDepth: depth);
+      final updated = state!.copyWith(completionDepth: depth, updatedAt: DateTime.now());
+      state = updated;
+      _persist(updated);
     }
   }
 
   void addCapability(UtrcsCapability cap) {
     if (state != null) {
       final updatedCaps = [...state!.mechanical.capabilities, cap];
-      state = state!.copyWith(
+      final updated = state!.copyWith(
+        updatedAt: DateTime.now(),
         mechanical: MechanicalLayer(
           baseStats: state!.mechanical.baseStats,
           capabilities: updatedCaps,
           weaknesses: state!.mechanical.weaknesses,
         ),
       );
+      state = updated;
+      _persist(updated);
     }
   }
 
   void removeCapability(String capId) {
     if (state != null) {
       final updatedCaps = state!.mechanical.capabilities.where((c) => c.id != capId).toList();
-      state = state!.copyWith(
+      final updated = state!.copyWith(
+        updatedAt: DateTime.now(),
         mechanical: MechanicalLayer(
           baseStats: state!.mechanical.baseStats,
           capabilities: updatedCaps,
           weaknesses: state!.mechanical.weaknesses,
         ),
       );
+      state = updated;
+      _persist(updated);
     }
   }
 
   void addRelationship(UtrcsRelationshipEntry rel) {
     if (state != null) {
-      state = state!.copyWith(relationships: [...state!.relationships, rel]);
+      final updated = state!.copyWith(
+        updatedAt: DateTime.now(),
+        relationships: [...state!.relationships, rel],
+      );
+      state = updated;
+      _persist(updated);
     }
   }
 }
 
 final utrcsCharacterProvider = StateNotifierProvider<UtrcsCharacterNotifier, UtrcsCharacterModel?>((ref) {
-  return UtrcsCharacterNotifier(ref);
+  final db = ref.watch(databaseProvider);
+  return UtrcsCharacterNotifier(ref, db);
 });

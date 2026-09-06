@@ -5,6 +5,7 @@ import '../providers/utrcs_provider.dart';
 import '../../data/models/utrcs_character.dart';
 import '../../data/services/utrcs_export_service.dart';
 import '../widgets/utrcs_live_play_card.dart';
+import 'utrcs_creation_screen.dart';
 
 class CharacterDossierScreen extends ConsumerStatefulWidget {
   const CharacterDossierScreen({super.key});
@@ -251,6 +252,16 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit_note_outlined, color: Color(0xFF6E473B)),
+            tooltip: 'Edit Bio / Psychology',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UtrcsCreationScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.badge_outlined, color: Color(0xFF6E473B)),
             tooltip: 'At-a-Glance Live Card',
             onPressed: () => UtrcsLivePlayCard.show(context, character),
@@ -382,6 +393,21 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
                       ref.read(utrcsCharacterProvider.notifier).setCompletionDepth(newDepth);
                     },
                     child: const Text('DEEPEN', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(width: 6),
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF6E473B),
+                      side: const BorderSide(color: Color(0xFFA78D78)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const UtrcsCreationScreen()),
+                      );
+                    },
+                    child: const Text('EDIT', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

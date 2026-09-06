@@ -14,14 +14,31 @@ class UtrcsCreationScreen extends ConsumerStatefulWidget {
 
 class _UtrcsCreationScreenState extends ConsumerState<UtrcsCreationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController(text: 'Operator Sung');
-  final _conceptCtrl = TextEditingController(text: 'Shadow Monarch & Sovereign Arbiter');
-  final _archetypeCtrl = TextEditingController(text: 'Vanguard Class');
-  final _wantCtrl = TextEditingController(text: 'Purge the dimensional anomaly wave');
-  final _fearCtrl = TextEditingController(text: 'Total Aether resonance collapse');
-  final _capNameCtrl = TextEditingController(text: 'Shadow Extraction Strike');
+  late final TextEditingController _nameCtrl;
+  late final TextEditingController _conceptCtrl;
+  late final TextEditingController _archetypeCtrl;
+  late final TextEditingController _wantCtrl;
+  late final TextEditingController _fearCtrl;
+  late final TextEditingController _capNameCtrl;
 
-  CompletionDepth _selectedDepth = CompletionDepth.quick;
+  late CompletionDepth _selectedDepth;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = ref.read(utrcsCharacterProvider);
+    _nameCtrl = TextEditingController(text: existing?.identity.name ?? 'Operator Sung');
+    _conceptCtrl = TextEditingController(text: existing?.identity.concept ?? 'Shadow Monarch & Sovereign Arbiter');
+    _archetypeCtrl = TextEditingController(text: existing?.role.tacticalArchetype ?? 'Vanguard Class');
+    _wantCtrl = TextEditingController(text: existing?.identity.externalWant ?? 'Purge the dimensional anomaly wave');
+    _fearCtrl = TextEditingController(text: existing?.identity.coreFear ?? 'Total Aether resonance collapse');
+    _capNameCtrl = TextEditingController(
+      text: existing?.mechanical.capabilities.isNotEmpty == true
+          ? existing!.mechanical.capabilities.first.name
+          : 'Shadow Extraction Strike',
+    );
+    _selectedDepth = existing?.completionDepth ?? CompletionDepth.quick;
+  }
 
   @override
   void dispose() {
@@ -36,44 +53,76 @@ class _UtrcsCreationScreenState extends ConsumerState<UtrcsCreationScreen> {
 
   void _onSave() {
     if (_formKey.currentState?.validate() ?? false) {
+      final existing = ref.read(utrcsCharacterProvider);
+      final charId = existing?.id ?? 'utrcs_${DateTime.now().millisecondsSinceEpoch}';
+      final created = existing?.createdAt ?? DateTime.now();
+
+      final baseCaps = existing?.mechanical.capabilities ?? [];
+      final List<UtrcsCapability> updatedCaps;
+      if (baseCaps.isNotEmpty) {
+        updatedCaps = [
+          baseCaps.first.copyWith(
+            name: _capNameCtrl.text.trim().isEmpty ? baseCaps.first.name : _capNameCtrl.text.trim(),
+          ),
+          ...baseCaps.skip(1),
+        ];
+      } else {
+        updatedCaps = [
+          UtrcsCapability(
+            id: 'cap_${DateTime.now().millisecondsSinceEpoch}',
+            name: _capNameCtrl.text.trim().isEmpty ? 'Aether Strike' : _capNameCtrl.text.trim(),
+            type: 'Active',
+            scope: 'Single Target',
+            cost: '2 Energy Points',
+            condition: 'In Combat',
+            failureState: 'Minor recoil',
+            d20Modifier: 2,
+          ),
+        ];
+      }
+
       final newChar = UtrcsCharacterModel(
-        id: 'utrcs_${DateTime.now().millisecondsSinceEpoch}',
+        id: charId,
         completionDepth: _selectedDepth,
-        createdAt: DateTime.now(),
+        createdAt: created,
         updatedAt: DateTime.now(),
         identity: IdentityLayer(
           name: _nameCtrl.text.trim(),
           concept: _conceptCtrl.text.trim(),
+          coreWound: existing?.identity.coreWound,
+          internalLie: existing?.identity.internalLie,
           externalWant: _wantCtrl.text.trim(),
+          internalNeed: existing?.identity.internalNeed,
           coreFear: _fearCtrl.text.trim(),
-          values: const ['Sovereignty', 'Discipline', 'Consensus'],
+          values: existing?.identity.values ?? const ['Sovereignty', 'Discipline', 'Consensus'],
+          contradictions: existing?.identity.contradictions ?? const [],
+          defaultBaseline: existing?.identity.defaultBaseline,
         ),
-        setting: const SettingLayer(sectorOrigin: 'Sanctuary 4 (Aether Spire)'),
-        role: RoleLayer(tacticalArchetype: _archetypeCtrl.text.trim()),
+        setting: existing?.setting ?? const SettingLayer(sectorOrigin: 'Sanctuary 4 (Aether Spire)'),
+        role: RoleLayer(
+          tacticalArchetype: _archetypeCtrl.text.trim(),
+          guildRole: existing?.role.guildRole,
+          squadPosition: existing?.role.squadPosition,
+        ),
+        relationships: existing?.relationships ?? const [],
         mechanical: MechanicalLayer(
-          baseStats: CharacterSheet(computePower: 14, shieldIntegrity: 16, energyReserve: 18),
-          capabilities: [
-            UtrcsCapability(
-              id: 'cap_${DateTime.now().millisecondsSinceEpoch}',
-              name: _capNameCtrl.text.trim().isEmpty ? 'Aether Strike' : _capNameCtrl.text.trim(),
-              type: 'Active',
-              scope: 'Single Target',
-              cost: '2 Energy Points',
-              condition: 'In Combat',
-              failureState: 'Minor recoil',
-              d20Modifier: 2,
-            ),
-          ],
+          baseStats: existing?.mechanical.baseStats ?? CharacterSheet(computePower: 14, shieldIntegrity: 16, energyReserve: 18),
+          capabilities: updatedCaps,
+          weaknesses: existing?.mechanical.weaknesses ?? const [],
         ),
-        presentation: const PresentationLayer(),
+        presentation: existing?.presentation ?? const PresentationLayer(),
       );
 
       ref.read(utrcsCharacterProvider.notifier).saveCharacter(newChar);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const CharacterDossierScreen()),
-      );
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const CharacterDossierScreen()),
+        );
+      }
     }
   }
 

@@ -152,19 +152,101 @@ enum ConnectionStatus { online, offline }
 
 final connectionStatusProvider = StateProvider<ConnectionStatus>((ref) => ConnectionStatus.online);
 
-// Manages chat messages state
+// Manages chat messages state with SQLite persistence
 class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
   final LiteRtService _aiService;
   final Ref _ref;
+  final AppDatabase _db;
 
-  ChatHistoryNotifier(this._aiService, this._ref) : super([
+  ChatHistoryNotifier(this._aiService, this._ref, this._db) : super([
     MessageModel(
       sender: 'Game Master',
       content: 'Awakening portal active. Establish neural connection to begin.',
       timestamp: DateTime.now(),
       isIC: true,
     )
-  ]);
+  ]) {
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      final rows = await (_db.select(_db.chatMessages)
+            ..orderBy([(t) => OrderingTerm(expression: t.timestamp)]))
+          .get();
+
+      if (rows.isNotEmpty) {
+        state = rows.map((r) => MessageModel(
+          sender: r.role == 'user' ? 'Player' : 'Game Master',
+          content: r.content,
+          timestamp: r.timestamp,
+          isIC: true,
+        )).toList();
+        return;
+      }
+    } catch (_) {
+      // Non-blocking fallback if table query fails
+    }
+
+    // Persist the default greeting
+    final defaultMsg = state.first;
+    _persistMessage(defaultMsg, role: 'model');
+  }
+
+  Future<void> _ensureRootThreadExists() async {
+    try {
+      final existingUser = await (_db.select(_db.users)..where((u) => u.id.equals('operator_main'))).getSingleOrNull();
+      if (existingUser == null) {
+        await _db.into(_db.users).insert(
+          UsersCompanion.insert(
+            id: 'operator_main',
+            displayName: 'Operator Sung',
+            email: 'operator@remainder.net',
+            origin: 'Vanguard Class',
+            activeSector: 'Sanctuary 4 (Aether Spire)',
+            joinedDate: DateTime.now(),
+            trustScore: 0.95,
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+
+      final existingThread = await (_db.select(_db.storyThreads)..where((t) => t.id.equals('thread_sanctuary_main'))).getSingleOrNull();
+      if (existingThread == null) {
+        await _db.into(_db.storyThreads).insert(
+          StoryThreadsCompanion.insert(
+            id: 'thread_sanctuary_main',
+            userId: 'operator_main',
+            title: 'Sanctuary Node Nexus',
+            currentSectorId: 'Sanctuary 4 (Aether Spire)',
+            lastInteraction: DateTime.now(),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+      }
+    } catch (_) {
+      // Non-blocking
+    }
+  }
+
+  Future<void> _persistMessage(MessageModel msg, {required String role}) async {
+    try {
+      await _ensureRootThreadExists();
+      await _db.into(_db.chatMessages).insert(
+        ChatMessagesCompanion.insert(
+          id: 'msg_${msg.timestamp.millisecondsSinceEpoch}_${role == "user" ? "u" : "m"}',
+          threadId: 'thread_sanctuary_main',
+          role: role,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          syncStatus: const Value(0),
+        ),
+        mode: InsertMode.insertOrReplace,
+      );
+    } catch (_) {
+      // Non-blocking
+    }
+  }
 
   Future<void> sendPlayerAction(String actionText, String characterClass, {bool isIC = true}) async {
     final userMsg = MessageModel(
@@ -175,6 +257,7 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
     );
 
     state = [...state, userMsg];
+    _persistMessage(userMsg, role: 'user');
 
     // Show typing placeholder
     final typingMsg = MessageModel(
@@ -193,6 +276,7 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
 
     // Update connection status based on whether it fell back to offline/network error
     if (gmResponse.contains('[OFFLINE RULE ENGINE]') ||
+        gmResponse.contains('[OFFLINE D20 RULE ENGINE]') ||
         gmResponse.contains('Offline or failed to reach') ||
         gmResponse.contains('Network Error')) {
       _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.offline;
@@ -200,22 +284,26 @@ class ChatHistoryNotifier extends StateNotifier<List<MessageModel>> {
       _ref.read(connectionStatusProvider.notifier).state = ConnectionStatus.online;
     }
 
+    final gmMsg = MessageModel(
+      sender: 'Game Master',
+      content: gmResponse,
+      timestamp: DateTime.now(),
+      isIC: isIC,
+    );
+
     // Replace placeholder with response
     state = [
       ...state.sublist(0, state.length - 1),
-      MessageModel(
-        sender: 'Game Master',
-        content: gmResponse,
-        timestamp: DateTime.now(),
-        isIC: isIC,
-      )
+      gmMsg,
     ];
+    _persistMessage(gmMsg, role: 'model');
   }
 }
 
 final chatHistoryProvider = StateNotifierProvider<ChatHistoryNotifier, List<MessageModel>>((ref) {
   final ai = ref.watch(litertServiceProvider);
-  return ChatHistoryNotifier(ai, ref);
+  final db = ref.watch(databaseProvider);
+  return ChatHistoryNotifier(ai, ref, db);
 });
 
 // Equipment Models & Providers

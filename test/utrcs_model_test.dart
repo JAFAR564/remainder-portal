@@ -154,5 +154,26 @@ void main() {
       expect(utrcsChar.role.tacticalArchetype, equals('Vanguard Class'));
       expect(utrcsChar.mechanical.baseStats.shieldIntegrity, equals(20));
     });
+
+    test('UtrcsCapability copyWith updates fields without mutating unchanged values', () {
+      const cap = UtrcsCapability(
+        id: 'cap_original',
+        name: 'Void Step',
+        type: 'Active',
+        scope: 'Self',
+        cost: '2 EP',
+        condition: 'Unburdened',
+        failureState: 'Exhaustion',
+        d20Modifier: 2,
+      );
+
+      final modified = cap.copyWith(name: 'Aether Shift', d20Modifier: 4);
+
+      expect(modified.id, equals('cap_original'));
+      expect(modified.name, equals('Aether Shift'));
+      expect(modified.d20Modifier, equals(4));
+      expect(modified.scope, equals('Self'));
+      expect(modified.cost, equals('2 EP'));
+    });
   });
 }
