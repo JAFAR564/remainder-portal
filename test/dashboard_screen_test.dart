@@ -5,9 +5,10 @@ import 'package:remainder_portal/presentation/screens/dashboard_screen.dart';
 import 'package:remainder_portal/presentation/widgets/equipment_slots_widget.dart';
 import 'package:remainder_portal/presentation/widgets/quest_decree_widget.dart';
 import 'package:remainder_portal/presentation/widgets/aether_resonance_oracle_widget.dart';
+import 'package:remainder_portal/presentation/widgets/social_post_card.dart';
 
 void main() {
-  group('DashboardScreen Production Upgrade Tests', () {
+  group('DashboardScreen Production Upgrade & Responsive Tests', () {
     testWidgets('renders all core dashboard components and interactive widgets', (WidgetTester tester) async {
       await tester.pumpWidget(
         const ProviderScope(
@@ -116,6 +117,99 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('SOUL VESSEL ATTRIBUTE TELEMETRY'), findsNothing);
+    });
+
+    testWidgets('Honor X8 target viewport (360dp width) renders with zero RenderFlex overflows', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(360.0 * 2.0, 800.0 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify zero uncaught layout exceptions or RenderFlex overflows
+      expect(tester.takeException(), isNull);
+
+      // Verify all essential sections render
+      expect(find.textContaining('OPERATOR'), findsOneWidget);
+      expect(find.text('EQUIPMENT & GEAR SLOTS'), findsOneWidget);
+      expect(find.text('AETHER RESONANCE ORACLE'), findsOneWidget);
+      expect(find.text('WORLD ARBITER QUEST DECREE'), findsOneWidget);
+      expect(find.text('SOVEREIGN VITALITY & ESSENCE GAUGES'), findsOneWidget);
+      expect(find.text('SOVEREIGN REALMS & COMMUNION HUBS'), findsOneWidget);
+      expect(find.text('SOVEREIGN COMMUNITY WALL & NEWS FEED'), findsOneWidget);
+    });
+
+    testWidgets('narrow viewport (320dp width) renders with zero RenderFlex overflows', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320.0 * 2.0, 640.0 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Verify zero uncaught layout exceptions on narrowest viewport
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('SocialPostCard reaction bar with double-digit counts renders without overflow', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(320.0 * 2.0, 500.0 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: SocialPostCard(
+                authorName: 'Archmage Zephyr',
+                authorTitle: 'High Scribe of Sanctuary 4',
+                avatarPath: 'assets/icon/nav/chronoloom.png',
+                timeAgo: '2h ago',
+                content: 'Resonance leylines stabilized across the northern quadrant.',
+                isIC: true,
+                initialLaurels: 99,
+                initialComments: 88,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('99 LAURELS'), findsOneWidget);
+      expect(find.text('88 COMMENTS'), findsOneWidget);
+      expect(find.text('SHARE'), findsOneWidget);
+
+      // Verify laurel button is tappable and increments count
+      await tester.tap(find.text('99 LAURELS'));
+      await tester.pumpAndSettle();
+      expect(find.text('100 LAURELS'), findsOneWidget);
     });
   });
 }

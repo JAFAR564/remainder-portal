@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
 import '../screens/descent_screen.dart';
+import 'celestial_panel.dart';
 
+/// Imperial Parchment World Arbiter Quest Decree Widget with Flex-Safe Responsive Layout.
 class QuestDecreeWidget extends ConsumerWidget {
   const QuestDecreeWidget({super.key});
 
@@ -10,20 +12,8 @@ class QuestDecreeWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quest = ref.watch(activeQuestProvider);
 
-    return Container(
+    return CelestialPanel(
       padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6E473B).withValues(alpha: 0.14),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -35,7 +25,9 @@ class QuestDecreeWidget extends ConsumerWidget {
               const Expanded(
                 child: Text(
                   'WORLD ARBITER QUEST DECREE',
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  softWrap: false,
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 11,
@@ -46,6 +38,7 @@ class QuestDecreeWidget extends ConsumerWidget {
                 ),
               ),
               if (quest.isUrgent) ...[
+                const SizedBox(width: 4),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -63,8 +56,8 @@ class QuestDecreeWidget extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
               ],
+              const SizedBox(width: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -105,19 +98,25 @@ class QuestDecreeWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
 
-          // Quest Progress
+          // Target Sector & Anomaly Purge Track (Fixes Defect 3: 49px overflow)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'TARGET SECTOR: ${quest.sectorName.toUpperCase()}',
-                style: const TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF291C0E),
+              Expanded(
+                child: Text(
+                  'TARGET SECTOR: ${quest.sectorName.toUpperCase()}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF291C0E),
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Text(
                 '${(quest.progress * 100).toStringAsFixed(0)}% ANOMALY PURGED',
                 style: const TextStyle(
@@ -141,7 +140,7 @@ class QuestDecreeWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
-          // Rewards & Departure Button
+          // Rewards & Departure Button Row
           Wrap(
             alignment: WrapAlignment.spaceBetween,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -162,11 +161,16 @@ class QuestDecreeWidget extends ConsumerWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.stars_outlined, size: 12, color: Color(0xFF6E473B)),
+                        const Icon(Icons.stars, color: Color(0xFF6E473B), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          '+${quest.rewardEssence} ESSENCE',
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                          '+${quest.essenceReward} ESSENCE',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6E473B),
+                          ),
                         ),
                       ],
                     ),
@@ -182,11 +186,16 @@ class QuestDecreeWidget extends ConsumerWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.military_tech_outlined, size: 12, color: Color(0xFF6E473B)),
+                        const Icon(Icons.workspace_premium, color: Color(0xFFA78D78), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          '+${quest.rewardLaurels} LAURELS',
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                          '+${quest.laurelReward} LAURELS',
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF291C0E),
+                          ),
                         ),
                       ],
                     ),
@@ -194,22 +203,27 @@ class QuestDecreeWidget extends ConsumerWidget {
                 ],
               ),
 
-              // Depart Button
+              // Departure CTA Button
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6E473B),
                   foregroundColor: const Color(0xFFE1D4C2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   elevation: 1,
                 ),
                 icon: const Icon(Icons.explore, size: 14),
                 label: const Text(
                   'DEPART ON QUEST',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(
+                  Navigator.push(
+                    context,
                     MaterialPageRoute(builder: (_) => const DescentScreen()),
                   );
                 },

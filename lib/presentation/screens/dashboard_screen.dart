@@ -5,6 +5,8 @@ import '../widgets/equipment_slots_widget.dart';
 import '../widgets/social_post_card.dart';
 import '../widgets/aether_resonance_oracle_widget.dart';
 import '../widgets/quest_decree_widget.dart';
+import '../widgets/celestial_panel.dart';
+import '../widgets/astrolabe_section_header.dart';
 import 'descent_screen.dart';
 import 'terminal_screen.dart';
 import 'expedition_screen.dart';
@@ -13,6 +15,7 @@ import 'chrono_loom_screen.dart';
 import 'trade_screen.dart';
 import 'character_dossier_screen.dart';
 
+/// Master Dashboard Screen in Celestial Astrolabe Imperial Parchment aesthetic.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -23,7 +26,7 @@ class DashboardScreen extends ConsumerWidget {
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: const Color(0xFFFAF7F0),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
           boxShadow: [
@@ -42,24 +45,29 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Center(
                 child: Container(
-                  width: 40,
+                  width: 44,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFBEB5A9),
+                    color: const Color(0xFFA78D78),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'SOUL VESSEL ATTRIBUTE TELEMETRY',
-                style: TextStyle(
-                  fontFamily: 'serif',
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF6E473B),
-                  letterSpacing: 1.2,
-                ),
+              const Row(
+                children: [
+                  Text('⟐ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
+                  Text(
+                    'SOUL VESSEL ATTRIBUTE TELEMETRY',
+                    style: TextStyle(
+                      fontFamily: 'serif',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6E473B),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
               _buildAttributeRow('VITALITY (SHIELD INTEGRITY)', '$vitality / 20', 'Absorbs chaotic dimensional shock and physical damage.', const Color(0xFF6E473B)),
@@ -127,7 +135,7 @@ class DashboardScreen extends ConsumerWidget {
       body: SafeArea(
         child: RefreshIndicator(
           color: const Color(0xFF6E473B),
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFAF7F0),
           onRefresh: () async {
             await ref.read(socialFeedProvider.notifier).refreshFeed();
           },
@@ -137,112 +145,123 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. System Administrator Header Card
+                // 1. Operator Sovereign Crest (Section 8.1)
                 Semantics(
                   label: 'Player Header: $playerName, $playerOrigin, Level 88. Tap to open UTRCS Character Dossier.',
                   button: true,
-                  child: InkWell(
+                  child: CelestialPanel(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const CharacterDossierScreen()),
                       );
                     },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6E473B).withValues(alpha: 0.15),
-                            blurRadius: 16,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
+                    padding: const EdgeInsets.all(16.0),
                     child: Row(
                       children: [
-                        // Operator Avatar Emblem
+                        // Operator Avatar Crest Frame
                         Container(
                           width: 54,
                           height: 54,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
-                            border: Border.all(color: const Color(0xFFA78D78), width: 2),
+                            border: Border.all(color: const Color(0xFF6E473B), width: 2),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFF6E473B).withValues(alpha: 0.2),
                                 blurRadius: 8,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(27),
-                            child: Image.asset(
-                              'assets/icon/app_icon.png',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, color: Color(0xFF6E473B)),
-                            ),
+                          child: const Center(
+                            child: Icon(Icons.person_pin, size: 34, color: Color(0xFF6E473B)),
                           ),
                         ),
                         const SizedBox(width: 14),
 
-                        // Name & Title Readouts
+                        // Title & Subtitle Info Area
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Row(
+                                children: [
+                                  const Text('✦ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 13)),
+                                  Expanded(
+                                    child: Text(
+                                      playerName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontFamily: 'serif',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF6E473B),
+                                        letterSpacing: 1.1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
                               Text(
-                                playerName.toUpperCase(),
+                                playerOrigin,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontFamily: 'serif',
-                                  fontSize: 15,
+                                  fontFamily: 'monospace',
+                                  fontSize: 9.5,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF6E473B),
-                                  letterSpacing: 1.0,
+                                  color: Color(0xFF291C0E),
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              Text(
-                                'CLASS: $playerOrigin | RANK: S-RANK',
-                                style: const TextStyle(
+                              const Text(
+                                'SECTOR: SANCTUARY 4 • UTRCS DOSSIER ↗',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
                                   fontFamily: 'monospace',
-                                  fontSize: 10,
+                                  fontSize: 8,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF291C0E),
+                                  color: Color(0xFFA78D78),
                                 ),
                               ),
                             ],
                           ),
                         ),
 
-                        // Level Badge
+                        // Astrolabe Dial Level Badge
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE1D4C2).withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFA78D78), width: 1.5),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF291C0E).withValues(alpha: 0.05),
-                                blurRadius: 6,
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFA78D78), width: 1.4),
                           ),
                           child: const Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 'LEVEL',
-                                style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: Color(0xFF6E473B), fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF6E473B),
+                                ),
                               ),
                               Text(
                                 '88',
-                                style: TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                                style: TextStyle(
+                                  fontFamily: 'serif',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF291C0E),
+                                  height: 1.1,
+                                ),
                               ),
                             ],
                           ),
@@ -251,56 +270,46 @@ class DashboardScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                // 2. Equipment Slots Widget
+                // 2. Equipment Slots Widget (Section 8.2)
                 const EquipmentSlotsWidget(),
                 const SizedBox(height: 16),
 
-                // 3. Aether Resonance Oracle
+                // 3. Aether Resonance Oracle (Section 8.3)
                 const AetherResonanceOracleWidget(),
                 const SizedBox(height: 16),
 
-                // 4. Interactive Quest Decree Window
+                // 4. Interactive Quest Decree Window (Section 8.4)
                 const QuestDecreeWidget(),
                 const SizedBox(height: 16),
 
-                // 5. Stat Meter Gauges with Smooth Animated Interpolation
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'SOVEREIGN VITALITY & ESSENCE GAUGES',
-                      style: TextStyle(
-                        fontFamily: 'serif',
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Color(0xFF6E473B),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () => _showVesselAttributesSheet(context, vitality: vitality, aether: aether, essence: essence),
-                      borderRadius: BorderRadius.circular(4),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        child: Text(
-                          'INSPECT ℹ',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF6E473B),
-                          ),
+                // 5. Stat Meter Gauges with AstrolabeSectionHeader (Fixes Defect 4: 24px overflow)
+                AstrolabeSectionHeader(
+                  title: 'SOVEREIGN VITALITY & ESSENCE GAUGES',
+                  glyph: '✦',
+                  fontSize: 11,
+                  letterSpacing: 1.2,
+                  trailing: InkWell(
+                    onTap: () => _showVesselAttributesSheet(context, vitality: vitality, aether: aether, essence: essence),
+                    borderRadius: BorderRadius.circular(4),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      child: Text(
+                        'INSPECT ℹ',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6E473B),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 10),
 
-                // Animated Vitality Meters
+                // Alchemical Capsule Meters (Section 8.5)
                 Row(
                   children: [
                     Expanded(
@@ -342,16 +351,12 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // 6. Adaptive Sovereign Realms & Hubs
-                const Text(
-                  'SOVEREIGN REALMS & COMMUNION HUBS',
-                  style: TextStyle(
-                    fontFamily: 'serif',
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: Color(0xFF6E473B),
-                  ),
+                // 6. Adaptive Sovereign Realms & Hubs (Section 8.6)
+                const AstrolabeSectionHeader(
+                  title: 'SOVEREIGN REALMS & COMMUNION HUBS',
+                  glyph: '✦',
+                  fontSize: 12,
+                  letterSpacing: 1.4,
                 ),
                 const SizedBox(height: 12),
 
@@ -422,30 +427,21 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // 7. Community Wall Feed
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'SOVEREIGN COMMUNITY WALL & NEWS FEED',
-                      style: TextStyle(
-                        fontFamily: 'serif',
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                        color: Color(0xFF6E473B),
-                      ),
+                // 7. Community Wall Feed (Section 8.7, Fixes Defect 5: 57px overflow)
+                AstrolabeSectionHeader(
+                  title: 'SOVEREIGN COMMUNITY WALL & NEWS FEED',
+                  glyph: '✦',
+                  fontSize: 12,
+                  letterSpacing: 1.4,
+                  trailing: Text(
+                    '${socialPosts.length} POSTS',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFA78D78),
                     ),
-                    Text(
-                      '${socialPosts.length} POSTS',
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFA78D78),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -479,65 +475,76 @@ class DashboardScreen extends ConsumerWidget {
     required IconData icon,
     required VoidCallback onTap,
   }) {
-    return Semantics(
-      label: '$label: $value',
-      button: true,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF6E473B).withValues(alpha: 0.1),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: color, size: 14),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontFamily: 'monospace', fontSize: 8, color: color, fontWeight: FontWeight.bold),
+    return RepaintBoundary(
+      child: Semantics(
+        label: '$label gauge: $value. Tap to inspect telemetry details.',
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAF7F0),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFA78D78), width: 1.4),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF6E473B).withValues(alpha: 0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(icon, size: 14, color: color),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontFamily: 'serif',
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF291C0E),
+                      ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: targetProgress.clamp(0.0, 1.0)),
+                    duration: const Duration(milliseconds: 700),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, animatedValue, _) {
+                      return LinearProgressIndicator(
+                        value: animatedValue,
+                        backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.3),
+                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                        minHeight: 5,
+                      );
+                    },
                   ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                value,
-                style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
-              ),
-              const SizedBox(height: 6),
-              TweenAnimationBuilder<double>(
-                tween: Tween<double>(begin: 0.0, end: targetProgress.clamp(0.0, 1.0)),
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutCubic,
-                builder: (context, animatedValue, child) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
-                    child: LinearProgressIndicator(
-                      value: animatedValue,
-                      backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.3),
-                      valueColor: AlwaysStoppedAnimation<Color>(color),
-                      minHeight: 4,
-                    ),
-                  );
-                },
-              ),
-            ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 8,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -553,42 +560,65 @@ class DashboardScreen extends ConsumerWidget {
     required Widget targetScreen,
   }) {
     return Semantics(
-      label: 'Realm card: $title, $subtitle',
+      label: 'Navigate to $title ($subtitle)',
       button: true,
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => targetScreen),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => targetScreen),
           );
         },
+        borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFFFAF7F0),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
+            border: Border.all(color: const Color(0xFFA78D78), width: 1.3),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF291C0E).withValues(alpha: 0.05),
-                blurRadius: 8,
+                color: const Color(0xFF6E473B).withValues(alpha: 0.08),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 22),
-              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withValues(alpha: 0.12),
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(height: 5),
               Text(
                 title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontFamily: 'serif', fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
+                style: const TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF291C0E),
+                ),
               ),
               Text(
                 subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 8, color: Color(0xFF6E473B), fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontFamily: 'monospace',
+                  fontSize: 8,
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
