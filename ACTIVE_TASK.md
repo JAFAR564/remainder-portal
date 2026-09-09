@@ -26,14 +26,15 @@
 - [x] Implement Universal Roleplay Character System (UTRCS): 6-layer data model, progressive completion (Quick/Standard/Deep), `CharacterDossierScreen`, `UtrcsLivePlayCard` bottom sheet, `UtrcsExportService` (JSON/Markdown/Discord), and chat/expedition hooks.
 - [x] Thread B Execution: Drift SQLite UtrcsCharacters persistence table (Schema v4), Sanctuary Chat message hydration & persistence, configurable BACKEND_URL AI pipeline, and bi-directional Dossier editing.
 - [x] CI Test Suite Stabilization (Commit c898ba6): Resolved Drift matcher shadowing in `test/database_test.dart`, synchronous UTRCS default initialization in `utrcs_provider.dart`, and aligned D20 test assertion tags across `test/phase1_test.dart` and `test/phase4_test.dart`.
-- [x] Cloud CI Verification (Run 34050242868): 100% passed across Android, Windows, Web, and Backend runners. Auto-downloaded and launched `remainder-portal.apk` on Honor X8.
+- [x] Cloud CI Verification (Run 34050242868): 100% passed across Android, Windows, Web, and Backend runners.
 - [x] Phase 4 Visual Luxury Redesign: Want vs. Need balance scale (`WantVsNeedScaleWidget`), 8-stage cognitive loop timeline (`CognitiveLoopTimelineWidget`), 8-register voice player (`VoiceRegisterPlayerWidget`), and 4-part anti-Mary-Sue capability anatomy (`CapabilityAnatomyCard`).
 - [x] Dossier & Live Play Card Overhaul: Parchment astrolabe aesthetic integration in `CharacterDossierScreen` and `UtrcsLivePlayCard` with 5-color palette tokens (`#E1D4C2`, `#6E473B`, `#A78D78`, `#BEB5A9`, `#291C0E`).
 - [x] Dedicated Verification Suite: Created `test/phase4_visual_test.dart` and stabilized `test/character_dossier_test.dart`.
+- [x] Cloud CI Verification (Run 34382460170): 100% passed across Android, Windows, Web, and Backend runners. All 44 tests passed cleanly with multi-platform release artifacts generated.
 
 ---
 
 ## 📋 Task Checklist & Next Recommended Actions
 1. **Active Milestone Completed**: Phase 4 — Visual Luxury Redesign of Character Dossier & UTRCS Live Play Card.
-2. **Execution Pattern**: Atomic commit pushed to GitHub $\rightarrow$ cloud CI verification via `gh workflow run flutter-build.yml`.
+2. **Execution Pattern**: Atomic commit pushed to GitHub $\rightarrow$ cloud CI verified 100% green (`Run 34382460170`).
 3. **Next Horizon**: Phase 5 — Offline RAG Vector Store & Local Semantic Querying (or live session multiplayer consensus).

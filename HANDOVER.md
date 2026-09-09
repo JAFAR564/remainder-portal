@@ -4,7 +4,7 @@
 **Active Branch:** `main`  
 **Current Version:** `1.1.8+12` (UTRCS Universal Roleplay Character Architecture Edition)  
 **Target Environment:** Honor X8 (Termux + Antigravity AGY CLI)  
-**Last Updated:** August 28, 2026  
+**Last Updated:** September 9, 2026  
 
 ---
 
@@ -14,6 +14,7 @@
 - **Phase 2 Social Sovereignty & Guilds:** **100%**
 - **Phase 3 Offline Sync & RAG Vector Engine:** **100%**
 - **Phase 4 Hardware Tiering & Gemma AI Downloader:** **100%**
+- **Phase 4 Visual Luxury Redesign (Dossier & UTRCS Live Play Card):** **100%** (Want vs. Need Scale, 8-Stage Cognitive Loop, 8-Register Voice Player, 4-Part Capability Anatomy)
 - **Master 5-Color Palette Theme Design System:** **100%** (Frosted Cream, Warm Terracotta, Deep Espresso, Almond Taupe, Cashmere Stone)
 - **Fantasy Isekai Lore & Sci-Fi Purge:** **100%**
 - **Interactive Genesis Story Mode (`StoryPrologueScreen`):** **100%**
@@ -123,60 +124,14 @@ system_instructions: |
 
 ## 🎨 5. Design System Tokens & Tone Protocols
 
-### Color System (Hellenic White Marble & Gold)
-- **Backdrop / Main Screen:** `#F8F6F0` (Pentelic White Marble)
-- **App Bar / Elevated Surfaces:** `#FAF8F5`
-- **Cards & Containers:** `#FFFFFF` (Pure White Marble)
-- **Borders & Dividers:** `#D4AF37` (Imperial Gold Leaf, 1.5px width)
-- **Header Text & Titles:** `#B8860B` (Imperial Olympus Gold, Serif typography)
-- **Body & Subtitle Text:** `#1A1A1A` (Obsidian Charcoal)
-- **Secondary Accents:** `#007791` (Aegean Sky Cyan)
+### Color System (5-Color Master Palette)
+- **Deep Espresso (`#291C0E`):** Primary typography, heavy headings, dark borders
+- **Warm Terracotta (`#6E473B`):** Primary buttons, active indicators, brand accent
+- **Almond Taupe (`#A78D78`):** Borders, card outlines, subtle dividers
+- **Cashmere Stone (`#BEB5A9`):** Secondary subtitles, metadata, inactive indicators
+- **Frosted Cream Sand (`#E1D4C2`):** Scaffold background, pill cards, elevated surfaces
 
 ### World Lore & Tone
 - **AI Identity:** The **World Arbiter (Cardinal)**.
 - **Narrative Genre:** Transcendent Fantasy Isekai / Roleplay Realm. All sci-fi jargon is strictly purged.
 - **Conlang (Ethereal Scribe):** Incorporates *Amatsukrion*, *Wyrd-Kaze*, *Aetheromaru*, and *Kami-Aether*.
-
----
-
-## 📝 6. Recent Implementation Summary (Commits `2061493` $\rightarrow$ `f5d20be`)
-
-1. **Workflow Dispatch & Cloud CI Setup ([`.github/workflows/flutter-build.yml`](file:///data/data/com.termux/files/home/RP-community/.github/workflows/flutter-build.yml)):**
-   - Added `workflow_dispatch` trigger for manual workflow invocation via `gh workflow run`.
-   - Verified automated cloud build & unit testing pipeline in GitHub Actions.
-
-2. **On-Device APK Delivery & Media Scanner Integration:**
-   - Automated cloud artifact downloading to `./build_apk/app-debug.apk`.
-   - Added Android media broadcast (`MEDIA_SCANNER_SCAN_FILE`) and `termux-open` integration to seamlessly launch the package installer on Android internal storage (`/sdcard/Download/remainder-portal.apk`).
-
-3. **Honor X8 Migration Guide:**
-   - Configured quick-start step-by-step Termux setup for seamless migration to the Honor X8.
-
----
-
-## 🚀 7. Session 3 Implementation Summary (Commits `6bbfed5` $\rightarrow$ `b009d41`)
-
-1. **Master Branding & 1024x1024 Icon Migration:**
-   - Transformed source emblem `XU-USyTwFJorniq7vJAt0_ebVPvH8S.png` into full asset trees:
-     - Android mipmaps: `mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`
-     - iOS `AppIcon.appiconset` suite (20px to 1024px)
-     - Web `favicon.png`, `Icon-192`, `Icon-512`, and maskable formats
-   - Bumped package build to `1.1.1+5` in [pubspec.yaml](file:///data/data/com.termux/files/home/remainder-portal/pubspec.yaml).
-
-2. **High-Speed Cloud CI Architecture (75%+ Download Reduction):**
-   - Enabled `--split-per-abi` in [flutter-build.yml](file:///data/data/com.termux/files/home/remainder-portal/.github/workflows/flutter-build.yml) to produce target-specific `arm64-v8a` binaries.
-   - Reduced download payload from **~86MB to ~18MB**, slashing device download time from 10 minutes to ~1 minute 20 seconds.
-   - Added automated GitHub Release CDN publishing (`latest` tag) with fast direct resume.
-
-3. **Mobile Termux CI Operations Suite ([`~/.bashrc`](file:///data/data/com.termux/files/home/.bashrc)):**
-   - Installed `fzf`, `termux-api`, and `gh-dash` TUI.
-   - Implemented shell commands:
-     - `ci-watch` &rarr; Real-time build monitor with native Android vibration & audio alerts.
-     - `ci-logs` &rarr; Interactive `fzf` failure log inspector.
-     - `ci-trigger` &rarr; Fuzzy workflow selector and dispatcher.
-     - `ci-install` &rarr; 5-10s one-liner direct installer.
-
-4. **Agent Skill Suite & Subagents:**
-   - Installed 6 skills (`dart-run-static-analysis`, `dart-add-unit-test`, `flutter-fix-layout-issues`, `gh-cli`, `graphify`, `napkin-memory`) in `.agents/skills/` and global config.
-   - Configured `ci-agent` and `qa-auditor` subagents.
-
