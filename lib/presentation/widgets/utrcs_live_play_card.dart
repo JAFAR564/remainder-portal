@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/utrcs_provider.dart';
 import '../../data/models/utrcs_character.dart';
 import '../../data/services/utrcs_export_service.dart';
 import '../screens/character_dossier_screen.dart';
 
+/// Luxury Astrolabe Parchment Live Play Card for quick in-game inspection.
 class UtrcsLivePlayCard extends ConsumerWidget {
   final UtrcsCharacterModel character;
 
@@ -44,16 +44,17 @@ class UtrcsLivePlayCard extends ConsumerWidget {
     final presentation = character.presentation;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFAF7F0),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border.all(color: const Color(0xFFA78D78), width: 1.8),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF6E473B).withValues(alpha: 0.2),
-            blurRadius: 20,
+            blurRadius: 24,
             spreadRadius: 2,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
@@ -64,18 +65,18 @@ class UtrcsLivePlayCard extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Handle Bar
+              // Astrolabe Handle Bar
               Center(
                 child: Container(
-                  width: 40,
+                  width: 44,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFBEB5A9),
+                    color: const Color(0xFFA78D78),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               // Header: Identity & Depth Badge
               Row(
@@ -85,21 +86,31 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          identity.name.toUpperCase(),
-                          style: const TextStyle(
-                            fontFamily: 'serif',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF6E473B),
-                            letterSpacing: 1.2,
-                          ),
+                        Row(
+                          children: [
+                            const Text(
+                              '⟐ ',
+                              style: TextStyle(color: Color(0xFF6E473B), fontSize: 14),
+                            ),
+                            Expanded(
+                              child: Text(
+                                identity.name.toUpperCase(),
+                                style: const TextStyle(
+                                  fontFamily: 'serif',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF6E473B),
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         Text(
                           '${character.role.tacticalArchetype} | ${character.setting.sectorOrigin}',
                           style: const TextStyle(
                             fontFamily: 'monospace',
-                            fontSize: 10,
+                            fontSize: 9.5,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF291C0E),
                           ),
@@ -118,7 +129,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                       'UTRCS ${character.completionDepth.name.toUpperCase()}',
                       style: const TextStyle(
                         fontFamily: 'monospace',
-                        fontSize: 9,
+                        fontSize: 8.5,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF6E473B),
                       ),
@@ -133,7 +144,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.4),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
                 ),
@@ -141,39 +152,87 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                   '"${identity.concept}"',
                   style: const TextStyle(
                     fontFamily: 'serif',
-                    fontSize: 12,
+                    fontSize: 11.5,
                     fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: Color(0xFF291C0E),
+                    height: 1.35,
                   ),
                 ),
               ),
               const SizedBox(height: 12),
 
-              // Psychological Anchor (Want & Fear)
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSmallBox('EXTERNAL WANT', identity.externalWant, const Color(0xFF6E473B)),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildSmallBox('CORE FEAR', identity.coreFear, const Color(0xFF291C0E)),
-                  ),
-                ],
+              // Psychological Balance: Want vs. Need
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFA78D78)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.balance, size: 13, color: Color(0xFF6E473B)),
+                        SizedBox(width: 4),
+                        Text(
+                          'PSYCHOLOGICAL DUALITY (WANT vs NEED)',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6E473B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSmallBox('EXTERNAL WANT', identity.externalWant, const Color(0xFF6E473B)),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: _buildSmallBox(
+                            'INTERNAL NEED',
+                            identity.internalNeed ?? 'Spiritual Awakening',
+                            const Color(0xFFA78D78),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
               // Capabilities Overview
-              const Text(
-                'ACTIVE CAPABILITIES',
-                style: TextStyle(
-                  fontFamily: 'monospace',
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF6E473B),
-                  letterSpacing: 1.0,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'ACTIVE CAPABILITIES',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6E473B),
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  Text(
+                    '${mechanical.capabilities.length} FORGED',
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 8,
+                      color: Color(0xFFA78D78),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 6),
               ...mechanical.capabilities.map(
@@ -187,32 +246,43 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.bolt, color: Color(0xFF6E473B), size: 16),
+                      const Icon(Icons.bolt, color: Color(0xFF6E473B), size: 15),
                       const SizedBox(width: 6),
                       Expanded(
-                        child: Text(
-                          cap.name,
-                          style: const TextStyle(
-                            fontFamily: 'serif',
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF291C0E),
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              cap.name,
+                              style: const TextStyle(
+                                fontFamily: 'serif',
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF291C0E),
+                              ),
+                            ),
+                            Text(
+                              'Cost: ${cap.cost} | Scope: ${cap.scope}',
+                              style: const TextStyle(fontSize: 8.5, color: Color(0xFFA78D78)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE1D4C2),
+                          color: const Color(0xFF6E473B),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           '+${cap.d20Modifier} D20',
                           style: const TextStyle(
                             fontFamily: 'monospace',
-                            fontSize: 9,
+                            fontSize: 8.5,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF6E473B),
+                            color: Color(0xFFE1D4C2),
                           ),
                         ),
                       ),
@@ -220,26 +290,42 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
-              // Voice Sample
+              // Voice Register Sample
               if (presentation.voiceSamples.isNotEmpty) ...[
-                const Text(
-                  'VOICE REGISTER SAMPLE',
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6E473B),
-                  ),
+                const Row(
+                  children: [
+                    Icon(Icons.record_voice_over_outlined, size: 12, color: Color(0xFF6E473B)),
+                    SizedBox(width: 4),
+                    Text(
+                      'VOICE REGISTER SAMPLE',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6E473B),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  '"${presentation.voiceSamples.values.first}"',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF291C0E),
-                    fontStyle: FontStyle.italic,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.6)),
+                  ),
+                  child: Text(
+                    '"${presentation.voiceSamples.values.first}"',
+                    style: const TextStyle(
+                      fontFamily: 'serif',
+                      fontSize: 10.5,
+                      color: Color(0xFF291C0E),
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -248,7 +334,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
               // OOC Boundaries
               if (presentation.oocConsentLimits.isNotEmpty) ...[
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                   decoration: BoxDecoration(
                     color: const Color(0xFF6E473B).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(6),
@@ -263,7 +349,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                           'OOC BOUNDARY: ${presentation.oocConsentLimits.first}',
                           style: const TextStyle(
                             fontFamily: 'monospace',
-                            fontSize: 9,
+                            fontSize: 8.5,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF6E473B),
                           ),
@@ -272,7 +358,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
               ],
 
               // Action Buttons Row
@@ -308,8 +394,8 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.copy, size: 14),
-                    label: const Text('DISCORD', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.copy, size: 13),
+                    label: const Text('DISCORD', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold)),
                     onPressed: () => _copyExport(
                       context,
                       UtrcsExportService.exportToDiscordCard(character),
@@ -324,8 +410,8 @@ class UtrcsLivePlayCard extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     ),
-                    icon: const Icon(Icons.data_object, size: 14),
-                    label: const Text('JSON', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                    icon: const Icon(Icons.data_object, size: 13),
+                    label: const Text('JSON', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold)),
                     onPressed: () => _copyExport(
                       context,
                       UtrcsExportService.exportToJson(character),
@@ -343,7 +429,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
 
   Widget _buildSmallBox(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -356,7 +442,7 @@ class UtrcsLivePlayCard extends ConsumerWidget {
             label,
             style: TextStyle(
               fontFamily: 'monospace',
-              fontSize: 8,
+              fontSize: 7.5,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -366,7 +452,12 @@ class UtrcsLivePlayCard extends ConsumerWidget {
             value,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 10, color: Color(0xFF291C0E), fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontFamily: 'serif',
+              fontSize: 9.5,
+              color: Color(0xFF291C0E),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

@@ -5,8 +5,13 @@ import '../providers/utrcs_provider.dart';
 import '../../data/models/utrcs_character.dart';
 import '../../data/services/utrcs_export_service.dart';
 import '../widgets/utrcs_live_play_card.dart';
+import '../widgets/want_vs_need_scale_widget.dart';
+import '../widgets/cognitive_loop_timeline_widget.dart';
+import '../widgets/voice_register_player_widget.dart';
+import '../widgets/capability_anatomy_card.dart';
 import 'utrcs_creation_screen.dart';
 
+/// Celestial Astrolabe Parchment Dossier for deep character psychological & mechanical inspection.
 class CharacterDossierScreen extends ConsumerStatefulWidget {
   const CharacterDossierScreen({super.key});
 
@@ -33,19 +38,24 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFAF7F0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFFA78D78), width: 1.8),
         ),
-        title: const Text(
-          'PORTABLE UTRCS EXPORT',
-          style: TextStyle(
-            fontFamily: 'serif',
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF6E473B),
-          ),
+        title: const Row(
+          children: [
+            Text('⟐ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
+            Text(
+              'PORTABLE UTRCS EXPORT',
+              style: TextStyle(
+                fontFamily: 'serif',
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF6E473B),
+              ),
+            ),
+          ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -155,14 +165,19 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFAF7F0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFFA78D78), width: 1.8),
         ),
-        title: const Text(
-          'FORGE NEW CAPABILITY',
-          style: TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
+        title: const Row(
+          children: [
+            Text('✦ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
+            Text(
+              'FORGE NEW CAPABILITY',
+              style: TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
+            ),
+          ],
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -178,44 +193,45 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
               ),
               TextField(
                 controller: costCtrl,
-                decoration: const InputDecoration(labelText: 'Cost (e.g. 3 Energy Points)'),
+                decoration: const InputDecoration(labelText: 'Cost (e.g. 3 MP, 1 Action)'),
               ),
               TextField(
                 controller: condCtrl,
-                decoration: const InputDecoration(labelText: 'Condition (e.g. Shield active)'),
+                decoration: const InputDecoration(labelText: 'Activation Condition / Counter (e.g. Shield Equipped)'),
               ),
               TextField(
                 controller: failCtrl,
-                decoration: const InputDecoration(labelText: 'Failure State (e.g. Stun 1 round)'),
+                decoration: const InputDecoration(labelText: 'Failure State / Backlash (e.g. Overheat recoil)'),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL', style: TextStyle(color: Color(0xFFA78D78))),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6E473B),
               foregroundColor: const Color(0xFFE1D4C2),
             ),
             onPressed: () {
-              if (nameCtrl.text.isNotEmpty) {
-                ref.read(utrcsCharacterProvider.notifier).addCapability(
-                      UtrcsCapability(
-                        id: 'cap_${DateTime.now().millisecondsSinceEpoch}',
-                        name: nameCtrl.text.trim(),
-                        type: 'Active',
-                        scope: scopeCtrl.text.trim().isEmpty ? 'Direct Target' : scopeCtrl.text.trim(),
-                        cost: costCtrl.text.trim().isEmpty ? '2 Energy' : costCtrl.text.trim(),
-                        condition: condCtrl.text.trim().isEmpty ? 'In Combat' : condCtrl.text.trim(),
-                        failureState: failCtrl.text.trim().isEmpty ? 'None' : failCtrl.text.trim(),
-                        d20Modifier: 2,
-                      ),
-                    );
-                Navigator.pop(context);
-              }
+              if (nameCtrl.text.trim().isEmpty) return;
+              final cap = UtrcsCapability(
+                id: 'cap_${DateTime.now().millisecondsSinceEpoch}',
+                name: nameCtrl.text.trim(),
+                type: 'Active',
+                scope: scopeCtrl.text.trim().isNotEmpty ? scopeCtrl.text.trim() : 'Single Target',
+                cost: costCtrl.text.trim().isNotEmpty ? costCtrl.text.trim() : '2 Energy Reserve',
+                condition: condCtrl.text.trim().isNotEmpty ? condCtrl.text.trim() : 'Active Focus',
+                failureState: failCtrl.text.trim().isNotEmpty ? failCtrl.text.trim() : 'Recoil Strain',
+                d20Modifier: 2,
+              );
+              ref.read(utrcsCharacterProvider.notifier).addCapability(cap);
+              Navigator.pop(context);
             },
-            child: const Text('FORGE'),
+            child: const Text('ENGRAVE', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -229,26 +245,39 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
     if (character == null) {
       return Scaffold(
         backgroundColor: const Color(0xFFE1D4C2),
-        appBar: AppBar(title: const Text('UTRCS DOSSIER')),
-        body: const Center(child: Text('No active UTRCS character profile.')),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text('CHARACTER DOSSIER', style: TextStyle(fontFamily: 'serif', color: Color(0xFF6E473B))),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: Color(0xFF6E473B)),
+        ),
       );
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFFE1D4C2),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
+        backgroundColor: const Color(0xFFFAF7F0),
+        elevation: 1.5,
         shadowColor: const Color(0xFF6E473B).withValues(alpha: 0.15),
-        title: Text(
-          '${character.identity.name.toUpperCase()} (DOSSIER)',
-          style: const TextStyle(
-            fontFamily: 'serif',
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF6E473B),
-            letterSpacing: 1.2,
-          ),
+        title: Row(
+          children: [
+            const Text('✦ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 13)),
+            Expanded(
+              child: Text(
+                '${character.identity.name.toUpperCase()} (DOSSIER)',
+                style: const TextStyle(
+                  fontFamily: 'serif',
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF6E473B),
+                  letterSpacing: 1.2,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
@@ -310,16 +339,16 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // High Concept Card
+          // High Concept Ornate Astrolabe Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFFAF7F0),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFA78D78), width: 1.5),
+              border: Border.all(color: const Color(0xFFA78D78), width: 1.6),
               boxShadow: [
-                BoxShadow(color: const Color(0xFF6E473B).withValues(alpha: 0.1), blurRadius: 10),
+                BoxShadow(color: const Color(0xFF6E473B).withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 3)),
               ],
             ),
             child: Column(
@@ -328,9 +357,14 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      identity.name.toUpperCase(),
-                      style: const TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
+                    Row(
+                      children: [
+                        const Text('⟐ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
+                        Text(
+                          identity.name.toUpperCase(),
+                          style: const TextStyle(fontFamily: 'serif', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
+                        ),
+                      ],
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -429,7 +463,14 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
           ),
           const SizedBox(height: 16),
 
-          // Want / Fear Section
+          // Dynamic Want vs. Need Balance Scale Widget
+          WantVsNeedScaleWidget(
+            externalWant: identity.externalWant,
+            internalNeed: identity.internalNeed,
+          ),
+          const SizedBox(height: 16),
+
+          // Explicit Want / Fear readouts for compatibility & detail inspection
           _buildInfoTile('EXTERNAL WANT', identity.externalWant, Icons.flag_outlined),
           const SizedBox(height: 8),
           _buildInfoTile('CORE FEAR', identity.coreFear, Icons.warning_amber_rounded),
@@ -469,57 +510,23 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
+          // 4-Part Anti-Mary-Sue Capability Cards
           ...capabilities.map(
-            (cap) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
-                boxShadow: [
-                  BoxShadow(color: const Color(0xFF6E473B).withValues(alpha: 0.08), blurRadius: 8),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.bolt, color: Color(0xFF6E473B), size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            cap.name,
-                            style: const TextStyle(fontFamily: 'serif', fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF291C0E)),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6E473B).withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFF6E473B)),
-                        ),
-                        child: Text(
-                          '+${cap.d20Modifier} D20 CHECK',
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
-                        ),
-                      ),
-                    ],
+            (cap) => CapabilityAnatomyCard(
+              capability: cap,
+              onDelete: () {
+                final updatedList = character.mechanical.capabilities.where((c) => c.id != cap.id).toList();
+                final updatedModel = character.copyWith(
+                  mechanical: MechanicalLayer(
+                    baseStats: character.mechanical.baseStats,
+                    capabilities: updatedList,
+                    weaknesses: character.mechanical.weaknesses,
                   ),
-                  const SizedBox(height: 8),
-                  _buildCapRow('Scope', cap.scope),
-                  _buildCapRow('Cost', cap.cost),
-                  _buildCapRow('Condition', cap.condition),
-                  _buildCapRow('Failure State', cap.failureState),
-                ],
-              ),
+                );
+                ref.read(utrcsCharacterProvider.notifier).saveCharacter(updatedModel);
+              },
             ),
           ),
 
@@ -535,9 +542,9 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6E473B).withValues(alpha: 0.05),
+                  color: const Color(0xFFFAF7F0),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.3)),
+                  border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,7 +577,12 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('INTERNAL CONFLICT & PSYCHOLOGY', style: TextStyle(fontFamily: 'monospace', fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF6E473B))),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+
+          // 8-Stage Cognitive Processing Loop Stepper Widget
+          CognitiveLoopTimelineWidget(character: character),
+          const SizedBox(height: 14),
+
           if (identity.coreWound != null) _buildInfoTile('CORE WOUND', identity.coreWound!, Icons.healing_outlined),
           const SizedBox(height: 8),
           if (identity.internalLie != null) _buildInfoTile('INTERNAL LIE', identity.internalLie!, Icons.visibility_off_outlined),
@@ -600,7 +612,7 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color(0xFFFAF7F0),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
             ),
@@ -609,36 +621,13 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
           const SizedBox(height: 14),
 
           const Text('DIALOGUE REGISTER SAMPLES', style: TextStyle(fontFamily: 'monospace', fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF6E473B))),
-          const SizedBox(height: 6),
-          ...presentation.voiceSamples.entries.map((entry) => Container(
-                margin: const EdgeInsets.only(bottom: 6),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6E473B),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        entry.key.toUpperCase(),
-                        style: const TextStyle(fontFamily: 'monospace', fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFFE1D4C2)),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text('"${entry.value}"', style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFF291C0E))),
-                    ),
-                  ],
-                ),
-              )),
+          const SizedBox(height: 8),
+
+          // Ornate 8-Register Voice Player Widget
+          VoiceRegisterPlayerWidget(
+            presentation: presentation,
+            characterName: identity.name,
+          ),
         ],
       ),
     );
@@ -662,9 +651,12 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFFFAF7F0),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
+                border: Border.all(color: const Color(0xFFA78D78), width: 1.4),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xFF6E473B).withValues(alpha: 0.06), blurRadius: 6, offset: const Offset(0, 2)),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -713,7 +705,7 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFAF7F0),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFA78D78), width: 1.2),
       ),
@@ -731,7 +723,7 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFAF7F0),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFA78D78), width: 1.0),
       ),
@@ -748,30 +740,6 @@ class _CharacterDossierScreenState extends ConsumerState<CharacterDossierScreen>
                 const SizedBox(height: 2),
                 Text(content, style: const TextStyle(fontSize: 11, color: Color(0xFF291C0E))),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCapRow(String title, String val) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(
-              '$title:',
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 9, fontWeight: FontWeight.bold, color: Color(0xFF6E473B)),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              val,
-              style: const TextStyle(fontSize: 10, color: Color(0xFF291C0E)),
             ),
           ),
         ],

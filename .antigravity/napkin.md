@@ -1,10 +1,10 @@
 # 📱 Napkin Notes (Antigravity CLI & Mobile Termux Workspace)
 
 ## 🎯 Active Execution Context & Session State
-- **Session ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c`
+- **Session ID:** `88d7ef76-46f7-4c8c-b65a-33a4ca08fa2c`
 - **Target Device:** Honor X8 (Android / Termux environment)
-- **Active Branch:** `main` (Latest Commit: `b009d41`)
-- **Current Version:** `1.1.2+6`
+- **Active Branch:** `main`
+- **Current Version:** `1.1.8+12`
 - **GitHub Account:** `@JAFAR564` (Authenticated via `gh`)
 
 ---
@@ -21,18 +21,24 @@ Source: `97f2a71f96978724029cf44e5ced6eda.jpg`
 
 ## 🚀 Key Architectural & Operational Breakthroughs
 1. **Universal 5-Color Master Palette Migration (Session 4):**
-   - Completely purged legacy cyan (`0xFF00E5FF`, `0xFF00F0FF`, `0xFF007791`), dark obsidian (`0xFF0F0E17`, `0xFF161520`), and ancient gold (`0xFFD4AF37`, `0xFFB8860B`) tokens across all 15 presentation screens and custom widgets.
+   - Completely purged legacy cyan, dark obsidian, and ancient gold tokens across all 15 presentation screens and custom widgets.
    - Standardized `PortalTheme.espresso`, `terracotta`, `taupe`, `cashmere`, and `cream` tokens.
 
 2. **High-Speed Cloud CI Pipeline (75%+ Reduction):**
    - Implemented `--split-per-abi` in `.github/workflows/flutter-build.yml` targeting `arm64-v8a`.
-   - Download payload dropped from ~86MB to ~18MB (`remainder-portal-arm64.apk`), cutting download duration from ~10m to ~1m20s.
+   - Download payload dropped from ~86MB to ~18MB (`remainder-portal-arm64.apk`), cutting download duration to ~1m20s.
 
-3. **Master Branding & Multi-Platform Emblem Deployment:**
-   - Full Android mipmap suite, iOS `AppIcon.appiconset`, and Web icons (`favicon.png`, `Icon-192.png`, `Icon-512.png`).
+3. **UTRCS SQLite Persistence & Sanctuary Chat Hydration (Phase 1):**
+   - Added Drift SQLite `UtrcsCharacters` table (Schema v4), hydrating character profile on startup and auto-persisting edits.
+   - Wired `ChatHistoryNotifier` to `ChatMessages` table, saving every player action and GM response.
+   - Injected configurable `BACKEND_URL` with mobile localhost trap detection and offline D20 fallback badging.
 
-4. **Mobile Termux CI Operations Suite (`~/.bashrc`):**
-   - `ci-watch`, `ci-logs`, `ci-trigger`, `ci-install` with native Android notifications.
+4. **Visual Luxury Redesign of Character Dossier & Live Play Card (Phase 4):**
+   - Want vs. Need balance scale (`WantVsNeedScaleWidget`) with dynamic psychological equilibrium evaluation.
+   - 8-stage cognitive processing loop timeline (`CognitiveLoopTimelineWidget`) mapping live character traits across decision steps.
+   - 8-register voice player (`VoiceRegisterPlayerWidget`) with acoustic frequency wave animations and clipboard export.
+   - 4-part anti-Mary-Sue capability anatomy cards (`CapabilityAnatomyCard`) with interactive D20 check simulation.
+   - Ornate parchment astrolabe styling across `CharacterDossierScreen` and `UtrcsLivePlayCard`.
 
 ---
 

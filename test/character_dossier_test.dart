@@ -4,6 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:remainder_portal/presentation/screens/character_dossier_screen.dart';
 import 'package:remainder_portal/presentation/screens/utrcs_creation_screen.dart';
 import 'package:remainder_portal/presentation/widgets/utrcs_live_play_card.dart';
+import 'package:remainder_portal/presentation/widgets/want_vs_need_scale_widget.dart';
+import 'package:remainder_portal/presentation/widgets/cognitive_loop_timeline_widget.dart';
+import 'package:remainder_portal/presentation/widgets/voice_register_player_widget.dart';
+import 'package:remainder_portal/presentation/widgets/capability_anatomy_card.dart';
 import 'package:remainder_portal/presentation/providers/utrcs_provider.dart';
 
 void main() {
@@ -28,6 +32,7 @@ void main() {
 
       expect(find.text('SOVEREIGN VESSEL ATTRIBUTES'), findsOneWidget);
       expect(find.text('EXTERNAL WANT'), findsOneWidget);
+      expect(find.byType(WantVsNeedScaleWidget), findsOneWidget);
 
       // Switch to Capabilities Tab
       await tester.tap(find.text('CAPABILITIES'));
@@ -35,6 +40,7 @@ void main() {
 
       expect(find.text('ADD SKILL'), findsOneWidget);
       expect(find.text('Shadow Extraction & Cleave'), findsOneWidget);
+      expect(find.byType(CapabilityAnatomyCard), findsWidgets);
 
       // Switch to Psychology Tab
       await tester.tap(find.text('PSYCHOLOGY'));
@@ -43,6 +49,8 @@ void main() {
       expect(find.text('INTERNAL CONFLICT & PSYCHOLOGY'), findsOneWidget);
       expect(find.text('VOICE SYNTAX & CADENCE'), findsOneWidget);
       expect(find.text('DIALOGUE REGISTER SAMPLES'), findsOneWidget);
+      expect(find.byType(CognitiveLoopTimelineWidget), findsOneWidget);
+      expect(find.byType(VoiceRegisterPlayerWidget), findsOneWidget);
 
       // Switch to Lore & Bonds Tab
       await tester.tap(find.text('LORE & BONDS'));
