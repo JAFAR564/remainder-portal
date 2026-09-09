@@ -170,6 +170,11 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text('PAUSE CADENCE'), findsOneWidget);
 
+      // Pause playback so animation settles cleanly
+      await tester.tap(find.text('PAUSE CADENCE'));
+      await tester.pumpAndSettle();
+      expect(find.text('PLAY VOICE CADENCE'), findsOneWidget);
+
       // Switch to Battle register chip
       await tester.tap(find.text('BATTLE'));
       await tester.pumpAndSettle();

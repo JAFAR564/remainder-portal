@@ -38,6 +38,8 @@ class _VoiceRegisterPlayerWidgetState extends State<VoiceRegisterPlayerWidget> w
   late AnimationController _animController;
   int _selectedRegisterIndex = 0;
   bool _isPlaying = false;
+  int _playbackLoops = 0;
+  static const int _maxLoops = 3; // ~2.7s simulated cadence duration
 
   static const List<_VoiceRegisterData> _registers = [
     _VoiceRegisterData(
@@ -106,7 +108,18 @@ class _VoiceRegisterPlayerWidgetState extends State<VoiceRegisterPlayerWidget> w
       duration: const Duration(milliseconds: 900),
     )..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
-          _animController.reverse();
+          _playbackLoops++;
+          if (_playbackLoops >= _maxLoops) {
+            if (mounted) {
+              setState(() {
+                _isPlaying = false;
+                _playbackLoops = 0;
+              });
+            }
+            _animController.reset();
+          } else {
+            _animController.reverse();
+          }
         } else if (status == AnimationStatus.dismissed && _isPlaying) {
           _animController.forward();
         }
@@ -122,10 +135,11 @@ class _VoiceRegisterPlayerWidgetState extends State<VoiceRegisterPlayerWidget> w
   void _togglePlayback() {
     setState(() {
       _isPlaying = !_isPlaying;
+      _playbackLoops = 0;
       if (_isPlaying) {
         _animController.forward();
       } else {
-        _animController.stop();
+        _animController.reset();
       }
     });
   }
@@ -236,6 +250,9 @@ class _VoiceRegisterPlayerWidgetState extends State<VoiceRegisterPlayerWidget> w
                     onTap: () {
                       setState(() {
                         _selectedRegisterIndex = idx;
+                        _isPlaying = false;
+                        _playbackLoops = 0;
+                        _animController.reset();
                       });
                     },
                     borderRadius: BorderRadius.circular(8),
