@@ -164,7 +164,7 @@ class QuestDecreeWidget extends ConsumerWidget {
                         const Icon(Icons.stars, color: Color(0xFF6E473B), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          '+${quest.essenceReward} ESSENCE',
+                          '+${quest.rewardEssence} ESSENCE',
                           style: const TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 9,
@@ -189,7 +189,7 @@ class QuestDecreeWidget extends ConsumerWidget {
                         const Icon(Icons.workspace_premium, color: Color(0xFFA78D78), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          '+${quest.laurelReward} LAURELS',
+                          '+${quest.rewardLaurels} LAURELS',
                           style: const TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 9,
