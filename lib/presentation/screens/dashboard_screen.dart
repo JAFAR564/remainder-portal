@@ -191,7 +191,7 @@ class DashboardScreen extends ConsumerWidget {
                                   const Text('✦ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 13)),
                                   Expanded(
                                     child: Text(
-                                      playerName,
+                                      playerName.toUpperCase(),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -483,7 +483,7 @@ class DashboardScreen extends ConsumerWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             decoration: BoxDecoration(
               color: const Color(0xFFFAF7F0),
               borderRadius: BorderRadius.circular(12),
@@ -500,16 +500,21 @@ class DashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Icon(icon, size: 14, color: color),
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontFamily: 'serif',
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF291C0E),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontFamily: 'serif',
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF291C0E),
+                        ),
                       ),
                     ),
                   ],

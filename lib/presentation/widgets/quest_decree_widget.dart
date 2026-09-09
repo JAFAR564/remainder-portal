@@ -147,8 +147,9 @@ class QuestDecreeWidget extends ConsumerWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
                 children: [
                   // Rewards Chips
                   Container(
@@ -175,7 +176,6 @@ class QuestDecreeWidget extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
