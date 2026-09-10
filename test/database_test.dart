@@ -173,7 +173,7 @@ void main() {
       userId: 'operator_wallet_test',
       essenceBalance: 2500,
       laurelBalance: 320,
-      experiencePoints: 8850,
+      experiencePoints: 765000,
       currentLevel: 88,
       unallocatedAttributePoints: 2,
       lastUpdated: now,
@@ -186,7 +186,7 @@ void main() {
     expect(retrieved!.userId, 'operator_wallet_test');
     expect(retrieved.essenceBalance, 2500);
     expect(retrieved.laurelBalance, 320);
-    expect(retrieved.experiencePoints, 8850);
+    expect(retrieved.experiencePoints, 765000);
     expect(retrieved.currentLevel, 88);
     expect(retrieved.unallocatedAttributePoints, 2);
     expect(retrieved.levelProgress, greaterThan(0.0));

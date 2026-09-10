@@ -23,7 +23,7 @@ class SovereignRepository {
       userId: userId,
       essenceBalance: 1000,
       laurelBalance: 150,
-      experiencePoints: 8800,
+      experiencePoints: 765000,
       currentLevel: 88,
       unallocatedAttributePoints: 0,
       lastUpdated: DateTime.now(),

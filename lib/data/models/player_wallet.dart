@@ -12,7 +12,7 @@ class PlayerWallet {
     required this.userId,
     this.essenceBalance = 1000,
     this.laurelBalance = 150,
-    this.experiencePoints = 8800,
+    this.experiencePoints = 765000,
     this.currentLevel = 88,
     this.unallocatedAttributePoints = 0,
     required this.lastUpdated,
@@ -29,7 +29,13 @@ class PlayerWallet {
     final range = nextLevelThreshold - currentLevelBaseXp;
     if (range <= 0) return 1.0;
     final progressInTier = experiencePoints - currentLevelBaseXp;
-    return (progressInTier / range).clamp(0.0, 1.0);
+    if (progressInTier > 0) {
+      return (progressInTier / range).clamp(0.0, 1.0);
+    }
+    if (experiencePoints > 0 && nextLevelThreshold > 0) {
+      return (experiencePoints / nextLevelThreshold).clamp(0.0, 1.0);
+    }
+    return 0.0;
   }
 
   PlayerWallet copyWith({
@@ -69,7 +75,7 @@ class PlayerWallet {
       userId: json['user_id'] as String,
       essenceBalance: (json['essence_balance'] as num?)?.toInt() ?? 1000,
       laurelBalance: (json['laurel_balance'] as num?)?.toInt() ?? 150,
-      experiencePoints: (json['experience_points'] as num?)?.toInt() ?? 8800,
+      experiencePoints: (json['experience_points'] as num?)?.toInt() ?? 765000,
       currentLevel: (json['current_level'] as num?)?.toInt() ?? 88,
       unallocatedAttributePoints: (json['unallocated_attribute_points'] as num?)?.toInt() ?? 0,
       lastUpdated: json['last_updated'] != null

@@ -278,7 +278,7 @@ class PlayerWallets extends Table {
   TextColumn get userId => text()();
   IntColumn get essenceBalance => integer().withDefault(const Constant(1000))();
   IntColumn get laurelBalance => integer().withDefault(const Constant(150))();
-  IntColumn get experiencePoints => integer().withDefault(const Constant(8800))();
+  IntColumn get experiencePoints => integer().withDefault(const Constant(765000))();
   IntColumn get currentLevel => integer().withDefault(const Constant(88))();
   IntColumn get unallocatedAttributePoints => integer().withDefault(const Constant(0))();
   DateTimeColumn get lastUpdated => dateTime()();
@@ -473,7 +473,7 @@ class AppDatabase extends _$AppDatabase {
         user_id TEXT NOT NULL PRIMARY KEY,
         essence_balance INTEGER NOT NULL DEFAULT 1000,
         laurel_balance INTEGER NOT NULL DEFAULT 150,
-        experience_points INTEGER NOT NULL DEFAULT 8800,
+        experience_points INTEGER NOT NULL DEFAULT 765000,
         current_level INTEGER NOT NULL DEFAULT 88,
         unallocated_attribute_points INTEGER NOT NULL DEFAULT 0,
         last_updated INTEGER NOT NULL
@@ -651,7 +651,7 @@ class AppDatabase extends _$AppDatabase {
           userId: userId,
           essenceBalance: 1000,
           laurelBalance: 150,
-          experiencePoints: 8800,
+          experiencePoints: 765000,
           currentLevel: 88,
           unallocatedAttributePoints: 0,
           lastUpdated: DateTime.now(),
