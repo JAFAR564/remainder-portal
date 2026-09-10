@@ -3,6 +3,11 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
+import '../models/player_wallet.dart';
+import '../models/equipment_item_model.dart';
+import '../models/quest_decree_model.dart';
+import '../models/oracle_record.dart';
+import '../models/social_bulletin_model.dart';
 
 part 'database_service.g.dart';
 
@@ -267,6 +272,101 @@ class UtrcsCharacters extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+// Phase 5: Player Wallet & Currencies Table
+class PlayerWallets extends Table {
+  TextColumn get userId => text()();
+  IntColumn get essenceBalance => integer().withDefault(const Constant(1000))();
+  IntColumn get laurelBalance => integer().withDefault(const Constant(150))();
+  IntColumn get experiencePoints => integer().withDefault(const Constant(8800))();
+  IntColumn get currentLevel => integer().withDefault(const Constant(88))();
+  IntColumn get unallocatedAttributePoints => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastUpdated => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {userId};
+}
+
+// Phase 5: Imperial Relic Vault & Equipment Table
+class EquipmentItems extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()();
+  TextColumn get slot => text()(); // 'WEAPON', 'ARMOR', 'RELIC', 'CHARM'
+  TextColumn get name => text()();
+  TextColumn get rarity => text()(); // 'common', 'rare', 'celestial', 'sovereign'
+  TextColumn get statBonus => text()();
+  TextColumn get description => text()();
+  TextColumn get iconName => text().withDefault(const Constant('shield'))();
+  IntColumn get upgradeLevel => integer().withDefault(const Constant(0))();
+  BoolColumn get isEquipped => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get acquiredAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Phase 5: World Arbiter Quest Decrees Table
+class QuestDecrees extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()();
+  TextColumn get title => text()();
+  TextColumn get sectorId => text()();
+  TextColumn get sectorName => text()();
+  TextColumn get decreeText => text()();
+  IntColumn get rewardEssence => integer().withDefault(const Constant(750))();
+  IntColumn get rewardLaurels => integer().withDefault(const Constant(50))();
+  RealColumn get progress => real().withDefault(const Constant(0.65))();
+  BoolColumn get isUrgent => boolean().withDefault(const Constant(true))();
+  BoolColumn get isClaimed => boolean().withDefault(const Constant(false))();
+  TextColumn get difficulty => text().withDefault(const Constant('S-RANK'))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Phase 5: Oracle Divination History Table
+class OracleHistories extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text()();
+  IntColumn get d20Roll => integer()();
+  TextColumn get outcomeTier => text()();
+  TextColumn get blessingText => text()();
+  TextColumn get buffGranted => text().nullable()();
+  DateTimeColumn get timestamp => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Phase 5: Sanctuary Social Posts Table
+class SocialPosts extends Table {
+  TextColumn get id => text()();
+  TextColumn get authorId => text()();
+  TextColumn get authorName => text()();
+  TextColumn get authorTitle => text()();
+  TextColumn get avatarPath => text().withDefault(const Constant('assets/icon/app_icon.png'))();
+  TextColumn get content => text()();
+  BoolColumn get isIc => boolean().withDefault(const Constant(true))();
+  IntColumn get laurelsCount => integer().withDefault(const Constant(0))();
+  IntColumn get commentsCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// Phase 5: Sanctuary Social Comments Table
+class SocialComments extends Table {
+  TextColumn get id => text()();
+  TextColumn get postId => text().references(SocialPosts, #id)();
+  TextColumn get authorName => text()();
+  TextColumn get content => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   Users,
   StoryThreads,
@@ -287,12 +387,18 @@ class UtrcsCharacters extends Table {
   TradeEscrow,
   CreatorContent,
   UtrcsCharacters,
+  PlayerWallets,
+  EquipmentItems,
+  QuestDecrees,
+  OracleHistories,
+  SocialPosts,
+  SocialComments,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -330,6 +436,9 @@ class AppDatabase extends _$AppDatabase {
             );
           ''');
         }
+        if (from < 5) {
+          await _createV5Tables();
+        }
       },
       beforeOpen: (OpeningDetails details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
@@ -346,11 +455,100 @@ class AppDatabase extends _$AppDatabase {
             updated_at INTEGER NOT NULL
           );
         ''');
+        // Ensure Phase 5 tables exist on cold boots & in-memory testing
+        await _createV5Tables();
       },
     );
   }
 
-  // UTRCS Character Persistence Helpers
+  Future<void> _createV5Tables() async {
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS player_wallets (
+        user_id TEXT NOT NULL PRIMARY KEY,
+        essence_balance INTEGER NOT NULL DEFAULT 1000,
+        laurel_balance INTEGER NOT NULL DEFAULT 150,
+        experience_points INTEGER NOT NULL DEFAULT 8800,
+        current_level INTEGER NOT NULL DEFAULT 88,
+        unallocated_attribute_points INTEGER NOT NULL DEFAULT 0,
+        last_updated INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS equipment_items (
+        id TEXT NOT NULL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        slot TEXT NOT NULL,
+        name TEXT NOT NULL,
+        rarity TEXT NOT NULL,
+        stat_bonus TEXT NOT NULL,
+        description TEXT NOT NULL,
+        icon_name TEXT NOT NULL DEFAULT 'shield',
+        upgrade_level INTEGER NOT NULL DEFAULT 0,
+        is_equipped INTEGER NOT NULL DEFAULT 0,
+        acquired_at INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS quest_decrees (
+        id TEXT NOT NULL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        sector_id TEXT NOT NULL,
+        sector_name TEXT NOT NULL,
+        decree_text TEXT NOT NULL,
+        reward_essence INTEGER NOT NULL DEFAULT 750,
+        reward_laurels INTEGER NOT NULL DEFAULT 50,
+        progress REAL NOT NULL DEFAULT 0.65,
+        is_urgent INTEGER NOT NULL DEFAULT 1,
+        is_claimed INTEGER NOT NULL DEFAULT 0,
+        difficulty TEXT NOT NULL DEFAULT 'S-RANK',
+        created_at INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS oracle_histories (
+        id TEXT NOT NULL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        d20_roll INTEGER NOT NULL,
+        outcome_tier TEXT NOT NULL,
+        blessing_text TEXT NOT NULL,
+        buff_granted TEXT,
+        timestamp INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS social_posts (
+        id TEXT NOT NULL PRIMARY KEY,
+        author_id TEXT NOT NULL,
+        author_name TEXT NOT NULL,
+        author_title TEXT NOT NULL,
+        avatar_path TEXT NOT NULL DEFAULT 'assets/icon/app_icon.png',
+        content TEXT NOT NULL,
+        is_ic INTEGER NOT NULL DEFAULT 1,
+        laurels_count INTEGER NOT NULL DEFAULT 0,
+        comments_count INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('''
+      CREATE TABLE IF NOT EXISTS social_comments (
+        id TEXT NOT NULL PRIMARY KEY,
+        post_id TEXT NOT NULL REFERENCES social_posts (id) ON DELETE CASCADE,
+        author_name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+    ''');
+    await customStatement('CREATE INDEX IF NOT EXISTS idx_equipment_user_slot ON equipment_items(user_id, slot);');
+    await customStatement('CREATE INDEX IF NOT EXISTS idx_quests_user ON quest_decrees(user_id);');
+    await customStatement('CREATE INDEX IF NOT EXISTS idx_oracle_user_time ON oracle_histories(user_id, timestamp DESC);');
+    await customStatement('CREATE INDEX IF NOT EXISTS idx_social_posts_time ON social_posts(created_at DESC);');
+    await customStatement('CREATE INDEX IF NOT EXISTS idx_social_comments_post ON social_comments(post_id, created_at ASC);');
+  }
+
+  // ==========================================
+  // Phase 4: UTRCS Character Helpers
+  // ==========================================
   Future<void> saveUtrcsCharacter({
     required String id,
     String? userId,
@@ -387,6 +585,505 @@ class AppDatabase extends _$AppDatabase {
     ''').get();
     if (rows.isEmpty) return null;
     return rows.first.data;
+  }
+
+  // ==========================================
+  // Phase 5: Player Wallet & Currency Engine
+  // ==========================================
+  Future<PlayerWallet?> getPlayerWallet(String userId) async {
+    final rows = await customSelect(
+      'SELECT user_id, essence_balance, laurel_balance, experience_points, current_level, unallocated_attribute_points, last_updated '
+      'FROM player_wallets WHERE user_id = ? LIMIT 1;',
+      variables: [Variable.withString(userId)],
+    ).get();
+    if (rows.isEmpty) return null;
+    final row = rows.first.data;
+    return PlayerWallet(
+      userId: row['user_id'] as String,
+      essenceBalance: (row['essence_balance'] as num).toInt(),
+      laurelBalance: (row['laurel_balance'] as num).toInt(),
+      experiencePoints: (row['experience_points'] as num).toInt(),
+      currentLevel: (row['current_level'] as num).toInt(),
+      unallocatedAttributePoints: (row['unallocated_attribute_points'] as num).toInt(),
+      lastUpdated: DateTime.fromMillisecondsSinceEpoch(row['last_updated'] as int),
+    );
+  }
+
+  Future<void> savePlayerWallet(PlayerWallet wallet) async {
+    await customStatement('''
+      INSERT INTO player_wallets (user_id, essence_balance, laurel_balance, experience_points, current_level, unallocated_attribute_points, last_updated)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id) DO UPDATE SET
+        essence_balance = excluded.essence_balance,
+        laurel_balance = excluded.laurel_balance,
+        experience_points = excluded.experience_points,
+        current_level = excluded.current_level,
+        unallocated_attribute_points = excluded.unallocated_attribute_points,
+        last_updated = excluded.last_updated;
+    ''', [
+      wallet.userId,
+      wallet.essenceBalance,
+      wallet.laurelBalance,
+      wallet.experiencePoints,
+      wallet.currentLevel,
+      wallet.unallocatedAttributePoints,
+      wallet.lastUpdated.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<PlayerWallet> adjustWalletBalance({
+    required String userId,
+    int essenceDelta = 0,
+    int laurelDelta = 0,
+    int xpDelta = 0,
+    int pointsDelta = 0,
+  }) async {
+    return await transaction(() async {
+      var current = await getPlayerWallet(userId);
+      if (current == null) {
+        current = PlayerWallet(
+          userId: userId,
+          essenceBalance: 1000,
+          laurelBalance: 150,
+          experiencePoints: 8800,
+          currentLevel: 88,
+          unallocatedAttributePoints: 0,
+          lastUpdated: DateTime.now(),
+        );
+        await savePlayerWallet(current);
+      }
+
+      final newEssence = current.essenceBalance + essenceDelta;
+      final newLaurel = current.laurelBalance + laurelDelta;
+      if (newEssence < 0) {
+        throw StateError('Insufficient Essence balance: required ${-essenceDelta}, available ${current.essenceBalance}');
+      }
+      if (newLaurel < 0) {
+        throw StateError('Insufficient Laurel balance: required ${-laurelDelta}, available ${current.laurelBalance}');
+      }
+
+      final newXp = (current.experiencePoints + xpDelta).clamp(0, 9999999);
+      final newPoints = (current.unallocatedAttributePoints + pointsDelta).clamp(0, 999);
+
+      var level = current.currentLevel;
+      while (newXp >= level * level * 100) {
+        level++;
+      }
+
+      final updated = current.copyWith(
+        essenceBalance: newEssence,
+        laurelBalance: newLaurel,
+        experiencePoints: newXp,
+        currentLevel: level,
+        unallocatedAttributePoints: newPoints,
+        lastUpdated: DateTime.now(),
+      );
+
+      await savePlayerWallet(updated);
+      return updated;
+    });
+  }
+
+  // ==========================================
+  // Phase 5: Imperial Relic Vault & Equipment
+  // ==========================================
+  Future<List<EquipmentItemModel>> getEquipmentForUser(String userId) async {
+    final rows = await customSelect(
+      'SELECT id, user_id, slot, name, rarity, stat_bonus, description, icon_name, upgrade_level, is_equipped, acquired_at '
+      'FROM equipment_items WHERE user_id = ? ORDER BY acquired_at ASC;',
+      variables: [Variable.withString(userId)],
+    ).get();
+
+    return rows.map((r) {
+      final d = r.data;
+      return EquipmentItemModel(
+        id: d['id'] as String,
+        userId: d['user_id'] as String,
+        slot: d['slot'] as String,
+        name: d['name'] as String,
+        rarity: EquipmentRarity.values.firstWhere(
+          (e) => e.name.toLowerCase() == (d['rarity'] as String).toLowerCase(),
+          orElse: () => EquipmentRarity.common,
+        ),
+        statBonus: d['stat_bonus'] as String,
+        description: d['description'] as String,
+        iconName: d['icon_name'] as String? ?? 'shield',
+        upgradeLevel: (d['upgrade_level'] as num).toInt(),
+        isEquipped: d['is_equipped'] == 1,
+        acquiredAt: DateTime.fromMillisecondsSinceEpoch(d['acquired_at'] as int),
+      );
+    }).toList();
+  }
+
+  Future<EquipmentItemModel?> getEquipmentById(String id) async {
+    final rows = await customSelect(
+      'SELECT id, user_id, slot, name, rarity, stat_bonus, description, icon_name, upgrade_level, is_equipped, acquired_at '
+      'FROM equipment_items WHERE id = ? LIMIT 1;',
+      variables: [Variable.withString(id)],
+    ).get();
+    if (rows.isEmpty) return null;
+    final d = rows.first.data;
+    return EquipmentItemModel(
+      id: d['id'] as String,
+      userId: d['user_id'] as String,
+      slot: d['slot'] as String,
+      name: d['name'] as String,
+      rarity: EquipmentRarity.values.firstWhere(
+        (e) => e.name.toLowerCase() == (d['rarity'] as String).toLowerCase(),
+        orElse: () => EquipmentRarity.common,
+      ),
+      statBonus: d['stat_bonus'] as String,
+      description: d['description'] as String,
+      iconName: d['icon_name'] as String? ?? 'shield',
+      upgradeLevel: (d['upgrade_level'] as num).toInt(),
+      isEquipped: d['is_equipped'] == 1,
+      acquiredAt: DateTime.fromMillisecondsSinceEpoch(d['acquired_at'] as int),
+    );
+  }
+
+  Future<void> upsertEquipment(EquipmentItemModel item) async {
+    await customStatement('''
+      INSERT INTO equipment_items (id, user_id, slot, name, rarity, stat_bonus, description, icon_name, upgrade_level, is_equipped, acquired_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        user_id = excluded.user_id,
+        slot = excluded.slot,
+        name = excluded.name,
+        rarity = excluded.rarity,
+        stat_bonus = excluded.stat_bonus,
+        description = excluded.description,
+        icon_name = excluded.icon_name,
+        upgrade_level = excluded.upgrade_level,
+        is_equipped = excluded.is_equipped,
+        acquired_at = excluded.acquired_at;
+    ''', [
+      item.id,
+      item.userId,
+      item.slot,
+      item.name,
+      item.rarity.name,
+      item.statBonus,
+      item.description,
+      item.iconName,
+      item.upgradeLevel,
+      item.isEquipped ? 1 : 0,
+      item.acquiredAt.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<void> equipItem({
+    required String userId,
+    required String itemId,
+    required String slot,
+  }) async {
+    await transaction(() async {
+      await customStatement(
+        'UPDATE equipment_items SET is_equipped = 0 WHERE user_id = ? AND slot = ? AND is_equipped = 1;',
+        [userId, slot],
+      );
+      await customStatement(
+        'UPDATE equipment_items SET is_equipped = 1, slot = ? WHERE id = ? AND user_id = ?;',
+        [slot, itemId, userId],
+      );
+    });
+  }
+
+  Future<void> unequipItem({
+    required String userId,
+    required String itemId,
+  }) async {
+    await customStatement(
+      'UPDATE equipment_items SET is_equipped = 0 WHERE id = ? AND user_id = ?;',
+      [itemId, userId],
+    );
+  }
+
+  Future<EquipmentItemModel> upgradeEquipment({
+    required String itemId,
+    required String userId,
+    required int costEssence,
+  }) async {
+    return await transaction(() async {
+      await adjustWalletBalance(userId: userId, essenceDelta: -costEssence);
+
+      await customStatement(
+        'UPDATE equipment_items SET upgrade_level = upgrade_level + 1 WHERE id = ? AND user_id = ?;',
+        [itemId, userId],
+      );
+
+      final updated = await getEquipmentById(itemId);
+      if (updated == null) throw StateError('Item $itemId not found after upgrade');
+      return updated;
+    });
+  }
+
+  // ==========================================
+  // Phase 5: World Arbiter Quest Decrees
+  // ==========================================
+  Future<List<QuestDecreeModel>> getQuestDecreesForUser(String userId) async {
+    final rows = await customSelect(
+      'SELECT id, user_id, title, sector_id, sector_name, decree_text, reward_essence, reward_laurels, progress, is_urgent, is_claimed, difficulty, created_at '
+      'FROM quest_decrees WHERE user_id = ? ORDER BY created_at DESC;',
+      variables: [Variable.withString(userId)],
+    ).get();
+
+    return rows.map((r) {
+      final d = r.data;
+      return QuestDecreeModel(
+        id: d['id'] as String,
+        userId: d['user_id'] as String,
+        title: d['title'] as String,
+        sectorId: d['sector_id'] as String,
+        sectorName: d['sector_name'] as String,
+        decreeText: d['decree_text'] as String,
+        rewardEssence: (d['reward_essence'] as num).toInt(),
+        rewardLaurels: (d['reward_laurels'] as num).toInt(),
+        progress: (d['progress'] as num).toDouble(),
+        isUrgent: d['is_urgent'] == 1,
+        isClaimed: d['is_claimed'] == 1,
+        difficulty: d['difficulty'] as String? ?? 'S-RANK',
+        createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
+      );
+    }).toList();
+  }
+
+  Future<QuestDecreeModel?> getQuestDecreeById(String id) async {
+    final rows = await customSelect(
+      'SELECT id, user_id, title, sector_id, sector_name, decree_text, reward_essence, reward_laurels, progress, is_urgent, is_claimed, difficulty, created_at '
+      'FROM quest_decrees WHERE id = ? LIMIT 1;',
+      variables: [Variable.withString(id)],
+    ).get();
+    if (rows.isEmpty) return null;
+    final d = rows.first.data;
+    return QuestDecreeModel(
+      id: d['id'] as String,
+      userId: d['user_id'] as String,
+      title: d['title'] as String,
+      sectorId: d['sector_id'] as String,
+      sectorName: d['sector_name'] as String,
+      decreeText: d['decree_text'] as String,
+      rewardEssence: (d['reward_essence'] as num).toInt(),
+      rewardLaurels: (d['reward_laurels'] as num).toInt(),
+      progress: (d['progress'] as num).toDouble(),
+      isUrgent: d['is_urgent'] == 1,
+      isClaimed: d['is_claimed'] == 1,
+      difficulty: d['difficulty'] as String? ?? 'S-RANK',
+      createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
+    );
+  }
+
+  Future<void> upsertQuestDecree(QuestDecreeModel quest) async {
+    await customStatement('''
+      INSERT INTO quest_decrees (id, user_id, title, sector_id, sector_name, decree_text, reward_essence, reward_laurels, progress, is_urgent, is_claimed, difficulty, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        user_id = excluded.user_id,
+        title = excluded.title,
+        sector_id = excluded.sector_id,
+        sector_name = excluded.sector_name,
+        decree_text = excluded.decree_text,
+        reward_essence = excluded.reward_essence,
+        reward_laurels = excluded.reward_laurels,
+        progress = excluded.progress,
+        is_urgent = excluded.is_urgent,
+        is_claimed = excluded.is_claimed,
+        difficulty = excluded.difficulty,
+        created_at = excluded.created_at;
+    ''', [
+      quest.id,
+      quest.userId,
+      quest.title,
+      quest.sectorId,
+      quest.sectorName,
+      quest.decreeText,
+      quest.rewardEssence,
+      quest.rewardLaurels,
+      quest.progress,
+      quest.isUrgent ? 1 : 0,
+      quest.isClaimed ? 1 : 0,
+      quest.difficulty,
+      quest.createdAt.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<void> updateQuestProgress({required String questId, required double progress}) async {
+    await customStatement(
+      'UPDATE quest_decrees SET progress = ? WHERE id = ?;',
+      [progress.clamp(0.0, 1.0), questId],
+    );
+  }
+
+  Future<bool> claimQuestReward({
+    required String questId,
+    required String userId,
+  }) async {
+    return await transaction(() async {
+      final rows = await customSelect(
+        'SELECT id, user_id, reward_essence, reward_laurels, progress, is_claimed '
+        'FROM quest_decrees WHERE id = ? AND user_id = ? LIMIT 1;',
+        variables: [Variable.withString(questId), Variable.withString(userId)],
+      ).get();
+
+      if (rows.isEmpty) {
+        throw StateError('Quest decree $questId not found for user $userId');
+      }
+
+      final row = rows.first.data;
+      final isClaimed = row['is_claimed'] == 1;
+      final progress = (row['progress'] as num).toDouble();
+      final rewardEssence = (row['reward_essence'] as num).toInt();
+      final rewardLaurels = (row['reward_laurels'] as num).toInt();
+
+      if (progress < 1.0) {
+        throw StateError('Quest decree is not yet completed (progress: $progress)');
+      }
+
+      if (isClaimed) {
+        return false;
+      }
+
+      await customStatement(
+        'UPDATE quest_decrees SET is_claimed = 1 WHERE id = ?;',
+        [questId],
+      );
+
+      await adjustWalletBalance(
+        userId: userId,
+        essenceDelta: rewardEssence,
+        laurelDelta: rewardLaurels,
+      );
+
+      return true;
+    });
+  }
+
+  // ==========================================
+  // Phase 5: Oracle Divination Chronicle
+  // ==========================================
+  Future<void> recordOracleDivination(OracleRecord record) async {
+    await customStatement('''
+      INSERT INTO oracle_histories (id, user_id, d20_roll, outcome_tier, blessing_text, buff_granted, timestamp)
+      VALUES (?, ?, ?, ?, ?, ?, ?);
+    ''', [
+      record.id,
+      record.userId,
+      record.d20Roll,
+      record.outcomeTier,
+      record.blessingText,
+      record.buffGranted,
+      record.timestamp.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<List<OracleRecord>> getOracleHistoryForUser(String userId, {int limit = 10}) async {
+    final rows = await customSelect(
+      'SELECT id, user_id, d20_roll, outcome_tier, blessing_text, buff_granted, timestamp '
+      'FROM oracle_histories WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?;',
+      variables: [Variable.withString(userId), Variable.withInt(limit)],
+    ).get();
+
+    return rows.map((r) {
+      final d = r.data;
+      return OracleRecord(
+        id: d['id'] as String,
+        userId: d['user_id'] as String,
+        d20Roll: (d['d20_roll'] as num).toInt(),
+        outcomeTier: d['outcome_tier'] as String,
+        blessingText: d['blessing_text'] as String,
+        buffGranted: d['buff_granted'] as String?,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(d['timestamp'] as int),
+      );
+    }).toList();
+  }
+
+  // ==========================================
+  // Phase 5: Sanctuary Social Bulletin
+  // ==========================================
+  Future<List<SocialPostEntry>> getSocialPosts({int limit = 20}) async {
+    final rows = await customSelect(
+      'SELECT id, author_id, author_name, author_title, avatar_path, content, is_ic, laurels_count, comments_count, created_at '
+      'FROM social_posts ORDER BY created_at DESC LIMIT ?;',
+      variables: [Variable.withInt(limit)],
+    ).get();
+
+    return rows.map((r) {
+      final d = r.data;
+      return SocialPostEntry(
+        id: d['id'] as String,
+        authorId: d['author_id'] as String,
+        authorName: d['author_name'] as String,
+        authorTitle: d['author_title'] as String,
+        avatarPath: d['avatar_path'] as String? ?? 'assets/icon/app_icon.png',
+        content: d['content'] as String,
+        isIC: d['is_ic'] == 1,
+        laurelsCount: (d['laurels_count'] as num).toInt(),
+        commentsCount: (d['comments_count'] as num).toInt(),
+        createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
+      );
+    }).toList();
+  }
+
+  Future<void> createSocialPost(SocialPostEntry post) async {
+    await customStatement('''
+      INSERT INTO social_posts (id, author_id, author_name, author_title, avatar_path, content, is_ic, laurels_count, comments_count, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    ''', [
+      post.id,
+      post.authorId,
+      post.authorName,
+      post.authorTitle,
+      post.avatarPath,
+      post.content,
+      post.isIC ? 1 : 0,
+      post.laurelsCount,
+      post.commentsCount,
+      post.createdAt.millisecondsSinceEpoch,
+    ]);
+  }
+
+  Future<void> addLaurelToPost({required String postId, required String userId}) async {
+    await customStatement(
+      'UPDATE social_posts SET laurels_count = laurels_count + 1 WHERE id = ?;',
+      [postId],
+    );
+  }
+
+  Future<List<SocialCommentEntry>> getCommentsForPost(String postId) async {
+    final rows = await customSelect(
+      'SELECT id, post_id, author_name, content, created_at '
+      'FROM social_comments WHERE post_id = ? ORDER BY created_at ASC;',
+      variables: [Variable.withString(postId)],
+    ).get();
+
+    return rows.map((r) {
+      final d = r.data;
+      return SocialCommentEntry(
+        id: d['id'] as String,
+        postId: d['post_id'] as String,
+        authorName: d['author_name'] as String,
+        content: d['content'] as String,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
+      );
+    }).toList();
+  }
+
+  Future<void> addCommentToPost(SocialCommentEntry comment) async {
+    await transaction(() async {
+      await customStatement('''
+        INSERT INTO social_comments (id, post_id, author_name, content, created_at)
+        VALUES (?, ?, ?, ?, ?);
+      ''', [
+        comment.id,
+        comment.postId,
+        comment.authorName,
+        comment.content,
+        comment.createdAt.millisecondsSinceEpoch,
+      ]);
+      await customStatement(
+        'UPDATE social_posts SET comments_count = comments_count + 1 WHERE id = ?;',
+        [comment.postId],
+      );
+    });
   }
 }
 

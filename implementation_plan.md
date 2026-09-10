@@ -1,573 +1,656 @@
-# Master Dashboard Celestial Astrolabe Redesign
+# Sovereign Dashboard Interactivity Upgrade
 
 ## 1. Executive Summary
 
-This document defines the architectural blueprint, design system specification, responsive layout strategy, and execution contract for redesigning the **Master Dashboard** in **The Remainder Portal** (`remainder_portal`).
+This document defines the architectural blueprint, domain design, persistence contracts, and execution plan for evolving the **Master Dashboard** in **The Remainder Portal** (`remainder_portal`) from a primarily display-oriented surface into a **fully interactive, persistent Sovereign Command Deck**.
 
-While Phase 4 successfully transformed the [`CharacterDossierScreen`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/character_dossier_screen.dart) into a luxury **Celestial Astrolabe Parchment** interface (utilizing the master 5-color palette, astrolabe glyphs, double-border containers, and tactile decision engines), the primary landing surface—[`DashboardScreen`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)—remains constructed from generic, flat white cards (`color: Colors.white`). Furthermore, production testing on the primary target mobile device (**Honor X8**, viewport width $\approx 360\text{dp} - 392\text{dp}$) revealed **seven severe horizontal RenderFlex overflow exceptions** across the equipment slots, oracle header, quest progress row, vitality header, community wall header, and social post action bars.
+Following the successful completion of Thread B's Celestial Astrolabe visual overhaul and layout hardening, the visual layer is stable, responsive across mobile viewports (Honor X8), and verified in Cloud CI. However, a deep architectural audit reveals that several core interactions are currently **display-only stubs, ephemeral in-memory state, or destructive prototypes**:
+1. **Equipment Slots:** Unequipping an item permanently deletes it from memory; tapping an empty slot does nothing because there is no backing Vault/Inventory browser.
+2. **Quest Decrees:** Quest progress is locked at 65%; there is no mechanism to advance progress, claim rewards, deposit currencies into a persistent wallet, or dispatch new decrees.
+3. **Oracle Divination:** D20 rolls generate a temporary string in local widget state with zero gameplay consequences, zero buff tracking, and zero persistence.
+4. **Vessel Vitality & Essence:** The telemetry modal is read-only; no alchemical restoration, healing, or attribute point allocation exists.
+5. **Sanctuary Bulletin:** Comments and Share buttons are empty closures (`onTap: () {}`), and there is no composer to author new broadcasts.
+6. **Sovereign Waygates:** The six portal tiles navigate correctly, but render static labels with zero live telemetry from their underlying subsystems.
 
-This plan establishes the architecture to:
-1. **Unify the Design Language:** Bring the exact celestial astrolabe parchment aesthetic from the Character Dossier to the Dashboard using shared, reusable UI primitives.
-2. **Eliminate 100% of RenderFlex Overflows:** Surgically re-engineer every unconstrained horizontal layout with mathematically responsive flex constraints.
-3. **Preserve Business Logic & Contracts:** Maintain complete compatibility with all Riverpod providers, SQLite persistence, Patrol E2E tests, and navigation routes.
+### The Sovereign Command Deck Principle
+The Master Dashboard is **strictly a command and telemetry surface**, not the domain engine of the universe. The Dashboard must never directly mutate database tables, duplicate combat math, or become a bloated monolith. Every interaction on the Dashboard must follow a strict unidirectional domain pipeline:
+$$\text{Dashboard UI} \longrightarrow \text{Domain Command / Notifier} \longrightarrow \text{Repository / Service} \longrightarrow \text{Drift Transaction} \longrightarrow \text{Provider Invalidation} \longrightarrow \text{Dashboard Re-render}$$
 
----
-
-## 2. Current Dashboard Architecture
-
-### 2.1 File & Route Map
-- **Primary Screen File:** [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
-- **Parent Shell:** [`lib/presentation/screens/main_navigation_shell.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/main_navigation_shell.dart)
-- **Navigation Structure:** Hosted as child `0` of an `IndexedStack` inside `MainNavigationShell`, with `extendBody: true` to accommodate the floating [`CelestialBottomNavbar`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/celestial_bottom_navbar.dart).
-- **Current Scroll Structure:** `RefreshIndicator` $\rightarrow$ `SingleChildScrollView` (physics: `AlwaysScrollableScrollPhysics`) $\rightarrow$ `Padding(fromLTRB(20, 20, 20, 96))` $\rightarrow$ `Column(crossAxisAlignment: CrossAxisAlignment.start)`. The bottom inset of `96dp` ensures the floating navigation bar does not occlude the final community feed items.
-
-### 2.2 Dependency & State Hierarchy
-
-```
-MainNavigationShell (Scaffold, extendBody: true)
-  └── IndexedStack (index: 0)
-        └── DashboardScreen (ConsumerWidget)
-              ├── ref.watch(playerProfileProvider) ──> PlayerProfile (id, name, origin, stats)
-              │     └── stats: CharacterSheet (shieldIntegrity, energyReserve, computePower)
-              ├── ref.watch(socialFeedProvider) ─────> List<SocialPostModel> (laurels, comments, IC/OOC)
-              │
-              ├── Section 1: Operator Sovereign Crest (InkWell -> CharacterDossierScreen)
-              ├── Section 2: EquipmentSlotsWidget
-              │     └── ref.watch(equippedGearProvider) ──> List<EquippedGearItem> (slot, rarity, stats)
-              │           └── Tap -> EquipmentDetailSheet.show(context, item)
-              ├── Section 3: AetherResonanceOracleWidget (StatefulWidget)
-              │     └── _communeWithArbiter() -> Random D20 roll + blessing string
-              ├── Section 4: QuestDecreeWidget
-              │     └── ref.watch(activeQuestProvider) ───> ActiveQuestModel (progress, reward, sector)
-              │           └── Tap -> Navigator.push(DescentScreen)
-              ├── Section 5: Stat Gauges (HP, MP, SP)
-              │     └── Tap -> _showVesselAttributesSheet(context, vitality, aether, essence)
-              ├── Section 6: Sovereign Realms Grid (GridView.count via LayoutBuilder)
-              │     ├── DescentScreen
-              │     ├── TerminalScreen (Sanctuary Chat)
-              │     ├── ExpeditionScreen (Squads)
-              │     ├── GuildScreen
-              │     ├── ChronoLoomScreen (Canon Lore)
-              │     └── TradeScreen (Market)
-              └── Section 7: Community Wall Feed
-                    └── ListView / mapped children ──> SocialPostCard (StatefulWidget)
-```
+This plan establishes the architecture to unlock 100% interactive, persistent capabilities across all seven operational areas without breaking existing test suites, database integrity, or offline-first guarantees.
 
 ---
 
-## 3. Character Dossier Design-System Audit
+## 2. Current System Audit
 
-The upgraded Character Dossier ([`CharacterDossierScreen`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/character_dossier_screen.dart)) and its newly implemented subcomponents ([`want_vs_need_scale_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/want_vs_need_scale_widget.dart), [`capability_anatomy_card.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/capability_anatomy_card.dart), [`cognitive_loop_timeline_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/cognitive_loop_timeline_widget.dart), [`voice_register_player_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/voice_register_player_widget.dart)) establish the verified visual benchmark.
-
-### 3.1 Verified Visual Elements
-1. **Parchment Card Surfaces:** Replaced cold `#FFFFFF` with warm parchment tones: `const Color(0xFFFAF7F0)` for primary elevated cards and Frosted Cream `const Color(0xFFE1D4C2).withValues(alpha: 0.45)` for inner indented panels.
-2. **Double-Border Astrolabe Construction:** Outer border with Warm Terracotta (`0xFF6E473B`) or Almond Taupe (`0xFFA78D78`) at `1.6dp - 1.8dp`, paired with subtle inner container borders at `1.0dp`.
-3. **Corner Glyphs & Astrolabe Motifs:** Use of Unicode astral markers (`✦ `, `⟐ `, `◈ `) in section headings and dialog titles.
-4. **Typography Hierarchy:**
-   - Primary Titles & Screen Headers: `fontFamily: 'serif'`, `fontWeight: FontWeight.bold`, color `0xFF6E473B`, uppercase with letter-spacing `1.2` to `1.5`.
-   - Technical Metadata, Badges, & Roll Tags: `fontFamily: 'monospace'`, `fontSize: 8` to `10`, `fontWeight: FontWeight.bold`.
-   - Body & Narrative Prose: Inter / system default, `fontSize: 11` to `13`, color `0xFF291C0E` (Deep Espresso), height `1.35` to `1.4`.
-5. **Elevation & Shadow Language:** Soft, ambient warm shadows: `BoxShadow(color: Color(0xFF6E473B).withValues(alpha: 0.12 - 0.16), blurRadius: 12 - 16, offset: Offset(0, 4))`.
-
----
-
-## 4. Canonical Design Tokens
-
-The repository defines its master tokens in [`lib/app/theme/portal_theme.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/app/theme/portal_theme.dart). The Character Dossier and Phase 4 enhancements refined these into an ancient sovereign manuscript system.
-
-### 4.1 Color Palette Truth Table
-
-| Token Name | Hex Code | Verified Canonical Role |
-| :--- | :--- | :--- |
-| **Canvas Background** | `#E1D4C2` | Scaffold background (`PortalTheme.cream`). |
-| **Parchment Surface** | `#FAF7F0` | Elevated card & dialog background (`Warm Parchment`). |
-| **Parchment Sub-Surface** | `#E1D4C2` (35–50% alpha) | Indented quote boxes, progress track wells, relic pedestals. |
-| **Deep Espresso** | `#291C0E` | Primary body text, high-contrast values, dark structural borders. |
-| **Warm Terracotta** | `#6E473B` | Primary headings, active borders, buttons, glyphs, sovereign badges. |
-| **Almond Taupe** | `#A78D78` | Secondary borders, unselected tabs, subtitle metadata, stat labels. |
-| **Cashmere Stone** | `#BEB5A9` | Unfilled progress tracks, dividers, disabled states. |
-| **Aether Teal (Relic)** | `#007791` | Verified relic rarity token in `EquipmentRarity.rare` and astral widgets. |
-
-### 4.2 Spacing & Geometry Tokens
-- **Outer Screen Margin:** `20.0dp` horizontal, `20.0dp` top, `96.0dp` bottom.
-- **Card Padding:** `16.0dp` standard, `12.0dp` compact.
-- **Card Corner Radius:** `BorderRadius.circular(16.0)`.
-- **Inner Pill Radius:** `BorderRadius.circular(6.0 - 8.0)`.
-- **Standard Border Width:** `1.6dp - 1.8dp` (outer), `1.0dp` (inner).
-- **Minimum Interactive Touch Target:** `44.0dp x 44.0dp` (WCAG 2.1 AA compliant).
-
----
-
-## 5. Dashboard Section Inventory
-
-The Dashboard consists of seven distinct operational sections:
-
-| # | Section Name | Source Widget / Location | Backing Model / Provider | Primary Interaction |
+| Section | Current UI Widget | Current Backing Source | Current Behavior | Architectural Limitation / Gap |
 | :--- | :--- | :--- | :--- | :--- |
-| **1** | **Operator Sovereign Crest** | `dashboard_screen.dart:140-254` | `playerProfileProvider` (`PlayerProfile`) | Tap opens `CharacterDossierScreen`. |
-| **2** | **Equipment Relic Pedestals** | `equipment_slots_widget.dart` | `equippedGearProvider` (`EquippedGearItem`) | Tap slot opens `EquipmentDetailSheet`. |
-| **3** | **Aether Resonance Oracle** | `aether_resonance_oracle_widget.dart` | Local RNG + D20 state | Tap rolls D20, updates blessing. |
-| **4** | **World Arbiter Quest Decree** | `quest_decree_widget.dart` | `activeQuestProvider` (`ActiveQuestModel`) | Tap CTA navigates to `DescentScreen`. |
-| **5** | **Sovereign Vitality & Essence** | `dashboard_screen.dart:270-342` | `profile.stats` (`CharacterSheet`) | Tap tile/inspect opens Telemetry sheet. |
-| **6** | **Sovereign Realms Grid** | `dashboard_screen.dart:345-422` | Static routing table | Tap routes to 6 subsystem screens. |
-| **7** | **Sanctuary Bulletin Wall** | `dashboard_screen.dart:425-455` & `social_post_card.dart` | `socialFeedProvider` (`SocialPostModel`) | Tap laurel increments count; pull-to-refresh. |
+| **1. Operator Crest** | `dashboard_screen.dart:148-272` | `playerProfileProvider` (null fallback) | Static "Level 88", hardcoded string name fallback, tap opens `CharacterDossierScreen`. | Level/XP is hardcoded; does not dynamically react to active UTRCS character edits or level-ups. |
+| **2. Equipment Slots** | `equipment_slots_widget.dart` | `equippedGearProvider` (in-memory) | Displays 4 fixed items; tap opens `EquipmentDetailSheet`. Tap empty slot = `null`. Unequip deletes item. | No inventory vault exists; unequipped items are permanently lost; no re-equip flow; no upgrade system. |
+| **3. Aether Oracle** | `aether_resonance_oracle_widget.dart` | Local widget `State` (`_lastRoll`) | Rolls D20, delays 400ms, picks 1 of 5 hardcoded strings. | Purely ephemeral; no buffs applied; no expiration timer; no persistent divination chronicle. |
+| **4. Quest Decree** | `quest_decree_widget.dart` | `activeQuestProvider` (`StateProvider`) | Shows fixed quest (65% progress). "Depart" pushes `DescentScreen`. | Read-only state; no purge action; no reward claiming; no player wallet to receive Essence/Laurels; no quest dispatcher. |
+| **5. Vitality Gauges** | `dashboard_screen.dart:288-352` | `profile?.stats` (null fallback: 16, 18, 14) | Shows 3 capsule meters. Tap opens read-only telemetry modal. | Read-only; no alchemical healing; no aether channeling; no attribute allocation on level-up. |
+| **6. Waygate Hubs** | `dashboard_screen.dart:354-427` | Static routing table | 6 tiles navigate to Descent, Chat, Squads, Guilds, Canon, Market. | Zero live badges or telemetry reflecting pending trades, unread chat, active squads, or active lore votes. |
+| **7. Bulletin Wall** | `dashboard_screen.dart:430-455` & `social_post_card.dart` | `socialFeedProvider` (in-memory) | Displays 2 posts; laurel increments locally. Comment & Share buttons have empty `onTap: () {}`. | Comments and Share are dead ends; no composer dialog to post new scrolls; no channel filter (IC vs OOC). |
 
 ---
 
-## 6. Responsive / RenderFlex Root-Cause Audit
+## 3. Existing Domain Capabilities
 
-Physical testing on the **Honor X8** captured in `Screenshot_20260909_194811_com_remainder_portal_remainder_portal_MainActivity.jpg` verified seven exact horizontal overflow failures.
+The audit verified that the repository already possesses substantial backend machinery across its subsystems:
 
-```
-Honor X8 Screen Width: ~360dp - 392dp
-Outer Dashboard Padding: 20dp left + 20dp right = 40dp
-Usable Content Canvas: ~320dp - 352dp
-```
-
-### 6.1 Defect 1: Equipment Slots Pedestal Row (`2.7px overflow`)
-* **Location:** [`lib/presentation/widgets/equipment_slots_widget.dart:77-87`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_slots_widget.dart#L77-L87)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: standardSlots.map((slot) => _buildSlot(...)).toList())`
-* **Constraint Failure:** Each `_buildSlot` contains an unconstrained `Column` with a 50x50 box and `Text(item?.name ?? 'Empty')`. Because `item.name` (e.g. `"Astrolabe Core"`, `"Ionic Crystal"`) has intrinsic width without flex constraints, the 4 columns sum to $\approx 322.7\text{dp}$.
-* **Root-Cause Architectural Fix:** Rather than forcing four slots into a single cramped row (which yields only $\approx 73\text{dp}$ per slot on a $320\text{dp}$ canvas and severely compresses visual luxury), implement a responsive layout strategy using [`LayoutBuilder`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_slots_widget.dart):
-  - **Compact Mobile Viewports ($< 340\text{dp}$ inner width, e.g. Honor X8):** Reflow the four slots into an elegant $2 \times 2$ grid (using a responsive 2-column `Wrap` or grid layout). Each relic pedestal gains generous width ($\approx 135 - 145\text{dp}$) allowing the slot category, rarity frame, icon, and item name to render with breathing room and tactile prestige.
-  - **Standard & Wide Viewports ($\ge 340\text{dp}$ inner width):** Render all 4 slots in a single row where each slot is safely flex-bounded via `Expanded` with `TextOverflow.ellipsis`.
-
-### 6.2 Defect 2: Aether Resonance Oracle Header (`37px overflow`)
-* **Location:** [`lib/presentation/widgets/aether_resonance_oracle_widget.dart:59-95`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart#L59-L95)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Row(children: [Icon(...), SizedBox(width: 8), Text('AETHER RESONANCE ORACLE')]), Container(child: Text('D20 ORACLE: $_lastRoll'))])`
-* **Constraint Failure:** The title `Row` has unbounded width. Total width needed = $18\text{px (icon)} + 8\text{px} + 225\text{px (text)} + 95\text{px (badge)} + 32\text{px (card padding)} = 378\text{px} > 320\text{px}$.
-* **Root-Cause Architectural Fix:** Wrap the title `Row` in `Expanded`, and wrap the `Text('AETHER RESONANCE ORACLE')` in `Expanded(child: Text(..., overflow: TextOverflow.ellipsis))`.
-
-### 6.3 Defect 3: World Arbiter Quest Target Sector Row (`49px overflow`)
-* **Location:** [`lib/presentation/widgets/quest_decree_widget.dart:109-130`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_widget.dart#L109-L130)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('TARGET SECTOR: ${quest.sectorName.toUpperCase()}'), Text('${(quest.progress * 100).toStringAsFixed(0)}% ANOMALY PURGED')])`
-* **Constraint Failure:** Sector name `"SANCTUARY 4 (AETHER SPIRE)"` is 34 characters long. Combined with `"65% ANOMALY PURGED"` (19 chars), the row requires $369\text{px} > 320\text{px}$.
-* **Root-Cause Architectural Fix:** Wrap `Text('TARGET SECTOR: ...')` in `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`. Keep the percentage badge fixed on the trailing side.
-
-### 6.4 Defect 4: Sovereign Vitality Header Row (`24px overflow`)
-* **Location:** [`lib/presentation/screens/dashboard_screen.dart:270-300`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart#L270-L300)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('SOVEREIGN VITALITY & ESSENCE GAUGES', style: TextStyle(letterSpacing: 1.2)), InkWell(child: Text('INSPECT ℹ'))])`
-* **Constraint Failure:** 35-character heading with letter-spacing $1.2$ requires $288\text{px}$. `INSPECT ℹ` requires $60\text{px}$. Sum = $348\text{px} > 320\text{px}$.
-* **Root-Cause Architectural Fix:** Wrap the section title in `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`.
-
-### 6.5 Defect 5: Community Wall Feed Header Row (`57px overflow`)
-* **Location:** [`lib/presentation/screens/dashboard_screen.dart:426-450`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart#L426-L450)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('SOVEREIGN COMMUNITY WALL & NEWS FEED', style: TextStyle(letterSpacing: 1.5)), Text('${socialPosts.length} POSTS')])`
-* **Constraint Failure:** 37-character title with letter-spacing $1.5$ requires $325\text{px}$. Adding trailing text yields $377\text{px} > 320\text{px}$.
-* **Root-Cause Architectural Fix:** Wrap the title in `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`.
-
-### 6.6 Defect 6 & 7: Social Post Reaction Bar (`15px & 22px overflow`)
-* **Location:** [`lib/presentation/widgets/social_post_card.dart:176-235`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_card.dart#L176-L235)
-* **Code:** `Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [InkWell(child: Padding(padding: EdgeInsets.symmetric(horizontal: 12), ...)), ...])`
-* **Constraint Failure:** 3 buttons with $12\text{px}$ horizontal padding on each side consumes $72\text{px}$ in padding alone. Post 1 (`"7 COMMENTS"`) overflows by $15\text{px}$. Post 2 (`"12 COMMENTS"`) overflows by $22\text{px}$.
-* **Root-Cause Architectural Fix:** Wrap each of the 3 action buttons in an [`Expanded`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_card.dart) widget, reduce button horizontal padding to $4\text{px}$, and wrap the text in `Flexible(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))`.
+1. **Universal Roleplay Character System (UTRCS):**
+   - File: [`lib/data/models/utrcs_character.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/models/utrcs_character.dart)
+   - Persistence: `utrcs_characters` table in Drift SQLite (Schema v4).
+   - Provider: [`utrcsCharacterProvider`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/utrcs_provider.dart) with full JSON serialization, capability lists, and psychological layers.
+2. **AI Story Generation & GM Service:**
+   - File: [`lib/data/services/litert_service.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/litert_service.dart)
+   - Capabilities: Cloud Firebase Genkit routing with local fallback to deterministic D20 narrative rule engine.
+3. **P2P Squad Matrix & Cooperative Checks:**
+   - File: [`lib/presentation/providers/expedition_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/expedition_provider.dart)
+   - Persistence: `expeditions` and `expedition_members` tables.
+   - Capabilities: D20 skill checks combining player stats, leader attributes, and trust scores.
+4. **Sovereign Guilds & Governance:**
+   - File: [`lib/presentation/providers/guild_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/guild_provider.dart)
+   - Persistence: `guilds`, `guild_members`, `governance_rules` tables.
+   - Capabilities: Guild creation, treasury balance management, sector laws.
+5. **Chrono-Loom Canon Lore Voting:**
+   - File: [`lib/presentation/providers/chrono_loom_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/chrono_loom_provider.dart)
+   - Persistence: `lore_proposals` and `lore_history` tables.
+   - Capabilities: Proposal submission, yes/no vote casting, quorum calculation.
+6. **Escrow Trade Matrix:**
+   - File: [`lib/presentation/providers/economy_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/economy_provider.dart)
+   - Persistence: `player_trades` and `trade_escrow` tables.
+   - Capabilities: Multi-item trade negotiation, energy escrow, atomic state transitions (`pending` $\rightarrow$ `escrowLocked` $\rightarrow$ `completed`).
 
 ---
 
-## 7. Proposed Component Architecture
+## 4. Missing Capabilities
 
-To prevent code duplication and guarantee strict visual parity between the Dossier and Dashboard, Thread B will introduce **two shared design primitives** into `lib/presentation/widgets/`:
+The audit revealed specific architectural gaps preventing true interactivity:
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                      SHARED DESIGN PRIMITIVES                          │
-├────────────────────────────────────────────────────────────────────────┤
-│ 1. [CelestialPanel] Reusable double-border parchment card container    │
-│ 2. [AstrolabeSectionHeader] Reusable responsive section header row     │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-### 7.1 Primitive 1: `CelestialPanel`
-* **File:** [`lib/presentation/widgets/celestial_panel.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/celestial_panel.dart) `[NEW]`
-* **Purpose:** Provides the canonical parchment container for all Dashboard sections.
-* **API:**
-  ```dart
-  class CelestialPanel extends StatelessWidget {
-    final Widget child;
-    final EdgeInsetsGeometry padding;
-    final EdgeInsetsGeometry? margin;
-    final VoidCallback? onTap;
-    final Color backgroundColor;
-    final Color borderColor;
-    final double borderWidth;
-    final bool showAstrolabeCorners;
-    
-    const CelestialPanel({
-      super.key,
-      required this.child,
-      this.padding = const EdgeInsets.all(16.0),
-      this.margin,
-      this.onTap,
-      this.backgroundColor = const Color(0xFFFAF7F0),
-      this.borderColor = const Color(0xFFA78D78),
-      this.borderWidth = 1.6,
-      this.showAstrolabeCorners = false,
-    });
-  }
-  ```
-* **Styling:**
-  - Background: `0xFFFAF7F0` (Warm Parchment).
-  - Outer border: `Border.all(color: borderColor, width: borderWidth)`.
-  - Corner radius: `BorderRadius.circular(16.0)`.
-  - Ambient shadow: `BoxShadow(color: Color(0xFF6E473B).withValues(alpha: 0.12), blurRadius: 14, offset: Offset(0, 4))`.
-  - Optional `InkWell` wrapper if `onTap` is provided.
-
-### 7.2 Primitive 2: `AstrolabeSectionHeader`
-* **File:** [`lib/presentation/widgets/astrolabe_section_header.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/astrolabe_section_header.dart) `[NEW]`
-* **Purpose:** Standardizes all section headers across the app with guaranteed flex safety.
-* **API:**
-  ```dart
-  class AstrolabeSectionHeader extends StatelessWidget {
-    final String title;
-    final String glyph;
-    final Widget? trailing;
-    final double letterSpacing;
-    
-    const AstrolabeSectionHeader({
-      super.key,
-      required this.title,
-      this.glyph = '✦',
-      this.trailing,
-      this.letterSpacing = 1.2,
-    });
-  }
-  ```
-* **Styling & Responsive Rules:**
-  - Structure: `Row(children: [Text('$glyph '), Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false)), if (trailing != null) trailing!])`.
-  - Responsive Constraint Note: While `Expanded` restricts the title widget to the remaining parent flex width, proper defensive text parameters (`maxLines: 1`, `overflow: TextOverflow.ellipsis`, `softWrap: false`) and safe min-content handling are explicitly required to prevent typography and unbreakable token overflow.
-  - Typography: `fontFamily: 'serif'`, `fontSize: 12`, `fontWeight: FontWeight.bold`, color: `0xFF6E473B`.
+1. **Player Wallet & Currency System:**
+   - There is no persistent player currency store for `Essence` or `Laurels`.
+   - The `Users` table lacks currency columns.
+   - Claiming quest rewards or paying for equipment upgrades currently has no transactional destination.
+2. **Equipment Vault & Inventory Management:**
+   - While Drift has a `CharacterInventory` table, it is completely disconnected from `EquippedGearItem` and has no concept of gear slots (`WEAPON`, `ARMOR`, etc.) or equipping states.
+   - There is no repository or provider to query unequipped items.
+3. **Quest State Management:**
+   - `activeQuestProvider` is a static `StateProvider<ActiveQuestModel>`.
+   - There is no `QuestNotifier` to mutate progress, mark decrees as claimed, or fetch new decrees.
+4. **Oracle Buff Engine & History:**
+   - There is no data model or provider for active temporary buffs.
+   - There is no table to record past D20 divination rolls.
+5. **Social Bulletin Interaction:**
+   - There is no `CommentModel`, no `comments` table, and no `addComment` or `createPost` method.
 
 ---
 
-## 8. Section-by-Section Implementation Plan
+## 5. State Ownership Matrix
 
-### 8.1 Operator Sovereign Crest
-* **Target File:** [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
-* **Changes:**
-  1. Wrap in `CelestialPanel(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CharacterDossierScreen())))`.
-  2. Avatar Frame: Upgrade circular container with dual-ring terracotta-taupe borders (`width: 2.0`) and subtle astrolabe radial glow.
-  3. Title Area: Add `'✦ '` glyph prefix, serif typography (`fontSize: 15`, `color: Color(0xFF6E473B)`), and S-Rank Vanguard brass seal subtitle.
-  4. Level Badge: Style as an **Astrolabe Dial** with concentric circular rings, `LEVEL` in monospace (`fontSize: 8`, `color: Color(0xFF6E473B)`), and `'88'` in bold serif (`fontSize: 16`, `color: Color(0xFF291C0E)`).
-* **Preserved:** All semantics labels (`Semantics(label: ...)`), navigation callback to `CharacterDossierScreen`, and string assertions for tests (`OPERATOR`, `LEVEL`, `88`).
+To prevent the Dashboard from becoming a monolithic second source of truth, state ownership is assigned strictly to domain owners:
 
-### 8.2 Equipment Relic Pedestals
-* **Target File:** [`lib/presentation/widgets/equipment_slots_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_slots_widget.dart)
-* **Changes:**
-  1. Wrap outer card in `CelestialPanel`.
-  2. Replace header with `AstrolabeSectionHeader(title: 'EQUIPMENT & GEAR SLOTS', glyph: '⟐', trailing: Text('${gearList.length}/4 EQUIPPED'))`.
-  3. Implement responsive layout via `LayoutBuilder`:
-     - **Compact Viewports ($< 340\text{dp}$, e.g. Honor X8):** Render a responsive $2 \times 2$ grid (using a 2-column `Wrap` or two paired rows) with $8\text{dp}$ padding/spacing. Each slot receives $\approx 135 - 145\text{dp}$ of width, giving full breathing room for the slot name (`WEAPON`, `ARMOR`, etc.), rarity aura, icon, and item name without visual cramping.
-     - **Standard Viewports ($\ge 340\text{dp}$):** Render 4 slots in a single `Row` with each wrapped in `Expanded`.
-  4. Pedestal Styling: 
-     - Rarity frames: Sovereign (Terracotta `#6E473B`), Celestial (Taupe `#A78D78`), Relic (Teal `#007791`), Common (Cashmere `#BEB5A9`).
-     - Indented pedestal well: `Color(0xFFE1D4C2).withValues(alpha: 0.4)`.
-     - Item name label: `maxLines: 1, overflow: TextOverflow.ellipsis`.
-* **Preserved:** `equippedGearProvider` subscription, `EquipmentDetailSheet.show(context, item)` tap callback, and slot labels (`WEAPON`, `ARMOR`, `RELIC`, `CHARM`).
-
-### 8.3 Aether Resonance Oracle
-* **Target File:** [`lib/presentation/widgets/aether_resonance_oracle_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart)
-* **Changes:**
-  1. Wrap outer card in `CelestialPanel`.
-  2. Header: Replace unconstrained `Row` with `Row(children: [const Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 16), const SizedBox(width: 8), Expanded(child: Text('AETHER RESONANCE ORACLE', ...)), Container(child: Text('D20 ORACLE: $_lastRoll'))])`.
-  3. Prophecy Scroll: Indent container with Frosted Cream parchment fill (`0xFFE1D4C2`, alpha 0.45), border `0xFFA78D78`, and quotation marks (`“$_divineBlessing”`) in italic serif font.
-  4. CTA Button: Style `ElevatedButton` with Warm Terracotta background (`#6E473B`), Frosted Cream text (`#E1D4C2`), and embossed double border.
-* **Preserved:** `_communeWithArbiter()` RNG logic, `_lastRoll` state, and button text `'COMMUNE WITH WORLD ARBITER (ROLL D20)'`.
-
-### 8.4 World Arbiter Quest Decree
-* **Target File:** [`lib/presentation/widgets/quest_decree_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_widget.dart)
-* **Changes:**
-  1. Wrap outer container in `CelestialPanel`.
-  2. Header Row: Ensure `Expanded(child: Text('WORLD ARBITER QUEST DECREE', ...))` preserves room for `URGENT` and `S-RANK` badges.
-  3. Target Sector Row: Wrap `Text('TARGET SECTOR: ...')` in `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))` so long sector names never overflow.
-  4. Anomaly Purge Track: Custom animated celestial track using Cashmere track background and Warm Terracotta fill.
-  5. Reward Chips: Style as antique minted medallions (`+750 ESSENCE`, `+50 LAURELS`).
-* **Preserved:** `activeQuestProvider` watch, `Navigator.push(context, MaterialPageRoute(builder: (_) => const DescentScreen()))`, and all text assertions.
-
-### 8.5 Sovereign Vitality & Essence Gauges
-* **Target File:** [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
-* **Changes:**
-  1. Replace custom title row with:
-     ```dart
-     AstrolabeSectionHeader(
-       title: 'SOVEREIGN VITALITY & ESSENCE GAUGES',
-       trailing: InkWell(
-         onTap: () => _showVesselAttributesSheet(context, vitality: vitality, aether: aether, essence: essence),
-         child: const Padding(
-           padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-           child: Text('INSPECT ℹ', style: TextStyle(...)),
-         ),
-       ),
-     )
-     ```
-  2. Stat Tiles: Refactor `_buildAnimatedStatTile` into **Alchemical Capsule Meters**:
-     - Capsule border (`#A78D78`, `width: 1.5`), parchment fill (`#FAF7F0`).
-     - Animated liquid level indicator.
-     - Numeric readout: `$vitality / 20`, `$aether / 20`, `$essence / 20`.
-     - Label with `maxLines: 1, overflow: TextOverflow.ellipsis`.
-* **Preserved:** Backing fields `profile.stats.shieldIntegrity`, `energyReserve`, `computePower`, and telemetry bottom sheet modal.
-
-### 8.6 Sovereign Realms & Communion Hubs
-* **Target File:** [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
-* **Changes:**
-  1. Replace title with `AstrolabeSectionHeader(title: 'SOVEREIGN REALMS & COMMUNION HUBS')`.
-  2. Subsystem Cards: Restyle `_buildSubsystemCard` as **Celestial Waygate Portals**:
-     - Background: `const Color(0xFFFAF7F0)` with dual borders (`#A78D78`, `1.4dp`).
-     - Corner astrolabe tick marks.
-     - Centered icon with glowing circular aura.
-     - Prominent serif title + monospace roleplay subtitle.
-* **Preserved:** Navigation routes to `DescentScreen`, `TerminalScreen`, `ExpeditionScreen`, `GuildScreen`, `ChronoLoomScreen`, and `TradeScreen`.
-
-### 8.7 Sanctuary Bulletin Wall
-* **Target File:** [`lib/presentation/widgets/social_post_card.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_card.dart) & [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
-* **Changes:**
-  1. Header on Dashboard: Replace with `AstrolabeSectionHeader(title: 'SOVEREIGN COMMUNITY WALL & NEWS FEED', trailing: Text('${socialPosts.length} POSTS', ...))`.
-  2. Card Container: Wrap in `CelestialPanel`.
-  3. IC/OOC Badge: IC posts receive Warm Terracotta wax-seal badge (`#6E473B`); OOC posts receive Almond Taupe archival badge (`#A78D78`).
-  4. Reaction Action Bar:
-     - Wrap each button in `Expanded(child: InkWell(...))`.
-     - Set button padding to `EdgeInsets.symmetric(horizontal: 4, vertical: 6)`.
-     - Wrap button labels in `Flexible(child: Text('$_laurels LAURELS', maxLines: 1, overflow: TextOverflow.ellipsis))`.
-* **Preserved:** `_toggleLaurel()` state logic, `_hasLaureled`, `_laurels`, `_comments`, and feed refresh capability.
-
----
-
-## 9. Responsive Breakpoint Strategy
-
-The redesign supports four standardized viewport classes without layout breakage:
-
-```
-┌────────────────────────┬───────────────────┬──────────────────────────────────────┐
-│ VIEWPORT CLASS         │ WIDTH (dp)        │ ADAPTIVE BEHAVIOR                    │
-├────────────────────────┼───────────────────┼──────────────────────────────────────┤
-│ 1. Compact Mobile      │ < 360dp           │ 2-col Waygates grid, compact padding │
-│ 2. Standard Mobile     │ 360dp – 480dp     │ 3-col Waygates grid (Honor X8 target)│
-│ 3. Tablet / Foldable   │ 481dp – 768dp     │ 3-col Waygates grid, wider pedestals │
-│ 4. Desktop / Web       │ > 768dp           │ 6-col Waygates grid, max content 900 │
-└────────────────────────┴───────────────────┴──────────────────────────────────────┘
-```
-
-### Key Breakpoint Adaptations
-- **Waygates Grid:** `final int crossAxisCount = width > 768 ? 6 : (width < 340 ? 2 : 3);`
-- **Equipment Slots:** Always 4 slots side-by-side using flex `Expanded(child: ...)`; minimum card width per slot = $\approx 65\text{dp}$ on a $320\text{dp}$ canvas.
-- **Desktop Content Centering:** Outer `ConstrainedBox(constraints: BoxConstraints(maxWidth: 900))` prevents excessive stretching on Windows Desktop and Web runners.
-
----
-
-## 10. Scroll Architecture
-
-- **Root Structure:** Retains `SingleChildScrollView` wrapped in `RefreshIndicator`.
-- **Nested Scroll Physics:**
-  - The Waygates grid uses `physics: const NeverScrollableScrollPhysics(), shrinkWrap: true`.
-  - The Community feed maps `socialPosts.map((post) => SocialPostCard(...)).toList()` directly into the parent `Column` rather than nesting a second unbounded `ListView`.
-- **Bottom Inset Safety:** Preserves `EdgeInsets.fromLTRB(20, 20, 20, 96)` to eliminate collision with the floating `CelestialBottomNavbar`.
-
----
-
-## 11. State / Business Logic Preservation
-
-The redesign is strictly presentation-tier. **Zero changes** will be made to domain models, data repositories, or state notifiers:
-
-| State Entity | Source File | Contract Requirement |
-| :--- | :--- | :--- |
-| `PlayerProfileNotifier` | [`game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart) | Read-only consumption of profile name, origin, and 3 stat attributes. |
-| `EquippedGearNotifier` | [`game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart) | Read-only consumption of 4 items; `unequipItem()` preserved. |
-| `activeQuestProvider` | [`game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart) | Read-only consumption of quest title, progress, rewards, sector. |
-| `SocialFeedNotifier` | [`game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart) | `refreshFeed()` called on pull-to-refresh; post models preserved. |
-| `D20 Oracle Logic` | [`aether_resonance_oracle_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart) | 400ms delay, `math.Random` roll, and 5 divine blessing strings preserved. |
-
----
-
-## 12. Accessibility
-
-1. **Semantic Hierarchy:** All interactive cards preserve `Semantics(button: true, label: ...)` tags.
-2. **Astrolabe Glyphs:** Decorative astral glyphs (`✦`, `⟐`) are styled purely within text spans or wrapped in `ExcludeSemantics` to prevent screen reader noise.
-3. **Contrast Compliance:** All text pairings meet WCAG 2.1 AA ($4.5:1$ minimum ratio):
-   - Deep Espresso (`#291C0E`) on Warm Parchment (`#FAF7F0`): **$13.2:1$** (Passes AAA).
-   - Warm Terracotta (`#6E473B`) on Warm Parchment (`#FAF7F0`): **$5.8:1$** (Passes AA).
-4. **Touch Target Dimensions:** All buttons, waygate tiles, and equipment slots maintain at least $48\text{dp} \times 48\text{dp}$ tappable bounding boxes.
-
----
-
-## 13. Performance
-
-1. **Repaint Boundaries:** Wrap the animated liquid gauges and Aether Resonance Oracle in `RepaintBoundary` to isolate canvas repaints from the rest of the scroll view.
-2. **Shadow Budget:** Restrict box shadows to a single blur pass per card: `blurRadius: 12.0 - 14.0`, spread: `0`, eliminating expensive multi-layer gaussian blur passes on low-power Mali GPUs (Honor X8).
-3. **Zero Shader Mask / BackdropFilter:** Pure CSS-style container decoration; no real-time blurs or expensive image blend modes.
-
----
-
-## 14. Testing Strategy
-
-### 14.1 Existing Test Suite Preservation
-All 4 existing widget tests in [`test/dashboard_screen_test.dart`](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart) must pass without modification:
-1. `renders all core dashboard components and interactive widgets`
-2. `tapping equipment slot opens EquipmentDetailSheet modal`
-3. `tapping INSPECT opens vessel telemetry attributes sheet`
-4. Patrol E2E assertions (`SOVEREIGN VITALITY & ESSENCE GAUGES`).
-
-### 14.2 New Responsive & Overflow Verification Tests
-Add targeted responsive widget tests in `test/dashboard_screen_test.dart`:
-- **Honor X8 Viewport Test ($360\text{dp} \times 800\text{dp}$):** Pump `DashboardScreen` at $360\text{dp}$ width and verify `tester.takeException()` returns `null` (zero `FlutterError` or `RenderFlex` overflows).
-- **Narrow Viewport Test ($320\text{dp} \times 640\text{dp}$):** Verify extreme narrow constraint does not throw horizontal overflow exceptions.
-- **Equipment Slots Expanded Test:** Verify all 4 gear slot names render without clipping.
-- **Reaction Bar Flex Test:** Verify social post action bar with double-digit comments (`"99 COMMENTS"`) does not overflow.
-
----
-
-## 15. Visual Acceptance Criteria
-
-- [ ] **Zero Yellow/Black RenderFlex Overflows:** Confirmed across $320\text{dp}$, $360\text{dp}$ (Honor X8), $392\text{dp}$, and $768\text{dp}$ widths.
-- [ ] **Parchment Harmony:** Dashboard cards match the warm parchment (`#FAF7F0`) aesthetic of `CharacterDossierScreen`.
-- [ ] **Typography Alignment:** All section titles use serif typography with uppercase styling and astrolabe glyph prefixes.
-- [ ] **Interactive Integrity:** Tapping the header opens `CharacterDossierScreen`; tapping gear opens `EquipmentDetailSheet`; tapping Oracle rolls D20; tapping Quest navigates to `DescentScreen`.
-- [ ] **Cloud CI Pass:** Android, Windows, Web, and Backend runners pass 100% in GitHub Actions.
-
----
-
-## 16. Risk Register
-
-| # | Risk | Severity | Likelihood | Mitigation Strategy | Verification Method |
+| State Entity | Canonical Domain Owner | Storage Mechanism | Riverpod Provider | Dashboard Access | Dashboard Mutation Action |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **R1** | `TextOverflow.ellipsis` clips critical quest or sector names | Medium | Low | Use `Expanded` with flexible text and keep essential tags on trailing edges. | Honor X8 widget test. |
-| **R2** | Equipment slots become too narrow on < 340dp screens | Medium | Low | Ensure icon size ($22\text{dp}$) and slot padding scale dynamically; font size $8\text{dp}$. | $320\text{dp}$ test viewport. |
-| **R3** | Existing test finders break due to widget restructuring | High | Low | Retain exact text tokens (`'OPERATOR'`, `'LEVEL'`, `'88'`, `'EQUIPMENT & GEAR SLOTS'`, etc.). | Run `flutter test test/dashboard_screen_test.dart`. |
-| **R4** | Floating navbar overlaps bottom community posts | High | Very Low | Preserve `96dp` bottom scroll view padding in `DashboardScreen`. | Scroll to bottom test. |
-| **R5** | Repaint thrashing during Oracle d20 roll animation | Low | Low | Isolate Oracle widget inside a `RepaintBoundary`. | Flutter performance profile. |
+| **Active Player Identity** | Identity Domain | Drift `utrcs_characters` & `users` | `utrcsCharacterProvider` | Read Name, Origin, Level | Switch active character |
+| **Player Wallet (Essence, Laurels, XP)** | Economy / Progression Domain | Drift `player_wallet` (New Table) | `playerWalletProvider` (New) | Read Balances, Level, XP | Add rewards, deduct costs |
+| **Equipped Gear** | Equipment Domain | Drift `equipment_items` (New/Migrated) | `equippedGearProvider` | Read 4 active slots | Equip / Unequip / Upgrade |
+| **Vault Inventory** | Equipment Domain | Drift `equipment_items` (New/Migrated) | `equipmentVaultProvider` (New) | Read unequipped items | Filter & select to equip |
+| **Active Session Buffs** | Combat / Buff Domain | In-Memory + SQLite `active_buffs` | `activeBuffsProvider` (New) | Read active multipliers | D20 Oracle invocation |
+| **Oracle History** | Divination Domain | Drift `oracle_history` (New Table) | `oracleHistoryProvider` (New) | Read roll & blessing log | Append new roll |
+| **Active Quest Decree** | Quest Domain | Drift `quest_decrees` (New Table) | `questLifecycleProvider` (New) | Read progress, reward, sector | Purge step, Claim reward |
+| **Vessel Telemetry (HP/MP/SP)** | Character Mechanics | Drift `utrcs_characters` (`mechanical`) | `utrcsCharacterProvider` | Read HP, MP, SP values | Heal HP, Channel MP, Allocate |
+| **Waygate Telemetry Counts** | Subsystem Domains | Derived from respective tables | Selected from existing providers | Read unread/pending badges | Pure navigation trigger |
+| **Sanctuary Social Feed** | Social Domain | Drift `social_posts` & `social_comments` | `socialFeedProvider` | Read post stream | Laurel, Comment, Inscribe, Share |
 
 ---
 
-## 17. File-by-File Change Map
+## 6. Persistence Gap Analysis
+
+| Feature | Current State | Current Persistence | Required Persistence | Domain Owner | Gap Classification |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Player Wallet** | Non-existent | None | Drift Table (`player_wallet`) | Economy | **C — New Domain Capability** |
+| **Level & XP Progress** | Hardcoded ('88') | None | Drift Table (`player_wallet.xp`) | Progression | **B — Small Extension** |
+| **Equipment Vault** | Destructive array | In-Memory only | Drift Table (`equipment_items`) | Equipment | **C — New Domain Capability** |
+| **Equipment Upgrades** | Non-existent | None | Drift Column (`upgrade_level`) | Equipment | **B — Small Extension** |
+| **Oracle Buff Engine** | Widget string | In-Memory only | In-Memory StateNotifier + SQLite | Divination | **B — Small Extension** |
+| **Oracle Chronicle** | Non-existent | None | Drift Table (`oracle_history`) | Divination | **B — Small Extension** |
+| **Quest Progress** | Fixed 0.65 float | In-Memory only | Drift Table (`quest_decrees`) | Quest | **B — Small Extension** |
+| **Quest Claim Idempotency**| Non-existent | None | Drift Column (`is_claimed`) | Quest | **B — Small Extension** |
+| **Vessel Restoration** | Read-only sheet | None | Drift `utrcs_characters` update | Mechanics | **A — Existing Infrastructure** |
+| **Waygate Telemetry** | Static strings | None | Derived in-memory from providers | Telemetry | **A — Existing Infrastructure** |
+| **Social Comments** | Empty callback | None | Drift Table (`social_comments`) | Social | **C — New Domain Capability** |
+| **Social Post Composer**| Non-existent | None | Drift Table (`social_posts`) | Social | **B — Small Extension** |
+
+---
+
+## 7. Dashboard Interaction Architecture
+
+Every interaction on the Dashboard adheres to a strict Command-Query Separation pattern:
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        FILE-BY-FILE CHANGE MAP                         │
-├────────────────────────────────────────────────────────────────────────┤
-│ 1. [NEW] lib/presentation/widgets/celestial_panel.dart                 │
-│ 2. [NEW] lib/presentation/widgets/astrolabe_section_header.dart        │
-│ 3. [MODIFY] lib/presentation/widgets/equipment_slots_widget.dart       │
-│ 4. [MODIFY] lib/presentation/widgets/aether_resonance_oracle_widget.dart│
-│ 5. [MODIFY] lib/presentation/widgets/quest_decree_widget.dart          │
-│ 6. [MODIFY] lib/presentation/widgets/social_post_card.dart             │
-│ 7. [MODIFY] lib/presentation/screens/dashboard_screen.dart             │
-│ 8. [MODIFY] test/dashboard_screen_test.dart                            │
-└────────────────────────────────────────────────────────────────────────┘
+[DashboardScreen / Sub-Widget]
+           │
+           │ 1. User Dispatches Action (e.g. Tap "CLAIM REWARD" or "EQUIP")
+           ▼
+[Domain StateNotifier] (e.g. QuestLifecycleNotifier / EquipmentNotifier)
+           │
+           │ 2. Validates Business Rules & Preconditions (e.g. Progress == 1.0, Balance >= Cost)
+           ▼
+[Drift AppDatabase]
+           │
+           │ 3. Executes Atomic Transaction (e.g. Mark Claimed + Deposit Currency)
+           ▼
+[Riverpod State Invalidation]
+           │
+           │ 4. Emits fresh immutable State to subscribers
+           ▼
+[DashboardScreen Widget Tree]
+           │
+           │ 5. Smoothly re-renders updated gauges, badges, and buttons
 ```
 
-### 1. `lib/presentation/widgets/celestial_panel.dart` `[NEW]`
-- **Responsibility:** Reusable parchment card container.
-- **Changes:** Create component implementing double-border parchment styling (`0xFFFAF7F0`, `0xFFA78D78`, `0xFF6E473B`).
-- **Must Preserve:** Pure presentation; no state.
-- **Risk:** Low.
-
-### 2. `lib/presentation/widgets/astrolabe_section_header.dart` `[NEW]`
-- **Responsibility:** Standardized responsive section header row.
-- **Changes:** Create component with glyph prefix, serif title in `Expanded`, and optional trailing widget.
-- **Must Preserve:** Text string matching for test finders.
-- **Risk:** Low.
-
-### 3. `lib/presentation/widgets/equipment_slots_widget.dart` `[MODIFY]`
-- **Responsibility:** Equipment slots card.
-- **Changes:** Use `CelestialPanel`, `AstrolabeSectionHeader`, and wrap slots in `Expanded` to fix the 2.7px overflow.
-- **Must Preserve:** `equippedGearProvider`, `EquipmentDetailSheet.show(context, item)`.
-- **Risk:** Low.
-
-### 4. `lib/presentation/widgets/aether_resonance_oracle_widget.dart` `[MODIFY]`
-- **Responsibility:** D20 divine communion widget.
-- **Changes:** Use `CelestialPanel`, wrap header in `Expanded` to fix the 37px overflow, style prophecy scroll.
-- **Must Preserve:** `_communeWithArbiter()`, RNG timing, blessing strings.
-- **Risk:** Low.
-
-### 5. `lib/presentation/widgets/quest_decree_widget.dart` `[MODIFY]`
-- **Responsibility:** World Arbiter quest decree card.
-- **Changes:** Use `CelestialPanel`, wrap sector name in `Expanded` to fix the 49px overflow.
-- **Must Preserve:** `activeQuestProvider`, `DescentScreen` navigation, reward numbers.
-- **Risk:** Low.
-
-### 6. `lib/presentation/widgets/social_post_card.dart` `[MODIFY]`
-- **Responsibility:** Sanctuary bulletin community post card.
-- **Changes:** Use `CelestialPanel`, wrap action buttons in `Expanded` to fix the 15px & 22px overflows.
-- **Must Preserve:** `_toggleLaurel()`, laurel/comment counters, author info.
-- **Risk:** Low.
-
-### 7. `lib/presentation/screens/dashboard_screen.dart` `[MODIFY]`
-- **Responsibility:** Master dashboard assembly and telemetry sheet.
-- **Changes:** Upgrade Operator Crest, Vitality header (`AstrolabeSectionHeader` fixes 24px overflow), Alchemical Capsule Meters, Waygates styling, and Community header (`AstrolabeSectionHeader` fixes 57px overflow).
-- **Must Preserve:** Provider subscriptions, navigation shell integration, 96dp bottom padding.
-- **Risk:** Medium.
-
-### 8. `test/dashboard_screen_test.dart` `[MODIFY]`
-- **Responsibility:** Dashboard regression & responsive tests.
-- **Changes:** Add Honor X8 ($360\text{dp}$) and narrow ($320\text{dp}$) viewport overflow tests; verify all existing tests pass.
-- **Must Preserve:** Existing 4 test cases.
-- **Risk:** Low.
+Rules:
+1. **Zero Direct SQL in UI:** Widgets never reference `_db.into(...)` or raw queries.
+2. **Zero Game Logic in UI:** Widgets do not calculate XP curves, stat formulas, or RNG weighting.
+3. **Atomic Transactions:** Any multi-table mutation (e.g., deducting Essence while adding an item attribute) must occur inside `_db.transaction(...)`.
 
 ---
 
-## 18. Implementation Order
+## 8. Section 1 — Operator Sovereign Crest
 
-Thread B must execute the redesign in this precise sequential order:
+### 8.1 Level & XP Progression
+* **Current Behavior:** Hardcoded text `'88'`.
+* **Target Architecture:**
+  1. Progression Formula: $\text{Level} = 1 + \lfloor \sqrt{\text{XP} / 100} \rfloor$. Threshold for next level: $\text{NextXP} = (\text{Level})^2 \times 100$.
+  2. Level Dial: Renders dynamic level derived from `playerWalletProvider.select((w) => w.level)`.
+  3. Progression Modal: Tapping the Level dial opens the **"Vanguard Sovereign Rank & Progression"** sheet:
+     - Current Level & Astral Rank (e.g. *Level 88: High Sovereign Sentinel*).
+     - Progress Bar: $\text{XP in current tier} / \text{XP required for next tier}$.
+     - Unlocked Sovereign Privileges (e.g. *Access to Sector 4 Sanctum, +10% Escrow Trading Limit*).
+
+### 8.2 Active UTRCS Identity Switching
+* **Target Architecture:**
+  1. Tapping the circular Avatar Crest displays the **"Sovereign Vessel Manifest"** modal.
+  2. Queries all saved characters from `utrcs_characters` table.
+  3. Selecting a character calls `ref.read(utrcsCharacterProvider.notifier).switchActiveCharacter(characterId)`.
+  4. **Atomic Dependency Cascading:** When active character switches:
+     - `playerProfileProvider` updates immediately.
+     - Vitality, Aether, and System gauges recalculate based on the new character's `baseStats`.
+     - Equipment slots refresh to display the new character's gear.
+
+---
+
+## 9. Section 2 — Equipment & Imperial Vault
+
+### 9.1 The Imperial Relic Vault Flow
+To resolve the destructive deletion bug and provide full inventory management:
+1. **Empty Slot Tap:**
+   - Tapping an empty slot (`item == null`) triggers `ImperialVaultSheet.show(context, slot: slot)`.
+   - The Vault queries all unequipped items matching that slot type from `equipmentVaultProvider`.
+   - Displays items with rarity borders, stat bonuses, and an **"EQUIP RELIC"** button.
+   - Tapping "EQUIP" calls `ref.read(equippedGearProvider.notifier).equipItem(item)`:
+     - Moves item to equipped state.
+     - Saves state to Drift database.
+     - Recalculates player vessel attribute bonuses.
+2. **Safe Unequip Flow:**
+   - In [`EquipmentDetailSheet`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_detail_sheet.dart), tapping **"UNEQUIP"**:
+     - Does **NOT** delete the item.
+     - Returns the item to the Vault inventory list (`isEquipped = false`).
+     - Clears the active slot on the Dashboard.
+     - Displays a confirmation toast: `"${item.name} returned to Imperial Vault"`.
+
+### 9.2 Relic Infusion & Upgrade System
+* In `EquipmentDetailSheet`, add an **"INFUSE AETHER (UPGRADE)"** action:
+  - Displays upgrade cost: $50 \times (\text{currentLevel} + 1)$ Essence.
+  - Validates player has sufficient Essence via `playerWalletProvider`.
+  - Transaction: Deducts Essence from wallet $\rightarrow$ increments item `upgradeLevel` $\rightarrow$ increases stat bonus by $+2$ $\rightarrow$ persists to Drift.
+  - If player lacks Essence, button is disabled with tooltip: *"Insufficient Essence (Requires X)"*.
+
+---
+
+## 10. Section 3 — Oracle & Buff Engine
+
+### 10.1 Generic Buff Model
+```dart
+enum BuffType { aetherMultiplier, questRewardBoost, computeFocus, anomalyTurbulence }
+
+class ActiveBuff {
+  final String id;
+  final BuffType type;
+  final String title;
+  final double multiplier;
+  final DateTime expiresAt;
+  
+  bool get isExpired => DateTime.now().isAfter(expiresAt);
+}
+```
+
+### 10.2 D20 Outcome Mechanics
+* **Natural 20 (Critical Harmonic Consensus):**
+  - Grants `BuffType.questRewardBoost` ($+20\%$ rewards for 30 minutes).
+  - Instantly restores Aether Reserve to $100\%$.
+* **Roll 15–19 (Aether Resonance):**
+  - Grants `BuffType.computeFocus` ($+15\%$ Compute Power in terminal chats for 15 minutes).
+* **Roll 6–14 (Stable Leyline Equilibrium):**
+  - Grants standard blessing flavor text; mild vitality shield buffer ($+2$ temporary shield).
+* **Roll 1–5 (Anomaly Turbulence):**
+  - Applies a minor anomaly warning (aesthetic screen pulse; prompt to cleanse in Descent).
+
+### 10.3 Oracle Chronicle History
+* Every invocation records an entry into `oracle_history` table: `id`, `roll`, `blessing_text`, `timestamp`.
+* Tapping the `D20 ORACLE: X` badge opens the **"Chronicle of Celestial Divination"** modal showing past rolls and time remaining on active blessings.
+
+---
+
+## 11. Section 4 — Quest Decree Lifecycle
+
+### 11.1 Quest Ownership & Separation of Concerns
+* **The Rule:** Complex dungeon combat and deep lore encounters belong inside **Descent**, not inline on the dashboard card.
+* **Dashboard Role:**
+  1. **Purge Anomaly Mini-Check:** Tapping a new secondary action **"COMMUNE PURGE"** on the card allows the player to perform an active skill check using their character's `computePower` or `shieldIntegrity`.
+     - Success advances anomaly purge progress by $+15\%$ (e.g. $65\% \rightarrow 80\% \rightarrow 95\% \rightarrow 100\%$).
+     - Displays brief narrative toast from `LiteRtService`.
+  2. **Deep Descent:** Tapping **"DEPART ON QUEST"** routes to `DescentScreen` with the active quest parameters pre-loaded.
+
+### 11.2 Atomic Reward Claiming
+* When progress reaches $1.0$ ($100\%$), the button changes to a glowing Warm Terracotta **"CLAIM REWARDS"** button.
+* Tapping "CLAIM REWARDS" executes an **idempotent transaction**:
+  ```dart
+  await _db.transaction(() async {
+    final quest = await _db.getQuest(questId);
+    if (quest.isClaimed) return; // Prevent double-claim replay
+    await _db.markQuestClaimed(questId);
+    await _db.depositCurrency(essence: quest.rewardEssence, laurels: quest.rewardLaurels);
+    await _db.addExperience(xp: 250);
+  });
+  ```
+* UI plays celebration animation and prompts **"DISPATCH NEXT DECREE"**.
+
+### 11.3 Procedural Decree Dispatcher
+* Minimal, deterministic generator creates the next decree based on player rank and sector:
+  - Selects sector from OKF repository (e.g. *Sanctuary 4 Spire*, *Neon Bastion*, *Abyssal Rift*).
+  - Scales anomaly difficulty ($C \rightarrow B \rightarrow A \rightarrow S$).
+  - Calculates rewards scaled to difficulty.
+
+---
+
+## 12. Section 5 — Sovereign Vitality & Alchemical Restoration
+
+### 12.1 Semantic Resource Definitions
+* **Vitality (HP) $\rightarrow$ Shield Integrity:** Absorbs physical shock and anomaly strain. Default: $16 / 20$.
+* **Aether (MP) $\rightarrow$ Energy Reserve:** Powers active capabilities and cooperative leylines. Default: $18 / 20$.
+* **System (SP) $\rightarrow$ Compute Power:** Powers local AI decryptors and governance votes. Default: $14 / 20$.
+
+### 12.2 Alchemical Restoration Engine
+In the **"Soul Vessel Attribute Telemetry"** bottom sheet ([`_showVesselAttributesSheet`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart#L22-L96)), replace the static dismiss button with interactive sovereign restoration actions:
+1. **"Synthesize Nanite Salve (Restore HP)":**
+   - Cost: $15$ Essence.
+   - Restores Shield Integrity back to $20/20$.
+   - Triggers dynamic fluid fill animation in the Vitality capsule meter.
+2. **"Meditate upon Astral Leylines (Restore MP)":**
+   - Cost: Free (with a 2-minute cooldown) or $10$ Essence.
+   - Restores Energy Reserve back to $20/20$.
+3. **"Allocate Attribute Points":**
+   - When a player levels up, they receive $+1$ Unallocated Attribute Point.
+   - Tapping $+$ next to Vitality, Aether, or System permanently increments the base stat and persists to `utrcs_characters`.
+
+---
+
+## 13. Section 6 — Sovereign Waygate Telemetry
+
+### 13.1 Event-Driven Badging (No Polling)
+To prevent battery drain and CPU spikes on the Honor X8, **zero periodic timers** will be introduced. Badges derive reactively from existing Riverpod providers:
+1. **Market Waygate (`TradeScreen`):**
+   - Badge: Pending trade offers where `receiverId == currentUserId && status == TradeStatus.pending`.
+   - Source: `ref.watch(economyProvider.select((s) => s.activeTrades.length))`.
+2. **Canon Waygate (`ChronoLoomScreen`):**
+   - Badge: Active lore proposals awaiting community votes.
+   - Source: `ref.watch(chronoLoomProvider.select((s) => s.activeProposals.length))`.
+3. **Squads Waygate (`ExpeditionScreen`):**
+   - Badge: Active P2P co-op squad members in the room.
+   - Source: `ref.watch(expeditionProvider.select((s) => s.currentSquad?.members.length ?? 0))`.
+4. **Sanctuary Chat Waygate (`TerminalScreen`):**
+   - Badge: New unread IC roleplay messages since last visit.
+5. **Descent Waygate (`DescentScreen`):**
+   - Badge: Active sector anomaly threat indicator (*"S-Rank Threat"*).
+
+---
+
+## 14. Section 7 — Sanctuary Bulletin Wall & Community Feed
+
+### 14.1 Scroll Composer ("Inscribe Bulletin")
+* Add an **"INSCRIBE SCROLL"** action button in the section header or as a floating astrolabe action.
+* Opens the **"Sanctuary Living Bulletin Composer"** modal:
+  - Channel selector: **IN-CHARACTER (IC)** vs **OUT-OF-CHARACTER (OOC)**.
+  - Text area with character counter ($280$ characters max).
+  - Automatically affixes author identity (`playerName`), title (`playerOrigin`), and timestamp.
+  - Tapping **"INSCRIBE TO LEYLINES"** calls `ref.read(socialFeedProvider.notifier).createPost(...)`.
+  - Appends to feed, saves to Drift SQLite, and shows confirmation toast.
+
+### 14.2 Interactive Comments Modal
+* Tapping the **Comment Button** on any `SocialPostCard`:
+  - Opens the **"Archival Commentary"** bottom sheet.
+  - Displays comment history (author, timestamp, text).
+  - Contains an interactive text field: *"Draft communion reply..."*.
+  - Submitting appends the comment, increments the post's comment counter, and persists to SQLite.
+
+### 14.3 Functional Clipboard Share
+* Tapping the **Share Button**:
+  - Formats post into clean Markdown:
+    ```markdown
+    📜 Remainder Portal — Sanctuary Bulletin
+    Author: [Author Name] ([Title]) • [Time]
+    Channel: [IC / OOC]
+    ---
+    "[Post content]"
+    ---
+    Laurels: [Count] • Comments: [Count]
+    ```
+  - Copies to Android clipboard via Flutter's built-in `Clipboard.setData(ClipboardData(text: ...))`.
+  - Displays a warm parchment snackbar: *"Archival bulletin copied to clipboard!"*.
+
+### 14.4 In-Memory Channel Filtering
+* Add a 3-way toggle strip beneath the section header: `ALL`, `IC LORE`, `OOC ARCHIVES`.
+* Filters the post list in-memory without database requeries.
+
+---
+
+## 15. Navigation Architecture
 
 ```
-Step 1: Create [celestial_panel.dart] and [astrolabe_section_header.dart] primitives
-   ↓
-Step 2: Refactor [equipment_slots_widget.dart] with CelestialPanel & Expanded slots (Fix Defect 1)
-   ↓
-Step 3: Refactor [aether_resonance_oracle_widget.dart] with CelestialPanel & flex header (Fix Defect 2)
-   ↓
-Step 4: Refactor [quest_decree_widget.dart] with CelestialPanel & flex sector row (Fix Defect 3)
-   ↓
-Step 5: Refactor [social_post_card.dart] with CelestialPanel & flex action bar (Fix Defects 6 & 7)
-   ↓
-Step 6: Refactor [dashboard_screen.dart] (Operator Crest, Capsule Meters, Waygates, Section Headers) (Fix Defects 4 & 5)
-   ↓
-Step 7: Expand [test/dashboard_screen_test.dart] with Honor X8 responsive test cases
-   ↓
-Step 8: Run unit & widget test suite in Cloud CI to verify 100% green status
-   ↓
-Step 9: Compile ABI-split APK and verify on physical Honor X8 device
+DashboardScreen
+  ├── Tap Level Dial ──────────> Modal: Vanguard Level & Progression Sheet
+  ├── Tap Avatar Crest ────────> Modal: Sovereign Vessel Manifest (Character Switcher)
+  ├── Tap Empty Gear Slot ─────> Modal: Imperial Relic Vault Gear Picker
+  ├── Tap Equipped Relic ──────> Modal: EquipmentDetailSheet (+ Aether Infusion)
+  ├── Tap Oracle Badge ────────> Modal: Chronicle of Celestial Divination (History)
+  ├── Tap Quest "COMMUNE" ─────> Inline Action: Mini-encounter skill check (+15% progress)
+  ├── Tap Quest "DEPART" ──────> Route: DescentScreen (with active quest sector pre-loaded)
+  ├── Tap Quest "CLAIM" ───────> Atomic Transaction: Reward payout + celebration dialog
+  ├── Tap Telemetry INSPECT ───> Modal: Soul Vessel Telemetry (+ Nanite Salve / Leyline Meditation)
+  ├── Tap 6 Waygate Tiles ─────> Direct Routes: Descent, Terminal, Expedition, Guild, ChronoLoom, Trade
+  ├── Tap "Inscribe Scroll" ───> Modal: Sanctuary Bulletin Composer Dialog
+  ├── Tap Post Comments ───────> Modal: Archival Commentary Sheet
+  └── Tap Post Share ──────────> System Action: Clipboard copy + Toast
 ```
 
 ---
 
-## 19. Thread B Execution Checklist
+## 16. Database & Migration Impact
 
-- [ ] Inspect every target file before making modifications.
-- [ ] Create `lib/presentation/widgets/celestial_panel.dart` without external dependencies.
-- [ ] Create `lib/presentation/widgets/astrolabe_section_header.dart` with defensive text constraints (`maxLines: 1`, `overflow: TextOverflow.ellipsis`, `softWrap: false`).
-- [ ] Implement responsive `LayoutBuilder` in `equipment_slots_widget.dart` ($2 \times 2$ grid on $< 340\text{dp}$, 4-slot row on $\ge 340\text{dp}$).
-- [ ] Apply flex constraint to oracle title row in `aether_resonance_oracle_widget.dart`.
-- [ ] Apply flex constraint to target sector text in `quest_decree_widget.dart`.
-- [ ] Apply `Expanded` to action buttons in `social_post_card.dart`.
-- [ ] Upgrade `DashboardScreen` sections while preserving all semantic and text finders.
-- [ ] Run `flutter test test/dashboard_screen_test.dart` and ensure 0 failures.
-- [ ] Commit with clean git history (`feat(dashboard): celestial astrolabe redesign and responsive overflow resolution`).
-- [ ] Push to `main` to trigger GitHub Actions Cloud CI Run.
+### Schema Upgrade: Drift Schema Version 4 $\rightarrow$ Version 5
+
+To support full persistence without losing existing character or chat data:
+
+```sql
+-- Migration v4 -> v5
+
+-- 1. Player Wallet Table (Currencies & XP)
+CREATE TABLE IF NOT EXISTS player_wallet (
+  user_id TEXT NOT NULL PRIMARY KEY REFERENCES users (id),
+  essence_balance INTEGER NOT NULL DEFAULT 1000,
+  laurel_balance INTEGER NOT NULL DEFAULT 150,
+  experience_points INTEGER NOT NULL DEFAULT 8800,
+  current_level INTEGER NOT NULL DEFAULT 88,
+  unallocated_attribute_points INTEGER NOT NULL DEFAULT 0,
+  last_updated INTEGER NOT NULL
+);
+
+-- 2. Equipment Items Table (Vault & Equipped State)
+CREATE TABLE IF NOT EXISTS equipment_items (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users (id),
+  slot TEXT NOT NULL, -- 'WEAPON', 'ARMOR', 'RELIC', 'CHARM'
+  name TEXT NOT NULL,
+  rarity TEXT NOT NULL, -- 'common', 'rare', 'celestial', 'sovereign'
+  stat_bonus TEXT NOT NULL,
+  description TEXT NOT NULL,
+  icon_code_point INTEGER NOT NULL,
+  upgrade_level INTEGER NOT NULL DEFAULT 0,
+  is_equipped INTEGER NOT NULL DEFAULT 0,
+  acquired_at INTEGER NOT NULL
+);
+
+-- 3. Oracle Divination History Table
+CREATE TABLE IF NOT EXISTS oracle_history (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users (id),
+  d20_roll INTEGER NOT NULL,
+  outcome_tier TEXT NOT NULL,
+  blessing_text TEXT NOT NULL,
+  buff_granted TEXT,
+  timestamp INTEGER NOT NULL
+);
+
+-- 4. Quest Decrees Table
+CREATE TABLE IF NOT EXISTS quest_decrees (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users (id),
+  title TEXT NOT NULL,
+  sector_id TEXT NOT NULL,
+  sector_name TEXT NOT NULL,
+  decree_text TEXT NOT NULL,
+  reward_essence INTEGER NOT NULL,
+  reward_laurels INTEGER NOT NULL,
+  progress REAL NOT NULL DEFAULT 0.0,
+  is_urgent INTEGER NOT NULL DEFAULT 0,
+  is_claimed INTEGER NOT NULL DEFAULT 0,
+  difficulty TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+-- 5. Social Posts & Comments Tables
+CREATE TABLE IF NOT EXISTS social_posts (
+  id TEXT NOT NULL PRIMARY KEY,
+  author_id TEXT NOT NULL REFERENCES users (id),
+  author_name TEXT NOT NULL,
+  author_title TEXT NOT NULL,
+  avatar_path TEXT NOT NULL,
+  content TEXT NOT NULL,
+  is_ic INTEGER NOT NULL DEFAULT 1,
+  laurels_count INTEGER NOT NULL DEFAULT 0,
+  comments_count INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS social_comments (
+  id TEXT NOT NULL PRIMARY KEY,
+  post_id TEXT NOT NULL REFERENCES social_posts (id),
+  author_name TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+```
 
 ---
 
-## 20. Final Verification Checklist
+## 17. Provider Architecture
 
-- [ ] All 7 RenderFlex overflows completely eliminated.
-- [ ] Zero unhandled layout exceptions on Honor X8 viewport ($360\text{dp} \times 800\text{dp}$).
-- [ ] Parchment aesthetic (`#FAF7F0`, `#6E473B`, `#A78D78`) 100% consistent with Character Dossier.
-- [ ] All 6 navigation waygates route correctly.
-- [ ] Telemetry bottom sheet opens and displays accurate attributes.
-- [ ] Oracle roll button triggers D20 communion.
-- [ ] Pull-to-refresh on community feed remains responsive.
-- [ ] GitHub Actions workflow passes on Android, Windows, Web, and Backend.
+Instead of creating a giant monolithic `dashboardProvider`, the architecture introduces clean, domain-scoped Riverpod providers:
+
+```
+AppDatabase (Drift Singleton)
+     │
+     ├── playerWalletProvider (StateNotifierProvider<PlayerWalletNotifier, PlayerWallet>)
+     ├── equipmentVaultProvider (StateNotifierProvider<EquipmentVaultNotifier, EquipmentVaultState>)
+     ├── questLifecycleProvider (StateNotifierProvider<QuestLifecycleNotifier, QuestLifecycleState>)
+     ├── oracleBuffProvider (StateNotifierProvider<OracleBuffNotifier, OracleBuffState>)
+     ├── socialFeedProvider (StateNotifierProvider<SocialFeedNotifier, List<SocialPostModel>>)
+     └── utrcsCharacterProvider (StateNotifierProvider<UtrcsCharacterNotifier, UtrcsCharacterModel?>)
+```
+
+The `DashboardScreen` simply composes these focused providers using fine-grained `.select(...)` expressions to minimize widget rebuilds.
 
 ---
 
-## THREAD B EXECUTION CONTRACT
+## 18. Offline-First Strategy
 
-### ABSOLUTE EXECUTION BOUNDARY & MANDATORY GUARDRAILS
+The Remainder Portal is designed for network-resilient offline operation:
+1. **100% Offline Capability:** All 7 interactive features function completely without internet connectivity.
+2. **Local WAL SQLite:** All transactions write immediately to the on-device Drift SQLite database with Write-Ahead Logging (`PRAGMA journal_mode=WAL`).
+3. **Deterministic Offline Fallbacks:**
+   - LiteRT AI story responses use deterministic local D20 rule engine when offline.
+   - Procedural quests generate from local OKF sector templates.
+4. **SyncLedger Integration:** When network connectivity is restored, mutations queue to `SyncLedger` and sync with cloud Firestore in the background.
 
-1. **Strict 8-File Scope Baseline:** Thread B is authorized to modify **ONLY** the 8 files identified in Section 17 of this approved plan.
-2. **GENUINE ARCHITECTURAL DRIFT GUARDRAIL:** Thread B must **NOT** blindly follow the eight-file list if compilation, Flutter dependencies, or architecture proves another file genuinely must change.  
-   **RULE: If an additional file is genuinely required, Thread B MUST STOP AND REPORT IT before modifying it.**  
-   *Preserves the Thread A $\rightarrow$ Thread B boundary and strictly prevents silent scope expansion.*
-3. **Responsive Grid/Wrap vs. Forced Row:** In `equipment_slots_widget.dart`, Thread B must NOT force four slots into a single cramped row on mobile. Use `LayoutBuilder` ($2 \times 2$ grid on $< 340\text{dp}$, 4-in-a-row on $\ge 340\text{dp}$) to ensure tactile luxury and eliminate cramping.
-4. **Preserve Business Logic & Contracts:** All Riverpod providers, SQLite persistence, RNG roll mechanics (`_communeWithArbiter`), telemetry mapping, and navigation routes must remain untouched.
-5. **Preserve Test Finders:** All semantic labels and text finders verified in `dashboard_screen_test.dart` and Patrol E2E flows must be preserved verbatim.
-6. **No Overflow Hacks:** Overflows must be solved using responsive layouts (`LayoutBuilder`, `Wrap`, `Expanded`, `Flexible`) rather than clipping (`TextOverflow.clip`) or scaling hacks (`Transform.scale`).
-7. **Reporting Requirement:** Report every modified file, executed test, and verified viewport upon completion.
+---
+
+## 19. Security & Data Integrity
+
+1. **Anti-Replay Reward Guard:** The `is_claimed` column in `quest_decrees` is checked within an atomic database transaction. Tapping "CLAIM" rapidly cannot award multiple payouts.
+2. **Negative Balance Prevention:** Currency deductions (for healing, upgrades, or trading) check `balance >= cost` prior to executing. Database columns use `CHECK (essence_balance >= 0)`.
+3. **Equipment Duplication Prevention:** An item can only exist either in the equipped state (`is_equipped = 1`) or in the vault (`is_equipped = 0`).
+4. **Sanitization:** Social post and comment strings are trimmed and capped at length limits ($280$ chars for posts, $140$ chars for comments) to prevent memory exhaustion.
+
+---
+
+## 20. Performance Budget (Honor X8 Target)
+
+* **Zero Background Polling:** No `Timer.periodic` instances running on the Dashboard.
+* **Repaint Boundaries:** Retain `RepaintBoundary` wrappers around the animated Oracle altar and progress rings.
+* **Granular Selectors:** Use `ref.watch(playerWalletProvider.select((w) => w.essenceBalance))` so updating currency does not cause the entire 600-line screen to rebuild.
+* **Lazy Bottom Sheets:** Modals (Vault, Telemetry, Chronicle, Composer) instantiate their widget subtrees only when opened.
+
+---
+
+## 21. Testing Strategy
+
+### 21.1 Unit & Domain Tests
+* Wallet deposit/deduction math and negative balance guards.
+* XP-to-Level progression formula and rank tier calculation.
+* Equipment equip/unequip state transitions.
+* Quest progress clamping ($0.0 \le \text{progress} \le 1.0$) and claim idempotency.
+
+### 21.2 Drift Persistence & Migration Tests
+* Verify migration from Schema v4 to Schema v5 preserves existing `utrcs_characters` and `chat_messages`.
+* Test rollback behavior if a multi-table transaction encounters an error.
+
+### 21.3 Widget Tests
+* Tapping empty equipment slot renders `ImperialVaultSheet`.
+* Tapping unequip returns item to vault without deleting.
+* Tapping "CLAIM REWARDS" updates wallet display.
+* Tapping "INSCRIBE SCROLL" posts to bulletin wall.
+* Verify all existing finders in [`test/dashboard_screen_test.dart`](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart) remain 100% green.
+
+### 21.4 Patrol Native E2E Tests
+* End-to-end journey: Cold boot $\rightarrow$ Tap empty gear slot $\rightarrow$ Equip Shadow Dagger from Vault $\rightarrow$ Commune with Oracle $\rightarrow$ Purge quest anomaly $\rightarrow$ Claim rewards $\rightarrow$ Verify updated currency.
+
+---
+
+## 22. MVP Scope vs. 23. Future Scope
+
+### 22. Required for Interactive Dashboard MVP
+1. **Dynamic Operator Level, XP & UTRCS Identity:** Dynamic level dial with Progression sheet; instant UTRCS character switching.
+2. **Imperial Relic Vault & Safe Unequip/Equip:** Non-destructive unequip; Vault picker modal for empty slots; reactive stat bonus recalculation.
+3. **Interactive Alchemical Restoration:** Functional healing (HP salve) and aether recharge in the telemetry sheet with live fluid gauge animation.
+4. **Quest Progress & Idempotent Reward Claiming:** "COMMUNE PURGE" anomaly skill check; atomic reward claim into persistent wallet; deterministic new decree dispatch.
+5. **Oracle Buff Engine & Chronicle:** D20 rolls grant real session buffs (e.g. reward multipliers); persistent history modal.
+6. **Sanctuary Bulletin Composer & Comments:** "Inscribe Scroll" dialog; comments bottom sheet; functional clipboard share.
+7. **Reactive Waygate Telemetry Badges:** Live unread/pending counters on Market, Canon, Squads, and Chat portals.
+
+### 23. Deferred to Future Expansion
+* Real-time P2P WebRTC audio/video squad telemetry.
+* Cross-device Bluetooth mesh trading.
+* Multi-user auction house and automated bidding bots.
+* Full generative AI video rendering for oracle prophecies.
+
+---
+
+## 24. File-by-File Implementation Map
+
+| Category | Target File Path | Current Role | Scope of Change | Risk |
+| :--- | :--- | :--- | :--- | :---: |
+| **Database** | [`lib/data/services/database_service.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart) | Schema v4, tables, Drift config | Add Schema v5 migration, tables: `player_wallet`, `equipment_items`, `oracle_history`, `quest_decrees`, `social_posts`, `social_comments`. | High |
+| **Domain Models** | `lib/data/models/player_wallet.dart` `[NEW]` | None | Create `PlayerWallet` data model. | Low |
+| **Domain Models** | `lib/data/models/active_buff.dart` `[NEW]` | None | Create `ActiveBuff` model and `BuffType` enum. | Low |
+| **Providers** | `lib/presentation/providers/wallet_provider.dart` `[NEW]` | None | Create `playerWalletProvider` with deposit/deduct methods. | Medium |
+| **Providers** | `lib/presentation/providers/equipment_vault_provider.dart` `[NEW]` | None | Create `equipmentVaultProvider` managing unequipped items. | Medium |
+| **Providers** | [`lib/presentation/providers/game_provider.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart) | Static providers | Upgrade `equippedGearProvider`, `activeQuestProvider`, `socialFeedProvider` to persistent notifiers. | High |
+| **UI Widgets** | `lib/presentation/widgets/imperial_vault_sheet.dart` `[NEW]` | None | Create bottom sheet to browse and equip vault gear. | Medium |
+| **UI Widgets** | `lib/presentation/widgets/bulletin_composer_dialog.dart` `[NEW]` | None | Create dialog to compose new IC/OOC scrolls. | Low |
+| **UI Widgets** | `lib/presentation/widgets/post_comments_sheet.dart` `[NEW]` | None | Create bottom sheet for post replies and comments. | Low |
+| **UI Widgets** | [`lib/presentation/widgets/equipment_detail_sheet.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_detail_sheet.dart) | Detail modal | Add Aether Infusion upgrade action; update unequip to return to vault. | Medium |
+| **UI Widgets** | [`lib/presentation/widgets/equipment_slots_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_slots_widget.dart) | 4 gear slots | Wire empty slots to open `ImperialVaultSheet`. | Medium |
+| **UI Widgets** | [`lib/presentation/widgets/aether_resonance_oracle_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart) | D20 altar | Wire roll to `oracleBuffProvider`; open Chronicle modal on badge tap. | Medium |
+| **UI Widgets** | [`lib/presentation/widgets/quest_decree_widget.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_widget.dart) | Quest card | Add "COMMUNE PURGE" action and "CLAIM REWARDS" button state. | Medium |
+| **UI Widgets** | [`lib/presentation/widgets/social_post_card.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_card.dart) | Post card | Wire comments button to `PostCommentsSheet`; wire share to clipboard. | Low |
+| **Screens** | [`lib/presentation/screens/dashboard_screen.dart`](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart) | Master dashboard | Wire level dial, avatar crest, restoration telemetry actions, and waygate badges. | High |
+| **Tests** | [`test/dashboard_screen_test.dart`](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart) | Widget tests | Add test cases for vault picking, unequip/re-equip, reward claiming, and comments. | Medium |
+| **Tests** | `test/wallet_and_quest_test.dart` `[NEW]` | None | Unit tests for wallet transactions and quest idempotency. | Low |
+
+---
+
+## 25. Risk Register
+
+| Risk Description | Severity | Likelihood | Architectural Mitigation |
+| :--- | :---: | :---: | :--- |
+| **Database Migration Data Loss:** Upgrading to Schema v5 could corrupt or wipe existing UTRCS characters if migration fails. | Critical | Low | Use non-destructive `CREATE TABLE IF NOT EXISTS` migration statements and verify database tests pass before proceeding. |
+| **Double-Reward Claiming Exploit:** Rapid tapping on "CLAIM REWARDS" could pay out multiple times before state settles. | High | Medium | Execute claim check inside an atomic SQLite transaction and disable button immediately upon initial tap. |
+| **Test Finder Regression:** Renaming labels or restructuring headers could break existing tests in `dashboard_screen_test.dart`. | High | Low | Retain 100% of existing semantic labels and text finders (`'OPERATOR'`, `'LEVEL'`, `'88'`, `'EQUIPMENT & GEAR SLOTS'`, etc.). |
+| **Memory / CPU Spikes on Honor X8:** Multiple live telemetry streams causing excessive widget rebuilds. | Medium | Medium | Use strict `.select(...)` provider subscriptions and zero background polling timers. |
+| **Floating Navbar Occlusion:** Adding new dashboard cards or modals could alter the 96dp bottom padding. | Medium | Low | Strictly preserve `EdgeInsets.fromLTRB(20, 20, 20, 96)` on the scroll view. |
+
+---
+
+## 26. Implementation Order
+
+To ensure the repository remains continuously buildable and testable at every step:
+
+```
+Phase 0: Persistence & Domain Foundations
+   ├── 0.1 Add Drift Schema v5 tables (PlayerWallet, EquipmentItems, QuestDecrees, etc.)
+   ├── 0.2 Create PlayerWallet and ActiveBuff domain models
+   └── 0.3 Verify database migration tests pass cleanly
+   ↓
+Phase 1: Equipment & Imperial Vault System
+   ├── 1.1 Create EquipmentVaultNotifier and ImperialVaultSheet
+   ├── 1.2 Update equipment_slots_widget.dart to trigger Vault on empty slots
+   ├── 1.3 Update equipment_detail_sheet.dart with safe unequip & Aether Infusion
+   └── 1.4 Test equip/unequip roundtrip
+   ↓
+Phase 2: Quest Lifecycle & Player Wallet
+   ├── 2.1 Create QuestLifecycleNotifier with progress mutation & claim transaction
+   ├── 2.2 Update quest_decree_widget.dart with Purge action and Claim button
+   └── 2.3 Verify atomic reward payout and idempotency
+   ↓
+Phase 3: Oracle Buff Engine & Vessel Restoration
+   ├── 3.1 Implement OracleBuffNotifier and Chronicle history logging
+   ├── 3.2 Add alchemical restoration controls (Heal/Channel/Allocate) to telemetry sheet
+   └── 3.3 Verify live capsule meter animations
+   ↓
+Phase 4: Social Bulletin & Waygate Telemetry
+   ├── 4.1 Create BulletinComposerDialog and PostCommentsSheet
+   ├── 4.2 Wire SocialPostCard comments and clipboard share
+   └── 4.3 Add reactive telemetry badges to the 6 Waygate portal cards
+   ↓
+Phase 5: Full Integration, Regression Tests & CI Verification
+   ├── 5.1 Run test suite across all 47+ existing and new test cases
+   ├── 5.2 Compile and test on Honor X8 mobile viewport
+   └── 5.3 Commit, push to main, and verify GitHub Actions Cloud CI
+```
+
+---
+
+## 27. Thread B Execution Contract
+
+Thread B will execute the implementation according to these non-negotiable rules:
+
+1. **Strict File Scope:** Thread B may modify only the files listed in Section 24. If an additional file is genuinely required, Thread B must **STOP and report it** for explicit approval before editing.
+2. **Domain Separation:** Dashboard widgets must never write direct database queries or contain combat math; all mutations route through domain notifiers.
+3. **Preserve Test Finders:** All existing string finders and semantic labels tested in `dashboard_screen_test.dart` and Patrol E2E tests must remain intact.
+4. **Preserve Responsive Layouts:** Zero RenderFlex overflows allowed across Honor X8 ($360\text{dp}$) and narrow ($320\text{dp}$) viewports.
+5. **Continuous Verification:** Run tests after completing each phase to guarantee 100% green status before pushing to main.
+
+---
+
+## 28. Final Acceptance Criteria
+
+1. **Identity:** Level dial reflects real wallet level; avatar crest opens UTRCS manifest and switches characters atomically.
+2. **Gear:** Tapping an empty slot opens the Imperial Vault; unequipped items return safely to the Vault; equipped items can be upgraded with Essence.
+3. **Oracle:** D20 rolls grant active session buffs; roll history is logged and viewable in the Chronicle modal.
+4. **Quests:** Decrees can be advanced via purge actions; completed quests pay out Essence and Laurels into the wallet without double-claim glitches; new decrees can be dispatched.
+5. **Vitality:** Soul vessel telemetry sheet supports healing HP and channeling MP, with live fluid animation on the capsule meters.
+6. **Waygates:** Waygate tiles display live badge counts for pending trades, unread messages, and active squads without polling timers.
+7. **Social:** Players can inscribe new scrolls to the bulletin wall, view/post comments, and copy formatted posts to the clipboard.
+8. **CI & Tests:** 100% green pass on `flutter test` and GitHub Actions Cloud CI across Android, Windows, Web, and Backend runners.
