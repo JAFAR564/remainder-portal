@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart' hide isNotNull, isNull;
-import 'package:remainder_portal/data/services/database_service.dart';
+import 'package:remainder_portal/data/services/database_service.dart' hide PlayerWallet;
 import 'package:remainder_portal/data/models/player_wallet.dart';
 import 'package:remainder_portal/data/models/equipment_item_model.dart';
 import 'package:remainder_portal/data/models/quest_decree_model.dart';

@@ -273,6 +273,7 @@ class UtrcsCharacters extends Table {
 }
 
 // Phase 5: Player Wallet & Currencies Table
+@DataClassName('PlayerWalletData')
 class PlayerWallets extends Table {
   TextColumn get userId => text()();
   IntColumn get essenceBalance => integer().withDefault(const Constant(1000))();
@@ -287,6 +288,7 @@ class PlayerWallets extends Table {
 }
 
 // Phase 5: Imperial Relic Vault & Equipment Table
+@DataClassName('EquipmentItemData')
 class EquipmentItems extends Table {
   TextColumn get id => text()();
   TextColumn get userId => text()();
@@ -305,6 +307,7 @@ class EquipmentItems extends Table {
 }
 
 // Phase 5: World Arbiter Quest Decrees Table
+@DataClassName('QuestDecreeData')
 class QuestDecrees extends Table {
   TextColumn get id => text()();
   TextColumn get userId => text()();
@@ -325,6 +328,7 @@ class QuestDecrees extends Table {
 }
 
 // Phase 5: Oracle Divination History Table
+@DataClassName('OracleHistoryData')
 class OracleHistories extends Table {
   TextColumn get id => text()();
   TextColumn get userId => text()();
@@ -339,6 +343,7 @@ class OracleHistories extends Table {
 }
 
 // Phase 5: Sanctuary Social Posts Table
+@DataClassName('SocialPostData')
 class SocialPosts extends Table {
   TextColumn get id => text()();
   TextColumn get authorId => text()();
@@ -356,6 +361,7 @@ class SocialPosts extends Table {
 }
 
 // Phase 5: Sanctuary Social Comments Table
+@DataClassName('SocialCommentData')
 class SocialComments extends Table {
   TextColumn get id => text()();
   TextColumn get postId => text().references(SocialPosts, #id)();

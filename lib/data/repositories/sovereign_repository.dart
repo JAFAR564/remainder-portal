@@ -3,7 +3,7 @@ import '../models/oracle_record.dart';
 import '../models/player_wallet.dart';
 import '../models/quest_decree_model.dart';
 import '../models/social_bulletin_model.dart';
-import '../services/database_service.dart';
+import '../services/database_service.dart' hide PlayerWallet;
 
 /// Repository coordinating persistent domain state for the Sovereign Command Deck.
 class SovereignRepository {
