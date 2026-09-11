@@ -533,7 +533,7 @@ void main() {
 
       // Verify Waygate Telemetry sheet opened
       expect(find.byType(WaygateTelemetrySheet), findsOneWidget);
-      expect(find.text('WAYGATE SUBSYSTEM TELEMETRY'), findsOneWidget);
+      expect(find.text('WAYGATE NETWORK & TELEMETRY'), findsOneWidget);
       expect(find.text('LOCAL STANDBY (P2P TRANSPORT DEFERRED)'), findsOneWidget);
     });
 
@@ -557,7 +557,7 @@ void main() {
 
       // Verify Social Post Creation sheet opened
       expect(find.byType(SocialPostCreationSheet), findsOneWidget);
-      expect(find.text('TRANSMIT TO SANCTUARY LEYLINES'), findsOneWidget);
+      expect(find.text('TRANSMIT SANCTUARY BULLETIN'), findsOneWidget);
     });
   });
 }
