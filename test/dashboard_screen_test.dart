@@ -15,6 +15,7 @@ import 'package:remainder_portal/presentation/widgets/quest_decree_widget.dart';
 import 'package:remainder_portal/presentation/widgets/aether_resonance_oracle_widget.dart';
 import 'package:remainder_portal/presentation/widgets/social_post_card.dart';
 import 'package:remainder_portal/presentation/widgets/relic_vault_sheet.dart';
+import 'package:remainder_portal/presentation/widgets/quest_decree_sheet.dart';
 
 class _MockUtrcsNotifier extends UtrcsCharacterNotifier {
   _MockUtrcsNotifier(super.ref, super.db, UtrcsCharacterModel initial) {
@@ -461,6 +462,29 @@ void main() {
       // Verify Relic Vault sheet opened
       expect(find.byType(RelicVaultSheet), findsOneWidget);
       expect(find.textContaining('IMPERIAL RELIC VAULT'), findsOneWidget);
+    });
+
+    testWidgets('Dashboard allows opening Imperial Quest Decree Sheet (Thread B-3)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap on DECREES ↗ header action
+      final decreesFinder = find.byKey(const Key('open_decrees_sheet'));
+      expect(decreesFinder, findsOneWidget);
+      await tester.ensureVisible(decreesFinder);
+      await tester.tap(decreesFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Quest Decree sheet opened
+      expect(find.byType(QuestDecreeSheet), findsOneWidget);
+      expect(find.text('WORLD ARBITER DECREES'), findsOneWidget);
     });
   });
 }

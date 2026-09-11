@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/game_provider.dart';
+import '../../data/repositories/sovereign_repository.dart';
+import '../providers/sovereign_provider.dart';
+import '../providers/utrcs_provider.dart';
 import '../screens/descent_screen.dart';
 import 'celestial_panel.dart';
+import 'quest_decree_sheet.dart';
 
 /// Imperial Parchment World Arbiter Quest Decree Widget with Flex-Safe Responsive Layout.
 class QuestDecreeWidget extends ConsumerWidget {
@@ -10,35 +13,102 @@ class QuestDecreeWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final quest = ref.watch(activeQuestProvider);
+    final character = ref.watch(utrcsCharacterProvider);
+    final userId = character?.id ?? 'utrcs_default_player';
+    final questStateAsync = ref.watch(activeQuestDecreeProvider);
+
+    final quest = questStateAsync.valueOrNull?.primaryQuest ??
+        SovereignRepository.defaultStarterQuests(userId).first;
 
     return CelestialPanel(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Quest Header Row
+          // Quest Header Row with DECREES ↗ button
           Row(
             children: [
               const Icon(Icons.notifications_active_outlined, color: Color(0xFF6E473B), size: 18),
               const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'WORLD ARBITER QUEST DECREE',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: false,
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF6E473B),
-                    letterSpacing: 1.2,
+              Expanded(
+                child: InkWell(
+                  key: const Key('quest_decree_header'),
+                  onTap: () => QuestDecreeSheet.show(context),
+                  child: const Text(
+                    'WORLD ARBITER QUEST DECREE',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6E473B),
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
               ),
-              if (quest.isUrgent) ...[
-                const SizedBox(width: 4),
+              InkWell(
+                key: const Key('open_decrees_sheet'),
+                onTap: () => QuestDecreeSheet.show(context),
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
+                  ),
+                  child: const Text(
+                    'DECREES ↗',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6E473B),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              if (quest.isClaimed) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6E473B).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFF6E473B)),
+                  ),
+                  child: const Text(
+                    'FULFILLED',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 8,
+                      color: Color(0xFF6E473B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ] else if (quest.isCompleted) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF291C0E).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFF291C0E)),
+                  ),
+                  child: const Text(
+                    'READY',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 8,
+                      color: Color(0xFF291C0E),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ] else if (quest.isUrgent) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
@@ -118,7 +188,11 @@ class QuestDecreeWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${(quest.progress * 100).toStringAsFixed(0)}% ANOMALY PURGED',
+                quest.isClaimed
+                    ? 'REWARDS CLAIMED'
+                    : quest.isCompleted
+                        ? '100% ANOMALY PURGED'
+                        : '${(quest.progress * 100).toStringAsFixed(0)}% ANOMALY PURGED',
                 style: const TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 9,
@@ -134,7 +208,9 @@ class QuestDecreeWidget extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: quest.progress,
               backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.3),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6E473B)),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                quest.isClaimed ? const Color(0xFFA78D78) : const Color(0xFF6E473B),
+              ),
               minHeight: 6,
             ),
           ),
@@ -203,31 +279,93 @@ class QuestDecreeWidget extends ConsumerWidget {
                 ],
               ),
 
-              // Departure CTA Button
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6E473B),
-                  foregroundColor: const Color(0xFFE1D4C2),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  elevation: 1,
-                ),
-                icon: const Icon(Icons.explore, size: 14),
-                label: const Text(
-                  'DEPART ON QUEST',
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
+              // Action CTA Button
+              if (quest.isCompleted && !quest.isClaimed) ...[
+                ElevatedButton.icon(
+                  key: const Key('quest_claim_button'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6E473B),
+                    foregroundColor: const Color(0xFFE1D4C2),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 2,
                   ),
+                  icon: const Icon(Icons.card_giftcard, size: 14),
+                  label: const Text(
+                    'CLAIM REWARDS',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () async {
+                    final success = await ref
+                        .read(questDecreeProvider(userId).notifier)
+                        .claimReward(questId: quest.id);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            success
+                                ? 'Decree Fulfilled! Credited +${quest.rewardEssence} Essence & +${quest.rewardLaurels} Laurels.'
+                                : 'Decree rewards already claimed.',
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                          ),
+                          backgroundColor: const Color(0xFF6E473B),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const DescentScreen()),
-                  );
-                },
-              ),
+              ] else if (quest.isClaimed) ...[
+                OutlinedButton.icon(
+                  key: const Key('quest_fulfilled_button'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF6E473B),
+                    side: const BorderSide(color: Color(0xFF6E473B)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(Icons.check_circle_outline, size: 14),
+                  label: const Text(
+                    'FULFILLED',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () => QuestDecreeSheet.show(context),
+                ),
+              ] else ...[
+                ElevatedButton.icon(
+                  key: const Key('quest_depart_button'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6E473B),
+                    foregroundColor: const Color(0xFFE1D4C2),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 1,
+                  ),
+                  icon: const Icon(Icons.explore, size: 14),
+                  label: const Text(
+                    'DEPART ON QUEST',
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DescentScreen()),
+                    );
+                  },
+                ),
+              ],
             ],
           ),
         ],

@@ -181,20 +181,16 @@ class SovereignRepository {
   // 3. World Arbiter Quest Decrees
   // ==========================================
 
-  Future<List<QuestDecreeModel>> getQuests(String userId) async {
-    final quests = await _db.getQuestDecreesForUser(userId);
-    if (quests.isNotEmpty) return quests;
-
-    // Seed default initial decrees
-    final now = DateTime.now();
-    final initialQuests = [
+  static List<QuestDecreeModel> defaultStarterQuests(String userId, [DateTime? baseTime]) {
+    final now = baseTime ?? DateTime.now();
+    return [
       QuestDecreeModel(
         id: 'quest_sanctuary_outpost',
         userId: userId,
-        title: 'Harmonize Sanctuary Outpost',
+        title: 'Clear Anomaly Wave in Sanctuary 4',
         sectorId: 'sectors_neon_bastion_4',
-        sectorName: 'Aether Resonance Hub - Neon Bastion',
-        decreeText: 'Calibrate the local resonance dampeners to neutralize incoming entropy waves from the Sub-Net anomaly.',
+        sectorName: 'Sanctuary 4 (Aether Spire)',
+        decreeText: 'The World Arbiter (Cardinal) has detected dimensional chaos. Assemble squad matrix or engage solo descent.',
         rewardEssence: 750,
         rewardLaurels: 50,
         progress: 0.65,
@@ -219,10 +215,18 @@ class SovereignRepository {
         createdAt: now.subtract(const Duration(hours: 2)),
       ),
     ];
+  }
 
+  Future<List<QuestDecreeModel>> getQuests(String userId) async {
+    final quests = await _db.getQuestDecreesForUser(userId);
+    if (quests.isNotEmpty) return quests;
+
+    // Seed default initial decrees into SQLite once
+    final initialQuests = defaultStarterQuests(userId);
     for (final q in initialQuests) {
       await _db.upsertQuestDecree(q);
     }
+    // Return exclusively from authoritative SQLite query
     return await _db.getQuestDecreesForUser(userId);
   }
 

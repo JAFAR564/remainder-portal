@@ -229,3 +229,113 @@ final activeRelicVaultProvider = Provider<AsyncValue<RelicVaultState>>((ref) {
   return ref.watch(relicVaultProvider(userId));
 });
 
+/// State holding active decrees and optional tracked decree ID
+class QuestDecreeState {
+  final List<QuestDecreeModel> decrees;
+  final String? selectedQuestId;
+
+  const QuestDecreeState({
+    required this.decrees,
+    this.selectedQuestId,
+  });
+
+  /// The active primary quest displayed on the dashboard.
+  /// Precedence:
+  /// 1. The explicitly selected quest, if present.
+  /// 2. The first active, unclaimed quest (prioritizing completed/claimable, then urgent in-progress).
+  /// 3. The first decree in the list, or null if empty.
+  QuestDecreeModel? get primaryQuest {
+    if (decrees.isEmpty) return null;
+    if (selectedQuestId != null) {
+      final selected = decrees.firstWhere(
+        (q) => q.id == selectedQuestId,
+        orElse: () => decrees.first,
+      );
+      return selected;
+    }
+    // Prefer unclaimed decrees: urgent in-progress first, then completed claimable, then any unclaimed
+    final unclaimed = decrees.where((q) => !q.isClaimed).toList();
+    if (unclaimed.isNotEmpty) {
+      final urgent = unclaimed.where((q) => q.isUrgent && !q.isCompleted).toList();
+      if (urgent.isNotEmpty) return urgent.first;
+      final claimable = unclaimed.where((q) => q.isCompleted).toList();
+      if (claimable.isNotEmpty) return claimable.first;
+      return unclaimed.first;
+    }
+    return decrees.first;
+  }
+
+  QuestDecreeState copyWith({
+    List<QuestDecreeModel>? decrees,
+    String? selectedQuestId,
+  }) {
+    return QuestDecreeState(
+      decrees: decrees ?? this.decrees,
+      selectedQuestId: selectedQuestId ?? this.selectedQuestId,
+    );
+  }
+}
+
+/// Reactive StateNotifier for World Arbiter Quest Decrees
+class QuestDecreeNotifier extends StateNotifier<AsyncValue<QuestDecreeState>> {
+  final SovereignRepository _repo;
+  final Ref _ref;
+  final String _userId;
+
+  QuestDecreeNotifier(this._repo, this._ref, this._userId)
+      : super(AsyncValue.data(QuestDecreeState(
+          decrees: SovereignRepository.defaultStarterQuests(_userId),
+        ))) {
+    loadDecrees();
+  }
+
+  Future<void> loadDecrees() async {
+    try {
+      final decrees = await _repo.getQuests(_userId);
+      if (mounted) {
+        state = AsyncValue.data(QuestDecreeState(
+          decrees: decrees,
+          selectedQuestId: state.valueOrNull?.selectedQuestId,
+        ));
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  void selectQuest(String questId) {
+    state = state.whenData((s) => s.copyWith(selectedQuestId: questId));
+  }
+
+  Future<void> updateProgress({required String questId, required double progress}) async {
+    await _repo.updateQuestProgress(questId: questId, progress: progress);
+    await loadDecrees();
+  }
+
+  Future<bool> claimReward({required String questId}) async {
+    final success = await _repo.claimReward(questId: questId, userId: _userId);
+    if (success) {
+      // Reload wallet so live Essence & Laurels meters reactively reflect the reward
+      await _ref.read(playerWalletProvider(_userId).notifier).loadWallet();
+      await loadDecrees();
+    }
+    return success;
+  }
+}
+
+/// Family provider for specific operator's quest decrees
+final questDecreeProvider = StateNotifierProvider.family<QuestDecreeNotifier, AsyncValue<QuestDecreeState>, String>((ref, userId) {
+  final repo = ref.watch(sovereignRepositoryProvider);
+  return QuestDecreeNotifier(repo, ref, userId);
+});
+
+/// Reactive provider for active operator's quest decrees
+final activeQuestDecreeProvider = Provider<AsyncValue<QuestDecreeState>>((ref) {
+  final character = ref.watch(utrcsCharacterProvider);
+  final userId = character?.id ?? 'utrcs_default_player';
+  return ref.watch(questDecreeProvider(userId));
+});
+
+
