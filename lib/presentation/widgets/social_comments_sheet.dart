@@ -71,7 +71,7 @@ class _SocialCommentsSheetState extends ConsumerState<SocialCommentsSheet> {
     setState(() => _isSubmitting = true);
     try {
       final character = ref.read(utrcsCharacterProvider);
-      final authorName = character?.characterName ?? 'Operator Vanguard';
+      final authorName = character?.identity.name ?? 'Operator Vanguard';
 
       await ref.read(socialBulletinProvider.notifier).addComment(
         postId: widget.postId,

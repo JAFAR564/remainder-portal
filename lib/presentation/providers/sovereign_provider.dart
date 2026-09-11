@@ -505,8 +505,10 @@ class WaygateTelemetryState {
   });
 }
 
+final tradeProvider = economyProvider;
+
 final waygateTelemetryProvider = Provider<WaygateTelemetryState>((ref) {
-  final tradeState = ref.watch(tradeProvider);
+  final tradeState = ref.watch(economyProvider);
   final chronoState = ref.watch(chronoLoomProvider);
   final expeditionState = ref.watch(expeditionProvider);
   final guildState = ref.watch(guildProvider);

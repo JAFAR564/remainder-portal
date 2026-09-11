@@ -39,8 +39,8 @@ class _SocialPostCreationSheetState extends ConsumerState<SocialPostCreationShee
     try {
       final character = ref.read(utrcsCharacterProvider);
       final authorId = character?.id ?? 'utrcs_default_player';
-      final authorName = character?.characterName ?? 'Operator Vanguard';
-      final authorTitle = character?.coreConcept ?? 'Sovereign Pioneer';
+      final authorName = character?.identity.name ?? 'Operator Vanguard';
+      final authorTitle = character?.identity.concept ?? 'Sovereign Pioneer';
 
       await ref.read(socialBulletinProvider.notifier).createPost(
         authorId: authorId,

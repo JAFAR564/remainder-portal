@@ -344,6 +344,47 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [test/oracle_buff_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/oracle_buff_integrity_test.dart)
 * [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
 
+---
+
+## 13. Brain Session 13 (Thread B-5: Social Bulletin & Waygate Telemetry Integration)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Active Session)
+* **Session Date:** September 11, 2026
+
+### Core Objectives & Accomplishments:
+* **Persistent Sanctuary Social Bulletin (`social_posts` & `social_comments`):**
+  - Seed-not-bypass SQLite pattern: seeded exactly ONE calibrated starter post (`post_vane_001` - Lord Commander Vane) into `social_posts` table on first read, guaranteeing zero fabricated crowd content and zero hardcoded post lists in presentation widgets.
+  - Implemented `SovereignRepository` write-through methods for post creation, laurel endorsement, and comment threading (`createPost`, `endorsePost`, `addComment`, `getComments`).
+  - Implemented `SocialBulletinNotifier` and `socialBulletinProvider` (Riverpod `StateNotifierProvider`) with full async hydration (`AsyncValue<List<SocialPostEntry>>`).
+* **Honest & Un-Fabricated Waygate Telemetry Engine:**
+  - Implemented `WaygateTelemetryState` and `waygateTelemetryProvider` aggregating live state from Phase 2/3 domain providers: `tradeProvider` (pending trades count), `chronoLoomProvider` (active proposals count), `expeditionProvider` (squad membership and active state), `guildProvider` (guild tag), `p2pSquadRelayProvider` (queued relay events count and status), and `trustProvider` (canonical 5-vector trust ratings).
+  - Explicitly classified multi-device physical mesh discovery as `MISSING / DEFERRED` (`LOCAL STANDBY (P2P TRANSPORT DEFERRED)`), honestly surfacing `0 PEERS CONNECTED` with zero fabricated peers, simulated pings, or shadow network connections.
+* **Responsive Astrolabe Sheets & Presentation Reactivity:**
+  - Built `WaygateTelemetrySheet` (`Key('close_waygate_telemetry_sheet')`) presenting verified domain telemetry channels, trust breakdown, and honest P2P deferred status notice.
+  - Built `SocialPostCreationSheet` (`Key('create_post_content_input')`, `Key('toggle_ic_ooc_button')`, `Key('submit_post_button')`, `Key('close_create_post_sheet')`) for genuine user post composition with IC/OOC tagging.
+  - Built `SocialCommentsSheet` (`Key('comment_input_field')`, `Key('submit_comment_button')`, `Key('close_social_comments_sheet')`) displaying threaded responses with instant SQLite write-back.
+  - Upgraded `SocialPostCard` with `postId`, `onLaurel`, `onComment` callbacks and dynamic `didUpdateWidget` synchronization.
+  - Upgraded `DashboardScreen` Section 6 (Waygates) with `WAYGATE ℹ` button and live telemetry subtitles, and Section 7 (Community Wall) with `TRANSMIT ↗` button, post counter, and reactive async feed.
+* **Integrity Test Suite Expansion:**
+  - Updated `database_test.dart` to assert single calibrated starter post.
+  - Expanded `dashboard_screen_test.dart` with B-5 tests for opening `WaygateTelemetrySheet` and `SocialPostCreationSheet`.
+  - Authored `test/social_waygate_integrity_test.dart` with 7 integrity tests: initial seeding, post creation, comment lifecycle, laurel endorsement, waygate telemetry accuracy, trust score alignment with honest mesh status, and responsive viewports across 320dp, 360dp, 600dp.
+* **B-4 Follow-Up Closure (Buff Consumption):**
+  - Confirmed and explicitly logged that `aetherMultiplier` from Thread B-4 is currently informational-only (persisted and displayed with live countdown, but consumption downstream in combat/economy formulas is deferred to future combat domain phases).
+
+### Modified & Created Assets:
+* [lib/data/models/social_bulletin_model.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/models/social_bulletin_model.dart)
+* [lib/data/repositories/sovereign_repository.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/repositories/sovereign_repository.dart)
+* [lib/presentation/providers/sovereign_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/sovereign_provider.dart)
+* [lib/presentation/screens/dashboard_screen.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/screens/dashboard_screen.dart)
+* [lib/presentation/widgets/social_post_card.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_card.dart)
+* [lib/presentation/widgets/social_comments_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_comments_sheet.dart)
+* [lib/presentation/widgets/social_post_creation_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/social_post_creation_sheet.dart)
+* [lib/presentation/widgets/waygate_telemetry_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/waygate_telemetry_sheet.dart)
+* [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
+* [test/database_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/database_test.dart)
+* [test/social_waygate_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/social_waygate_integrity_test.dart)
+
+
 
 
 

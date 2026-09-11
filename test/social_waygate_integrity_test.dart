@@ -8,6 +8,8 @@ import 'package:remainder_portal/data/models/social_bulletin_model.dart';
 import 'package:remainder_portal/data/repositories/sovereign_repository.dart';
 import 'package:remainder_portal/presentation/providers/game_provider.dart';
 import 'package:remainder_portal/presentation/providers/sovereign_provider.dart';
+import 'package:remainder_portal/presentation/providers/trust_provider.dart';
+import 'package:remainder_portal/presentation/providers/economy_provider.dart';
 import 'package:remainder_portal/presentation/widgets/waygate_telemetry_sheet.dart';
 import 'package:remainder_portal/presentation/widgets/social_post_creation_sheet.dart';
 import 'package:remainder_portal/presentation/widgets/social_comments_sheet.dart';
