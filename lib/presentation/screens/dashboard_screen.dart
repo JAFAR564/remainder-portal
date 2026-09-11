@@ -24,6 +24,7 @@ class DashboardScreen extends ConsumerWidget {
   void _showVesselAttributesSheet(BuildContext context, {required int vitality, required int aether, required int essence}) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
@@ -41,78 +42,80 @@ class DashboardScreen extends ConsumerWidget {
         ),
         child: SafeArea(
           top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFA78D78),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Row(
-                children: [
-                  Text('⟐ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
-                  Text(
-                    'SOUL VESSEL ATTRIBUTE TELEMETRY',
-                    style: TextStyle(
-                      fontFamily: 'serif',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF6E473B),
-                      letterSpacing: 1.2,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFA78D78),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              _buildAttributeRow('VITALITY (SHIELD INTEGRITY)', '$vitality / 20', 'Absorbs chaotic dimensional shock and physical damage.', const Color(0xFF6E473B)),
-              const Divider(color: Color(0xFFBEB5A9), height: 16),
-              _buildAttributeRow('AETHER (ENERGY RESERVE)', '$aether / 20', 'Fuels astral spells, leylines, and cooperative combo checks.', const Color(0xFFA78D78)),
-              const Divider(color: Color(0xFFBEB5A9), height: 16),
-              _buildAttributeRow('SYSTEM (COMPUTE POWER)', '$essence / 20', 'Powers local AI inference, decryption, and governance voting.', const Color(0xFF291C0E)),
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.5)),
                 ),
-                child: const Row(
+                const SizedBox(height: 16),
+                const Row(
                   children: [
-                    Icon(Icons.info_outline, size: 14, color: Color(0xFF6E473B)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Canonical Soul Vessel base attributes loaded from active UTRCS manifest. Transient depletion / restoration mechanics are currently sealed pending combat domain verification.',
-                        style: TextStyle(fontFamily: 'monospace', fontSize: 8.5, color: Color(0xFF6E473B)),
+                    Text('⟐ ', style: TextStyle(color: Color(0xFF6E473B), fontSize: 16)),
+                    Text(
+                      'SOUL VESSEL ATTRIBUTE TELEMETRY',
+                      style: TextStyle(
+                        fontFamily: 'serif',
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6E473B),
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6E473B),
-                    foregroundColor: const Color(0xFFE1D4C2),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                const SizedBox(height: 14),
+                _buildAttributeRow('VITALITY (SHIELD INTEGRITY)', '$vitality / 20', 'Absorbs chaotic dimensional shock and physical damage.', const Color(0xFF6E473B)),
+                const Divider(color: Color(0xFFBEB5A9), height: 16),
+                _buildAttributeRow('AETHER (ENERGY RESERVE)', '$aether / 20', 'Fuels spells, technique amplification, and squad resonance.', const Color(0xFF6E473B)),
+                const Divider(color: Color(0xFFBEB5A9), height: 16),
+                _buildAttributeRow('SYSTEM (COMPUTE POWER)', '$essence / 20', 'Powers local AI inference, decryption, and governance voting.', const Color(0xFF291C0E)),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.5)),
                   ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('DISMISS TELEMETRY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 14, color: Color(0xFF6E473B)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Canonical Soul Vessel base attributes loaded from active UTRCS manifest. Transient depletion / restoration mechanics are currently sealed pending combat domain verification.',
+                          style: TextStyle(fontFamily: 'monospace', fontSize: 8.5, color: Color(0xFF6E473B)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6E473B),
+                      foregroundColor: const Color(0xFFE1D4C2),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('DISMISS TELEMETRY', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

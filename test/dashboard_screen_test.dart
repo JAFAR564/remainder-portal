@@ -156,7 +156,9 @@ void main() {
       expect(find.text('SYSTEM (COMPUTE POWER)'), findsOneWidget);
 
       // Dismiss telemetry
-      await tester.tap(find.text('DISMISS TELEMETRY'));
+      final dismissFinder = find.text('DISMISS TELEMETRY');
+      await tester.ensureVisible(dismissFinder);
+      await tester.tap(dismissFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('SOUL VESSEL ATTRIBUTE TELEMETRY'), findsNothing);
@@ -355,9 +357,10 @@ void main() {
 
       // Verify canonical attribute values in telemetry sheet (HP 19, MP 15, SP 17)
       expect(find.text('SOUL VESSEL ATTRIBUTE TELEMETRY'), findsOneWidget);
-      expect(find.text('19 / 20'), findsOneWidget);
-      expect(find.text('15 / 20'), findsOneWidget);
-      expect(find.text('17 / 20'), findsOneWidget);
+      final sheetFinder = find.byType(BottomSheet);
+      expect(find.descendant(of: sheetFinder, matching: find.text('19 / 20')), findsOneWidget);
+      expect(find.descendant(of: sheetFinder, matching: find.text('15 / 20')), findsOneWidget);
+      expect(find.descendant(of: sheetFinder, matching: find.text('17 / 20')), findsOneWidget);
 
       // Verify truthful contract note regarding un-fabricated combat status
       expect(
@@ -366,7 +369,9 @@ void main() {
       );
 
       // Dismiss telemetry
-      await tester.tap(find.text('DISMISS TELEMETRY'));
+      final dismissFinder = find.text('DISMISS TELEMETRY');
+      await tester.ensureVisible(dismissFinder);
+      await tester.tap(dismissFinder);
       await tester.pumpAndSettle();
       expect(find.text('SOUL VESSEL ATTRIBUTE TELEMETRY'), findsNothing);
     });
