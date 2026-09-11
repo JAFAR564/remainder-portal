@@ -570,12 +570,17 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 socialBulletinAsync.when(
-                  loading: () => const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF6E473B),
-                        strokeWidth: 2,
+                  loading: () => const CelestialPanel(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: Text(
+                        'CALIBRATING SOVEREIGN LEYLINES...',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFA78D78),
+                        ),
                       ),
                     ),
                   ),

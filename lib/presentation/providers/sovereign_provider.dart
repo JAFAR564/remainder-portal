@@ -392,7 +392,8 @@ final activeQuestDecreeProvider = Provider<AsyncValue<QuestDecreeState>>((ref) {
 class SocialBulletinNotifier extends StateNotifier<AsyncValue<List<SocialPostEntry>>> {
   final SovereignRepository _repo;
 
-  SocialBulletinNotifier(this._repo) : super(const AsyncValue.loading()) {
+  SocialBulletinNotifier(this._repo)
+      : super(AsyncValue.data([SovereignRepository.defaultStarterPost()])) {
     loadFeed();
   }
 

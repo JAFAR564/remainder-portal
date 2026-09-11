@@ -156,7 +156,11 @@ void main() {
     });
 
     test('5. Waygate Telemetry Accuracy: accurately aggregates live Phase 2 and 3 subsystem states', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+        ],
+      );
       addTearDown(container.dispose);
 
       final telemetry = container.read(waygateTelemetryProvider);
@@ -171,7 +175,11 @@ void main() {
     });
 
     test('6. Trust Score Alignment & Honest Mesh Status: reports 0 peers and local standby without fabricated connections', () {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+        ],
+      );
       addTearDown(container.dispose);
 
       final telemetry = container.read(waygateTelemetryProvider);
