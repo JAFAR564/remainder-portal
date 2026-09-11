@@ -280,7 +280,7 @@ class DashboardScreen extends ConsumerWidget {
                                         curve: Curves.easeOutCubic,
                                         builder: (context, animatedXp, _) {
                                           return LinearProgressIndicator(
-                                            value: isWalletLoading ? null : animatedXp,
+                                            value: animatedXp,
                                             minHeight: 4,
                                             backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.35),
                                             valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6E473B)),

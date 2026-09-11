@@ -95,7 +95,16 @@ class PlayerWalletNotifier extends StateNotifier<AsyncValue<PlayerWallet>> {
   final SovereignRepository _repo;
   final String _userId;
 
-  PlayerWalletNotifier(this._repo, this._userId) : super(const AsyncValue.loading()) {
+  PlayerWalletNotifier(this._repo, this._userId)
+      : super(AsyncValue.data(PlayerWallet(
+          userId: _userId,
+          essenceBalance: 1000,
+          laurelBalance: 150,
+          experiencePoints: 765000,
+          currentLevel: 88,
+          unallocatedAttributePoints: 0,
+          lastUpdated: DateTime(2026, 9, 11),
+        ))) {
     loadWallet();
   }
 
