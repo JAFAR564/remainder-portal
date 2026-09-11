@@ -5,6 +5,8 @@ import '../../data/services/database_service.dart';
 import '../../data/repositories/okf_repository.dart';
 import '../../data/services/litert_service.dart';
 import '../../data/models/character_sheet.dart';
+import '../../data/models/equipment_item_model.dart';
+export '../../data/models/equipment_item_model.dart' show EquipmentRarity;
 
 // SQLite database provider singleton
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -307,8 +309,6 @@ final chatHistoryProvider = StateNotifierProvider<ChatHistoryNotifier, List<Mess
 });
 
 // Equipment Models & Providers
-enum EquipmentRarity { common, rare, celestial, sovereign }
-
 class EquippedGearItem {
   final String id;
   final String slot;

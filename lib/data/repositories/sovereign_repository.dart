@@ -138,32 +138,6 @@ class SovereignRepository {
         isEquipped: false,
         acquiredAt: now.add(const Duration(seconds: 5)),
       ),
-      EquipmentItemModel(
-        id: 'relic_relic_chrono_lens',
-        userId: userId,
-        slot: 'RELIC',
-        name: 'Chrono-Filament Lens',
-        rarity: EquipmentRarity.celestial,
-        statBonus: '+10 Temporal Clarity',
-        description: 'Focusing crystal tuned to detect anomalies across past timelines.',
-        iconName: 'auto_awesome',
-        upgradeLevel: 0,
-        isEquipped: false,
-        acquiredAt: now.add(const Duration(seconds: 6)),
-      ),
-      EquipmentItemModel(
-        id: 'relic_charm_sigil_arbiter',
-        userId: userId,
-        slot: 'CHARM',
-        name: 'Sigil of the Arbiter',
-        rarity: EquipmentRarity.common,
-        statBonus: '+5 Luck',
-        description: 'Imperial insignia certifying full clearance across all outer gates.',
-        iconName: 'diamond_outlined',
-        upgradeLevel: 0,
-        isEquipped: false,
-        acquiredAt: now.add(const Duration(seconds: 7)),
-      ),
     ];
 
     for (final item in starterGear) {
