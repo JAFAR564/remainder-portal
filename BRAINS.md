@@ -239,6 +239,40 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [implementation_plan.md](file:///data/data/com.termux/files/home/remainder-portal/implementation_plan.md)
 * [HANDOVER.md](file:///data/data/com.termux/files/home/remainder-portal/HANDOVER.md)
 
+---
+
+## 10. Brain Session 10 (Sovereign Dashboard Transformation: Threads B-0, B-1, B-2)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Active Session)
+* **Session Date:** September 11, 2026
+
+### Core Objectives & Accomplishments:
+* **Thread B-0 (Persistent Domain Foundation):**
+  - Migrated Drift database schema v4 &rarr; v5 non-destructively, preserving UTRCS characters, chat messages, and user records.
+  - Implemented 6 new persistence tables: `player_wallets`, `equipment_items`, `quest_decrees`, `quest_objectives`, `oracle_rolls`, `active_buffs`.
+  - Built `SovereignRepository` providing atomic transaction boundaries, overdraft protection, and duplicate reward claim prevention.
+* **Thread B-1 (Operator Sovereign Crest & Vessel Telemetry):**
+  - Connected `OperatorCrestCard` and `VesselTelemetryCard` to reactive Riverpod providers (`activePlayerWalletProvider`, `sovereignRepositoryProvider`).
+  - Implemented `OperatorCrestModal` and `VesselTelemetryModal` with deep-linking to `CharacterDossierScreen`.
+  - Enforced strict domain boundary: canonical base attributes read from UTRCS, zero transient HP/MP depletion hacks.
+* **Thread B-2 (Persistent Imperial Relic Vault & Equipment Integration):**
+  - Connected `EquipmentSlotsWidget` to `activeRelicVaultProvider` backed by persistent SQLite `equipment_items`.
+  - Built `RelicVaultSheet` modal filtered by slot compatibility (`WEAPON`, `ARMOR`, `RELIC`, `CHARM`).
+  - Integrated `EquipmentDetailSheet` with non-destructive unequip (`isEquipped = false`, 0 row deletions) and atomic enhancement (+1 upgrade debits Essence atomically).
+  - Authored `test/relic_vault_integrity_test.dart` proving all 6 domain properties and exploit restart resistance.
+  - Verified 100% green CI matrix (77/77 tests) across Windows, Web, Backend, and Android ARM64 builds.
+
+### Modified & Created Assets:
+* [lib/data/services/database_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart)
+* [lib/data/repositories/sovereign_repository.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/repositories/sovereign_repository.dart)
+* [lib/presentation/providers/sovereign_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/sovereign_provider.dart)
+* [lib/presentation/providers/game_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/game_provider.dart)
+* [lib/presentation/widgets/equipment_slots_widget.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_slots_widget.dart)
+* [lib/presentation/widgets/equipment_detail_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/equipment_detail_sheet.dart)
+* [lib/presentation/widgets/relic_vault_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/relic_vault_sheet.dart)
+* [test/relic_vault_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/relic_vault_integrity_test.dart)
+* [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
+
+
 
 
 
