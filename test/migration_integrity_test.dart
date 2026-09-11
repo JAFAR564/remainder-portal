@@ -8,9 +8,21 @@ import 'package:remainder_portal/data/models/player_wallet.dart';
 import 'package:remainder_portal/data/models/quest_decree_model.dart';
 import 'package:remainder_portal/data/repositories/sovereign_repository.dart';
 
+class _RawPreV5User extends QueryExecutorUser {
+  @override
+  int get schemaVersion => 4;
+
+  @override
+  Future<void> beforeOpen(QueryExecutor executor, OpeningDetails details) async {}
+}
+
 void main() {
   late Directory tempDir;
   late File dbFile;
+
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
 
   setUp(() {
     tempDir = Directory.systemTemp.createTempSync('drift_migration_verify_');
@@ -31,7 +43,7 @@ void main() {
 
     // Step A: Initialize raw SQLite DB representing Schema v4
     final rawPreV5Db = NativeDatabase(dbFile);
-    await rawPreV5Db.ensureOpen(QueryExecutorUser.unnamed());
+    await rawPreV5Db.ensureOpen(_RawPreV5User());
 
     // Create v4 tables manually via raw SQL
     await rawPreV5Db.runCustom('''
