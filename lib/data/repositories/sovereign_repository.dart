@@ -52,13 +52,9 @@ class SovereignRepository {
   // 2. Imperial Relic Vault & Equipment
   // ==========================================
 
-  Future<List<EquipmentItemModel>> getEquipment(String userId) async {
-    final items = await _db.getEquipmentForUser(userId);
-    if (items.isNotEmpty) return items;
-
-    // Seed default starter gear and vault items
-    final now = DateTime.now();
-    final starterGear = [
+  static List<EquipmentItemModel> defaultStarterGear(String userId, [DateTime? baseTime]) {
+    final now = baseTime ?? DateTime.now();
+    return [
       EquipmentItemModel(
         id: 'relic_weapon_shadow_dagger',
         userId: userId,
@@ -139,6 +135,14 @@ class SovereignRepository {
         acquiredAt: now.add(const Duration(seconds: 5)),
       ),
     ];
+  }
+
+  Future<List<EquipmentItemModel>> getEquipment(String userId) async {
+    final items = await _db.getEquipmentForUser(userId);
+    if (items.isNotEmpty) return items;
+
+    // Seed default starter gear and vault items
+    final starterGear = defaultStarterGear(userId);
 
     for (final item in starterGear) {
       await _db.upsertEquipment(item);

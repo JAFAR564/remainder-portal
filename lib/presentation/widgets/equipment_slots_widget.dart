@@ -117,6 +117,7 @@ class EquipmentSlotsWidget extends ConsumerWidget {
           : 'Empty $slot slot. Tap to open Imperial Vault.',
       button: true,
       child: InkWell(
+        key: Key('slot_$slot'),
         onTap: () {
           if (hasItem) {
             EquipmentDetailSheet.show(context, item);

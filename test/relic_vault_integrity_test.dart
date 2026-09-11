@@ -69,7 +69,7 @@ void main() {
       expect(find.text('Empty'), findsWidgets);
 
       // Tap on the empty WEAPON slot
-      final emptyWeaponSlot = find.bySemanticsLabel('Empty WEAPON slot. Tap to open Imperial Vault.');
+      final emptyWeaponSlot = find.byKey(const Key('slot_WEAPON'));
       expect(emptyWeaponSlot, findsOneWidget);
       await tester.tap(emptyWeaponSlot);
       await tester.pumpAndSettle();
@@ -112,7 +112,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Open vault from empty weapon slot
-      await tester.tap(find.bySemanticsLabel('Empty WEAPON slot. Tap to open Imperial Vault.'));
+      await tester.tap(find.byKey(const Key('slot_WEAPON')));
       await tester.pumpAndSettle();
 
       // Tap "EQUIP TO WEAPON" on Obsidian Edge
@@ -214,7 +214,7 @@ void main() {
       expect(find.byType(EquipmentDetailSheet), findsNothing);
 
       // Slot is now empty
-      expect(find.bySemanticsLabel('Empty ARMOR slot. Tap to open Imperial Vault.'), findsOneWidget);
+      expect(find.byKey(const Key('slot_ARMOR')), findsOneWidget);
 
       // Verify row is STILL IN DATABASE (not deleted)
       final allItems = await db.getEquipmentForUser(defaultUser);

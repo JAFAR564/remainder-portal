@@ -173,7 +173,10 @@ class RelicVaultNotifier extends StateNotifier<AsyncValue<RelicVaultState>> {
   final Ref _ref;
   final String _userId;
 
-  RelicVaultNotifier(this._repo, this._ref, this._userId) : super(const AsyncValue.loading()) {
+  RelicVaultNotifier(this._repo, this._ref, this._userId)
+      : super(AsyncValue.data(RelicVaultState(
+          items: SovereignRepository.defaultStarterGear(_userId),
+        ))) {
     loadVault();
   }
 
