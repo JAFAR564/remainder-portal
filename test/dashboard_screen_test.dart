@@ -14,6 +14,7 @@ import 'package:remainder_portal/presentation/widgets/equipment_slots_widget.dar
 import 'package:remainder_portal/presentation/widgets/quest_decree_widget.dart';
 import 'package:remainder_portal/presentation/widgets/aether_resonance_oracle_widget.dart';
 import 'package:remainder_portal/presentation/widgets/social_post_card.dart';
+import 'package:remainder_portal/presentation/widgets/relic_vault_sheet.dart';
 
 class _MockUtrcsNotifier extends UtrcsCharacterNotifier {
   _MockUtrcsNotifier(super.ref, super.db, UtrcsCharacterModel initial) {
@@ -437,6 +438,29 @@ void main() {
       expect(find.text('SOVEREIGN VITALITY & ESSENCE GAUGES'), findsOneWidget);
       expect(find.text('SOVEREIGN REALMS & COMMUNION HUBS'), findsOneWidget);
       expect(find.text('SOVEREIGN COMMUNITY WALL & NEWS FEED'), findsOneWidget);
+    });
+
+    testWidgets('Dashboard equipment slots allow opening Imperial Relic Vault (Thread B-2)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap on VAULT ↗ header action
+      final vaultFinder = find.textContaining('VAULT ↗');
+      expect(vaultFinder, findsOneWidget);
+      await tester.ensureVisible(vaultFinder);
+      await tester.tap(vaultFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Relic Vault sheet opened
+      expect(find.byType(RelicVaultSheet), findsOneWidget);
+      expect(find.textContaining('IMPERIAL RELIC VAULT'), findsOneWidget);
     });
   });
 }

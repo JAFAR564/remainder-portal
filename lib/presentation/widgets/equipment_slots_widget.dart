@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/game_provider.dart';
+import '../../data/models/equipment_item_model.dart';
+import '../providers/sovereign_provider.dart';
 import 'equipment_detail_sheet.dart';
+import 'relic_vault_sheet.dart';
 import 'celestial_panel.dart';
 import 'astrolabe_section_header.dart';
 
-/// Celestial Astrolabe Equipment Slots Pedestal Widget with Responsive Layout.
+/// Celestial Astrolabe Equipment Slots Pedestal Widget backed by persistent SQLite Relic Vault.
 class EquipmentSlotsWidget extends ConsumerWidget {
   const EquipmentSlotsWidget({super.key});
 
@@ -25,7 +27,9 @@ class EquipmentSlotsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gearList = ref.watch(equippedGearProvider);
+    final vaultAsync = ref.watch(activeRelicVaultProvider);
+    final vaultState = vaultAsync.valueOrNull;
+    final equippedItems = vaultState?.equippedItems ?? [];
     final List<String> standardSlots = ['WEAPON', 'ARMOR', 'RELIC', 'CHARM'];
 
     return CelestialPanel(
@@ -38,13 +42,20 @@ class EquipmentSlotsWidget extends ConsumerWidget {
             glyph: '⟐',
             fontSize: 11,
             letterSpacing: 1.2,
-            trailing: Text(
-              '${gearList.length}/4 EQUIPPED',
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFFA78D78),
+            trailing: InkWell(
+              onTap: () => RelicVaultSheet.show(context),
+              borderRadius: BorderRadius.circular(6),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Text(
+                  '${equippedItems.length}/4 EQUIPPED • VAULT ↗',
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFA78D78),
+                  ),
+                ),
               ),
             ),
           ),
@@ -59,17 +70,17 @@ class EquipmentSlotsWidget extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Expanded(child: _buildSlotItem(context, gearList, standardSlots[0])),
+                        Expanded(child: _buildSlotItem(context, vaultState, standardSlots[0])),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildSlotItem(context, gearList, standardSlots[1])),
+                        Expanded(child: _buildSlotItem(context, vaultState, standardSlots[1])),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Expanded(child: _buildSlotItem(context, gearList, standardSlots[2])),
+                        Expanded(child: _buildSlotItem(context, vaultState, standardSlots[2])),
                         const SizedBox(width: 8),
-                        Expanded(child: _buildSlotItem(context, gearList, standardSlots[3])),
+                        Expanded(child: _buildSlotItem(context, vaultState, standardSlots[3])),
                       ],
                     ),
                   ],
@@ -79,7 +90,7 @@ class EquipmentSlotsWidget extends ConsumerWidget {
                 return Row(
                   children: standardSlots.map((slot) {
                     return Expanded(
-                      child: _buildSlotItem(context, gearList, slot),
+                      child: _buildSlotItem(context, vaultState, slot),
                     );
                   }).toList(),
                 );
@@ -91,23 +102,28 @@ class EquipmentSlotsWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildSlotItem(BuildContext context, List<EquippedGearItem> gearList, String slot) {
-    final item = gearList.cast<EquippedGearItem?>().firstWhere(
-          (g) => g?.slot == slot,
-          orElse: () => null,
-        );
+  Widget _buildSlotItem(BuildContext context, RelicVaultState? vaultState, String slot) {
+    final item = vaultState?.equippedForSlot(slot);
     return _buildSlot(context, slot: slot, item: item);
   }
 
-  Widget _buildSlot(BuildContext context, {required String slot, required EquippedGearItem? item}) {
+  Widget _buildSlot(BuildContext context, {required String slot, required EquipmentItemModel? item}) {
     final hasItem = item != null;
     final rarityColor = hasItem ? _getRarityColor(item.rarity) : const Color(0xFFBEB5A9);
 
     return Semantics(
-      label: hasItem ? '$slot slot: ${item.name}' : 'Empty $slot slot',
+      label: hasItem
+          ? '$slot slot: ${item.name}${item.upgradeLevel > 0 ? " +${item.upgradeLevel}" : ""}'
+          : 'Empty $slot slot. Tap to open Imperial Vault.',
       button: true,
       child: InkWell(
-        onTap: hasItem ? () => EquipmentDetailSheet.show(context, item) : null,
+        onTap: () {
+          if (hasItem) {
+            EquipmentDetailSheet.show(context, item);
+          } else {
+            RelicVaultSheet.show(context, slotFilter: slot);
+          }
+        },
         borderRadius: BorderRadius.circular(10),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -137,7 +153,7 @@ class EquipmentSlotsWidget extends ConsumerWidget {
                       : null,
                 ),
                 child: Icon(
-                  item?.icon ?? Icons.add_outlined,
+                  item != null ? item.iconData : Icons.add_outlined,
                   color: hasItem ? const Color(0xFF6E473B) : const Color(0xFFBEB5A9),
                   size: 22,
                 ),
@@ -155,7 +171,9 @@ class EquipmentSlotsWidget extends ConsumerWidget {
                 ),
               ),
               Text(
-                item?.name ?? 'Empty',
+                item != null
+                    ? (item.upgradeLevel > 0 ? '${item.name} +${item.upgradeLevel}' : item.name)
+                    : 'Empty',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,

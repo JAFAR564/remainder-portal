@@ -136,3 +136,93 @@ final activeWalletProvider = Provider<AsyncValue<PlayerWallet>>((ref) {
   final userId = character?.id ?? 'utrcs_default_player';
   return ref.watch(playerWalletProvider(userId));
 });
+
+/// Represents the persistent state of the player's Imperial Relic Vault and equipped gear
+class RelicVaultState {
+  final List<EquipmentItemModel> items;
+
+  const RelicVaultState({this.items = const []});
+
+  List<EquipmentItemModel> get equippedItems => items.where((i) => i.isEquipped).toList();
+  List<EquipmentItemModel> get vaultItems => items.where((i) => !i.isEquipped).toList();
+
+  EquipmentItemModel? equippedForSlot(String slot) {
+    try {
+      return items.firstWhere((i) => i.isEquipped && i.slot.toUpperCase() == slot.toUpperCase());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<EquipmentItemModel> vaultItemsForSlot(String slot) {
+    return items.where((i) => !i.isEquipped && i.slot.toUpperCase() == slot.toUpperCase()).toList();
+  }
+
+  EquipmentItemModel? itemById(String id) {
+    try {
+      return items.firstWhere((i) => i.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// Reactive StateNotifier for the Imperial Relic Vault & Equipment
+class RelicVaultNotifier extends StateNotifier<AsyncValue<RelicVaultState>> {
+  final SovereignRepository _repo;
+  final Ref _ref;
+  final String _userId;
+
+  RelicVaultNotifier(this._repo, this._ref, this._userId) : super(const AsyncValue.loading()) {
+    loadVault();
+  }
+
+  Future<void> loadVault() async {
+    try {
+      final items = await _repo.getEquipment(_userId);
+      if (mounted) {
+        state = AsyncValue.data(RelicVaultState(items: items));
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  Future<void> equipItem({required String itemId, required String slot}) async {
+    await _repo.equipItem(userId: _userId, itemId: itemId, slot: slot);
+    await loadVault();
+  }
+
+  Future<void> unequipItem({required String itemId}) async {
+    await _repo.unequipItem(userId: _userId, itemId: itemId);
+    await loadVault();
+  }
+
+  Future<EquipmentItemModel> upgradeItem({required String itemId, required int costEssence}) async {
+    final updated = await _repo.upgradeItem(
+      itemId: itemId,
+      userId: _userId,
+      costEssence: costEssence,
+    );
+    // Refresh the player wallet so the UI immediately reflects the debited Essence
+    await _ref.read(playerWalletProvider(_userId).notifier).loadWallet();
+    await loadVault();
+    return updated;
+  }
+}
+
+/// Family provider for specific operator's relic vault
+final relicVaultProvider = StateNotifierProvider.family<RelicVaultNotifier, AsyncValue<RelicVaultState>, String>((ref, userId) {
+  final repo = ref.watch(sovereignRepositoryProvider);
+  return RelicVaultNotifier(repo, ref, userId);
+});
+
+/// Reactive provider for the active operator's relic vault
+final activeRelicVaultProvider = Provider<AsyncValue<RelicVaultState>>((ref) {
+  final character = ref.watch(utrcsCharacterProvider);
+  final userId = character?.id ?? 'utrcs_default_player';
+  return ref.watch(relicVaultProvider(userId));
+});
+
