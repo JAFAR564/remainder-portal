@@ -6,11 +6,12 @@
 - **Active Branch:** `main`
 - **Current Version:** `1.1.8+12`
 - **GitHub Account:** `@JAFAR564` (Authenticated via `gh`)
-- **Active Phase:** `Thread B-3` — World Arbiter Quest & Decree Lifecycle Integration
+- **Active Phase:** `Thread B-4` — Oracle / Aether Resonance Buff Engine
 - **Completed Phases:**
   - ✅ `Thread B-0` (Persistent Domain Foundations, Drift v4->v5 migration, 6 core domain tables)
   - ✅ `Thread B-1` (Operator Sovereign Crest, Live Vessel Telemetry, Dossier deep-link)
   - ✅ `Thread B-2` (Persistent Imperial Relic Vault, equip/unequip transactions, atomic upgrades)
+  - ✅ `Thread B-3` (World Arbiter Quest Decrees, seed-not-bypass SQLite authority, atomic multi-table reward settlement)
 
 ---
 

@@ -272,6 +272,42 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [test/relic_vault_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/relic_vault_integrity_test.dart)
 * [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
 
+---
+
+## 11. Brain Session 11 (Thread B-3: World Arbiter Quest & Decree Lifecycle Integration)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Active Session)
+* **Session Date:** September 11, 2026
+
+### Core Objectives & Accomplishments:
+* **Seed-Not-Bypass SQLite Authority (`quest_decrees` & `quest_objectives`):**
+  - Refactored `SovereignRepository.getQuests` to seed default starter decrees into SQLite once when empty (`upsertQuestDecree`), ensuring all subsequent reads, progress mutations, and claims query SQLite exclusively (`SELECT ... FROM quest_decrees`). Zero hardcoded in-memory bypasses.
+* **Atomic Multi-Table Settlement Boundary:**
+  - Implemented `DatabaseService.claimQuestReward` using an atomic SQLite transaction: verifies quest completion (`progress >= 1.0`), guards against double claiming (`is_claimed == 1`), marks `is_claimed = 1`, and credits Essence and Laurels into `player_wallets` atomically.
+* **Quest Decree Modal Sheet & Dashboard Reactivity:**
+  - Created `QuestDecreeSheet` modal bottom sheet allowing operators to inspect, filter (`ALL`, `ACTIVE`, `COMPLETED`, `CLAIMED`), and claim decrees with immediate feedback.
+  - Refactored `QuestDecreeWidget` with responsive layout, flexible boolean parsing, explicit close controls, and dynamic CTA transitions (`DEPART ON QUEST` &rarr; `CLAIM REWARDS` &rarr; `FULFILLED`).
+* **World Arbiter Classification (`MISSING / DEFERRED`):**
+  - Plainly designated the World Arbiter as `MISSING / DEFERRED` per B-3 boundary contract, confirming deterministic progress tracking and reward settlement without fake or simulated AI-adjudicated roll resolution.
+* **Rigorous Integrity & Exploit Test Suite:**
+  - Authored `test/quest_decree_integrity_test.dart` (7 tests): verifying initial seeding, progress persistence, atomic reward claims, double-claim guard, premature claim guard, DB restart persistence, and widget reactivity.
+  - Updated `test/dashboard_screen_test.dart` with Thread B-3 sheet opening verification.
+  - All 85/85 tests passed green in Cloud CI (100% pass rate, 0 failures).
+* **Delivery & Artifact Verification:**
+  - Cloud CI Run: `34625252952` on commit `e0efb04`.
+  - Android APK: `/sdcard/Download/remainder-portal.apk` (98,042,142 bytes, ARM64-v8a).
+  - SHA256: `c229a8163a9944aad598071c7de46bc2e217f042700045ec7f4e8940b5bd8622`.
+  - Launched installer via `termux-open`.
+
+### Modified & Created Assets:
+* [lib/data/services/database_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart)
+* [lib/data/repositories/sovereign_repository.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/repositories/sovereign_repository.dart)
+* [lib/presentation/providers/sovereign_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/sovereign_provider.dart)
+* [lib/presentation/widgets/quest_decree_widget.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_widget.dart)
+* [lib/presentation/widgets/quest_decree_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_sheet.dart)
+* [test/quest_decree_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/quest_decree_integrity_test.dart)
+* [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
+
+
 
 
 
