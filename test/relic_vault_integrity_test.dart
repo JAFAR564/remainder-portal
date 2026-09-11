@@ -116,8 +116,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap "EQUIP TO WEAPON" on Obsidian Edge
-      final equipButton = find.widgetWithText(ElevatedButton, 'EQUIP TO WEAPON').first;
-      await tester.tap(equipButton);
+      await tester.tap(find.byKey(const Key('equip_relic_weapon_obsidian_edge')));
       await tester.pumpAndSettle();
 
       // Vault sheet is dismissed and slot now displays Obsidian Edge

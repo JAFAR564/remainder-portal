@@ -350,6 +350,7 @@ class _RelicVaultSheetState extends ConsumerState<RelicVaultSheet> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
+                                  key: Key('equip_${item.id}'),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF6E473B),
                                     foregroundColor: const Color(0xFFE1D4C2),
