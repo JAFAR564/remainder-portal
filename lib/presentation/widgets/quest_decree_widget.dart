@@ -44,11 +44,12 @@ class QuestDecreeWidget extends ConsumerWidget {
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF6E473B),
-                      letterSpacing: 1.2,
+                      letterSpacing: 1.1,
                     ),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 key: const Key('open_decrees_sheet'),
                 onTap: () => QuestDecreeSheet.show(context),
@@ -71,7 +72,15 @@ class QuestDecreeWidget extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // Status & Difficulty Badges Wrap (Responsive and Flex-Safe)
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
               if (quest.isClaimed) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -127,7 +136,6 @@ class QuestDecreeWidget extends ConsumerWidget {
                   ),
                 ),
               ],
-              const SizedBox(width: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -147,7 +155,7 @@ class QuestDecreeWidget extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Quest Title
           Text(

@@ -845,8 +845,8 @@ class AppDatabase extends _$AppDatabase {
         rewardEssence: (d['reward_essence'] as num).toInt(),
         rewardLaurels: (d['reward_laurels'] as num).toInt(),
         progress: (d['progress'] as num).toDouble(),
-        isUrgent: d['is_urgent'] == 1,
-        isClaimed: d['is_claimed'] == 1,
+        isUrgent: d['is_urgent'] == 1 || d['is_urgent'] == true,
+        isClaimed: d['is_claimed'] == 1 || d['is_claimed'] == true,
         difficulty: d['difficulty'] as String? ?? 'S-RANK',
         createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
       );
@@ -871,8 +871,8 @@ class AppDatabase extends _$AppDatabase {
       rewardEssence: (d['reward_essence'] as num).toInt(),
       rewardLaurels: (d['reward_laurels'] as num).toInt(),
       progress: (d['progress'] as num).toDouble(),
-      isUrgent: d['is_urgent'] == 1,
-      isClaimed: d['is_claimed'] == 1,
+      isUrgent: d['is_urgent'] == 1 || d['is_urgent'] == true,
+      isClaimed: d['is_claimed'] == 1 || d['is_claimed'] == true,
       difficulty: d['difficulty'] as String? ?? 'S-RANK',
       createdAt: DateTime.fromMillisecondsSinceEpoch(d['created_at'] as int),
     );

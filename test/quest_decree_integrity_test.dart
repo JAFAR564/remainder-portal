@@ -290,8 +290,10 @@ void main() {
       // Verify SnackBar confirmation
       expect(find.textContaining('Decree Fulfilled!'), findsOneWidget);
 
-      // Dismiss modal by tapping header
-      await tester.tap(find.text('WORLD ARBITER DECREES'));
+      // Dismiss modal via close button
+      final closeSheetBtn = find.byKey(const Key('close_decrees_sheet'));
+      expect(closeSheetBtn, findsOneWidget);
+      await tester.tap(closeSheetBtn);
       await tester.pumpAndSettle();
       expect(find.byType(QuestDecreeSheet), findsNothing);
 

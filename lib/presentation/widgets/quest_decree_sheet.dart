@@ -125,6 +125,16 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                         color: Color(0xFFA78D78),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      key: const Key('close_decrees_sheet'),
+                      onTap: () => Navigator.pop(context),
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(2.0),
+                        child: Icon(Icons.close, size: 18, color: Color(0xFF6E473B)),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
