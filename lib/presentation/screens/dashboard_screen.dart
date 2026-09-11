@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/game_provider.dart';
+import '../providers/utrcs_provider.dart';
+import '../providers/sovereign_provider.dart';
 import '../widgets/equipment_slots_widget.dart';
 import '../widgets/social_post_card.dart';
 import '../widgets/aether_resonance_oracle_widget.dart';
@@ -75,6 +77,27 @@ class DashboardScreen extends ConsumerWidget {
               _buildAttributeRow('AETHER (ENERGY RESERVE)', '$aether / 20', 'Fuels astral spells, leylines, and cooperative combo checks.', const Color(0xFFA78D78)),
               const Divider(color: Color(0xFFBEB5A9), height: 16),
               _buildAttributeRow('SYSTEM (COMPUTE POWER)', '$essence / 20', 'Powers local AI inference, decryption, and governance voting.', const Color(0xFF291C0E)),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE1D4C2).withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.5)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 14, color: Color(0xFF6E473B)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Canonical Soul Vessel base attributes loaded from active UTRCS manifest. Transient depletion / restoration mechanics are currently sealed pending combat domain verification.',
+                        style: TextStyle(fontFamily: 'monospace', fontSize: 8.5, color: Color(0xFF6E473B)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
@@ -122,13 +145,28 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(playerProfileProvider);
+    final character = ref.watch(utrcsCharacterProvider);
+    final walletAsync = ref.watch(activeWalletProvider);
     final socialPosts = ref.watch(socialFeedProvider);
 
-    final playerName = profile?.name ?? 'Operator Sung (Shadow Monarch)';
-    final playerOrigin = profile?.origin ?? 'Vanguard Class';
-    final vitality = profile?.stats.shieldIntegrity ?? 16;
-    final aether = profile?.stats.energyReserve ?? 18;
-    final essence = profile?.stats.computePower ?? 14;
+    // Canonical identity resolution:
+    // Prefer active UTRCS character, fallback to legacy playerProfile, fallback to default
+    final playerName = character?.identity.name ?? profile?.name ?? 'Operator Sung (Shadow Monarch)';
+    final playerOrigin = character?.role.tacticalArchetype != null && character?.setting.sectorOrigin != null
+        ? '${character!.role.tacticalArchetype} • ${character.setting.sectorOrigin}'
+        : (profile?.origin ?? 'Vanguard Class • Sanctuary 4 (Aether Spire)');
+
+    // Canonical attributes (HP/MP/SP) resolution:
+    final stats = character?.mechanical.baseStats ?? profile?.stats;
+    final vitality = stats?.shieldIntegrity ?? 16;
+    final aether = stats?.energyReserve ?? 18;
+    final essence = stats?.computePower ?? 14;
+
+    // Progression (Level & XP) resolution from domain wallet:
+    final wallet = walletAsync.valueOrNull;
+    final int level = wallet?.currentLevel ?? 88;
+    final double xpProgress = wallet?.levelProgress ?? 0.463;
+    final bool isWalletLoading = walletAsync.isLoading;
 
     return Scaffold(
       backgroundColor: const Color(0xFFE1D4C2),
@@ -147,7 +185,7 @@ class DashboardScreen extends ConsumerWidget {
               children: [
                 // 1. Operator Sovereign Crest (Section 8.1)
                 Semantics(
-                  label: 'Player Header: $playerName, $playerOrigin, Level 88. Tap to open UTRCS Character Dossier.',
+                  label: 'Player Header: $playerName, $playerOrigin, Level $level. Tap to open UTRCS Character Dossier.',
                   button: true,
                   child: CelestialPanel(
                     onTap: () {
@@ -181,7 +219,7 @@ class DashboardScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 14),
 
-                        // Title & Subtitle Info Area
+                        // Title & Subtitle Info Area with Live XP Progression
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,9 +267,44 @@ class DashboardScreen extends ConsumerWidget {
                                   color: Color(0xFFA78D78),
                                 ),
                               ),
+                              const SizedBox(height: 5),
+                              // Live XP Progression Visualization
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(3),
+                                      child: TweenAnimationBuilder<double>(
+                                        tween: Tween<double>(begin: 0.0, end: xpProgress.clamp(0.0, 1.0)),
+                                        duration: const Duration(milliseconds: 600),
+                                        curve: Curves.easeOutCubic,
+                                        builder: (context, animatedXp, _) {
+                                          return LinearProgressIndicator(
+                                            value: isWalletLoading ? null : animatedXp,
+                                            minHeight: 4,
+                                            backgroundColor: const Color(0xFFBEB5A9).withValues(alpha: 0.35),
+                                            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF6E473B)),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${(xpProgress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 8,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF6E473B),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
+                        const SizedBox(width: 10),
 
                         // Astrolabe Dial Level Badge
                         Container(
@@ -241,10 +314,10 @@ class DashboardScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: const Color(0xFFA78D78), width: 1.4),
                           ),
-                          child: const Column(
+                          child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              const Text(
                                 'LEVEL',
                                 style: TextStyle(
                                   fontFamily: 'monospace',
@@ -254,8 +327,8 @@ class DashboardScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                '88',
-                                style: TextStyle(
+                                '$level',
+                                style: const TextStyle(
                                   fontFamily: 'serif',
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

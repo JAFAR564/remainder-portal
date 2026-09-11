@@ -6,6 +6,7 @@ import '../../data/models/quest_decree_model.dart';
 import '../../data/models/social_bulletin_model.dart';
 import '../../data/repositories/sovereign_repository.dart';
 import 'game_provider.dart';
+import 'utrcs_provider.dart';
 
 /// Sovereign Command Deck domain repository provider
 final sovereignRepositoryProvider = Provider<SovereignRepository>((ref) {
@@ -87,4 +88,42 @@ class OracleBuffNotifier extends StateNotifier<OracleBuffState> {
 final oracleBuffProvider = StateNotifierProvider<OracleBuffNotifier, OracleBuffState>((ref) {
   final repo = ref.watch(sovereignRepositoryProvider);
   return OracleBuffNotifier(repo);
+});
+
+/// Manages player wallet and progression state reactively
+class PlayerWalletNotifier extends StateNotifier<AsyncValue<PlayerWallet>> {
+  final SovereignRepository _repo;
+  final String _userId;
+
+  PlayerWalletNotifier(this._repo, this._userId) : super(const AsyncValue.loading()) {
+    loadWallet();
+  }
+
+  Future<void> loadWallet() async {
+    try {
+      final wallet = await _repo.getWallet(_userId);
+      if (mounted) {
+        state = AsyncValue.data(wallet);
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  Future<void> refresh() => loadWallet();
+}
+
+/// Family provider for specific operator wallet
+final playerWalletProvider = StateNotifierProvider.family<PlayerWalletNotifier, AsyncValue<PlayerWallet>, String>((ref, userId) {
+  final repo = ref.watch(sovereignRepositoryProvider);
+  return PlayerWalletNotifier(repo, userId);
+});
+
+/// Reactive provider for the active operator's wallet
+final activeWalletProvider = Provider<AsyncValue<PlayerWallet>>((ref) {
+  final character = ref.watch(utrcsCharacterProvider);
+  final userId = character?.id ?? 'utrcs_default_player';
+  return ref.watch(playerWalletProvider(userId));
 });
