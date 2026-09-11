@@ -307,6 +307,43 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * [test/quest_decree_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/quest_decree_integrity_test.dart)
 * [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
 
+---
+
+## 12. Brain Session 12 (Thread B-4: Aether Resonance Oracle & Buff Engine Integration)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Active Session)
+* **Session Date:** September 11, 2026
+
+### Core Objectives & Accomplishments:
+* **Seed-Not-Bypass SQLite Authority (`oracle_histories`):**
+  - Integrated `oracle_histories` Drift table with full schema persistence.
+  - Implemented `SovereignRepository.getHistory` to seed calibrated starter roll (`CRITICAL CONSENSUS`, roll 20) into SQLite once when empty, ensuring all subsequent roll retrievals, buff evaluations, and communion history query SQLite directly (`SELECT ... FROM oracle_histories`). Zero hardcoded in-memory roll lists.
+* **Atomic Divination & Essence Debit Boundary:**
+  - Implemented `DatabaseService.performDivinationRoll` and `SovereignRepository.communeWithOracle` in an atomic SQLite transaction: verifies wallet Essence balance (`essence_balance >= 25`), rejects rolls on insufficient balance without state mutation, debits 25 Essence atomically, and inserts `OracleRecord` into `oracle_histories`.
+* **Derived Temporal Modifiers (Zero Base Schema Mutation):**
+  - Designed `ActiveBuff` with wall-clock derived expiration (`timestamp` + `durationSeconds`).
+  - Active buffs are dynamically derived from persisted `oracle_histories` rolls without adding ephemeral buff columns or flags to base tables (`player_wallets`, `equipment_items`, `utrcs_characters`).
+* **Oracle Chronicle Modal Sheet & Dashboard Reactivity:**
+  - Built `OracleChronicleSheet` modal bottom sheet displaying persisted roll history, roll outcomes, and active blessing status with explicit close button (`Key('close_oracle_chronicle_sheet')`).
+  - Refactored `AetherResonanceOracleWidget` as a reactive `ConsumerStatefulWidget` subscribed to `activeOracleBuffProvider`.
+  - Enforced strict responsive design with `Flexible` button label text and unified D20 badge, guaranteeing zero `RenderFlex` overflows on narrow mobile viewports (320dp, 360dp, 600dp).
+* **World Arbiter / Oracle Classification:**
+  - Plainly designated Oracle text as `AUTHORED / STATIC (PERSISTED ON ROLL)`.
+  - Designated live LLM text generation as `MISSING / DEFERRED` per Thread B-4 contract.
+* **Integrity & Exploit Test Suite:**
+  - Authored `test/oracle_buff_integrity_test.dart` (7 tests): initial seeding, atomic essence debit, overdraft rejection, active buff extraction, DB restart persistence, expiry invalidation, and widget reactivity on 320dp viewport.
+  - Expanded `test/dashboard_screen_test.dart` to verify opening `OracleChronicleSheet`.
+  - Total test suite expanded to 92 tests.
+
+### Modified & Created Assets:
+* [lib/data/models/oracle_record.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/models/oracle_record.dart)
+* [lib/data/services/database_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart)
+* [lib/data/repositories/sovereign_repository.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/repositories/sovereign_repository.dart)
+* [lib/presentation/providers/sovereign_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/sovereign_provider.dart)
+* [lib/presentation/widgets/aether_resonance_oracle_widget.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart)
+* [lib/presentation/widgets/oracle_chronicle_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/oracle_chronicle_sheet.dart)
+* [test/oracle_buff_integrity_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/oracle_buff_integrity_test.dart)
+* [test/dashboard_screen_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/dashboard_screen_test.dart)
+
 
 
 

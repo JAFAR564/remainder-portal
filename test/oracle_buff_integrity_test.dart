@@ -20,7 +20,7 @@ void main() {
   });
 
   late AppDatabase db;
-  const defaultUser = 'test_operator_b4';
+  const defaultUser = 'utrcs_default_player';
 
   setUp(() async {
     db = AppDatabase(NativeDatabase.memory());
