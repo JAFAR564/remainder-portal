@@ -981,6 +981,42 @@ class AppDatabase extends _$AppDatabase {
     ]);
   }
 
+  /// Atomically executes a divination communion: verifies sufficient Essence, debits Essence from
+  /// player_wallets, and writes the OracleRecord to oracle_histories.
+  Future<OracleRecord> performDivinationRoll({
+    required String userId,
+    required int costEssence,
+    required int d20Roll,
+    DateTime? timestamp,
+  }) async {
+    return await transaction(() async {
+      if (costEssence > 0) {
+        final wallet = await getPlayerWallet(userId);
+        if (wallet == null) {
+          throw StateError('Player wallet not found for user: $userId');
+        }
+        if (wallet.essenceBalance < costEssence) {
+          throw StateError(
+            'Insufficient Essence balance for divination communion (${wallet.essenceBalance} < $costEssence)',
+          );
+        }
+        await savePlayerWallet(wallet.copyWith(
+          essenceBalance: wallet.essenceBalance - costEssence,
+          lastUpdated: DateTime.now(),
+        ));
+      }
+
+      final record = OracleRecord.createCalibratedRecord(
+        userId: userId,
+        d20Roll: d20Roll,
+        timestamp: timestamp,
+      );
+
+      await recordOracleDivination(record);
+      return record;
+    });
+  }
+
   Future<List<OracleRecord>> getOracleHistoryForUser(String userId, {int limit = 10}) async {
     final rows = await customSelect(
       'SELECT id, user_id, d20_roll, outcome_tier, blessing_text, buff_granted, timestamp '

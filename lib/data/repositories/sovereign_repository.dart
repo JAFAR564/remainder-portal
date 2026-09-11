@@ -1,3 +1,4 @@
+import 'dart:math';
 import '../models/equipment_item_model.dart';
 import '../models/oracle_record.dart';
 import '../models/player_wallet.dart';
@@ -245,15 +246,59 @@ class SovereignRepository {
   }
 
   // ==========================================
-  // 4. Oracle Divination Chronicle
+  // 4. Oracle Divination Chronicle & Buff Engine
   // ==========================================
+
+  static OracleRecord defaultStarterRoll(String userId) {
+    return OracleRecord.createCalibratedRecord(
+      userId: userId,
+      d20Roll: 20,
+      timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+    );
+  }
 
   Future<void> recordRoll(OracleRecord record) async {
     await _db.recordOracleDivination(record);
   }
 
   Future<List<OracleRecord>> getHistory(String userId, {int limit = 10}) async {
+    final history = await _db.getOracleHistoryForUser(userId, limit: limit);
+    if (history.isNotEmpty) return history;
+
+    // Seed initial canonical divination record into SQLite once if empty
+    final starter = defaultStarterRoll(userId);
+    await _db.recordOracleDivination(starter);
     return await _db.getOracleHistoryForUser(userId, limit: limit);
+  }
+
+  /// Atomically executes a divination communion: checks and debits Essence from player_wallets,
+  /// maps D20 roll to calibrated blessing & buff, and persists to oracle_histories.
+  Future<OracleRecord> communeWithOracle({
+    required String userId,
+    int costEssence = 25,
+    int? rollOverride,
+    DateTime? timestamp,
+  }) async {
+    final roll = rollOverride ?? (Random().nextInt(20) + 1);
+    return await _db.performDivinationRoll(
+      userId: userId,
+      costEssence: costEssence,
+      d20Roll: roll,
+      timestamp: timestamp,
+    );
+  }
+
+  /// Returns all active, unexpired temporal buffs for the operator.
+  Future<List<ActiveBuff>> getActiveBuffs(String userId) async {
+    final history = await getHistory(userId, limit: 10);
+    final active = <ActiveBuff>[];
+    for (final record in history) {
+      final buff = record.activeBuff;
+      if (buff != null && !buff.isExpired) {
+        active.add(buff);
+      }
+    }
+    return active;
   }
 
   // ==========================================

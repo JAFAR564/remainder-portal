@@ -16,6 +16,7 @@ import 'package:remainder_portal/presentation/widgets/aether_resonance_oracle_wi
 import 'package:remainder_portal/presentation/widgets/social_post_card.dart';
 import 'package:remainder_portal/presentation/widgets/relic_vault_sheet.dart';
 import 'package:remainder_portal/presentation/widgets/quest_decree_sheet.dart';
+import 'package:remainder_portal/presentation/widgets/oracle_chronicle_sheet.dart';
 
 class _MockUtrcsNotifier extends UtrcsCharacterNotifier {
   _MockUtrcsNotifier(super.ref, super.db, UtrcsCharacterModel initial) {
@@ -485,6 +486,29 @@ void main() {
       // Verify Quest Decree sheet opened
       expect(find.byType(QuestDecreeSheet), findsOneWidget);
       expect(find.text('WORLD ARBITER DECREES'), findsOneWidget);
+    });
+
+    testWidgets('Dashboard allows opening Celestial Divination Chronicle Sheet (Thread B-4)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap on CHRONICLE ↗ header action
+      final chronicleFinder = find.byKey(const Key('open_oracle_chronicle_sheet'));
+      expect(chronicleFinder, findsOneWidget);
+      await tester.ensureVisible(chronicleFinder);
+      await tester.tap(chronicleFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Divination Chronicle sheet opened
+      expect(find.byType(OracleChronicleSheet), findsOneWidget);
+      expect(find.text('CHRONICLE OF DIVINATION'), findsOneWidget);
     });
   });
 }

@@ -77,4 +77,91 @@ class OracleRecord {
           : DateTime.now(),
     );
   }
+
+  /// Extracts the active temporal buff from this divination record, if one was granted.
+  ActiveBuff? get activeBuff {
+    if (buffGranted == null || buffGranted!.isEmpty) return null;
+
+    BuffType type = BuffType.aetherMultiplier;
+    double mult = 1.15;
+    Duration duration = const Duration(minutes: 15);
+
+    final bgLower = buffGranted!.toLowerCase();
+    if (outcomeTier == 'CRITICAL CONSENSUS' || bgLower.contains('aether')) {
+      type = BuffType.aetherMultiplier;
+      mult = 1.15;
+      duration = const Duration(minutes: 15);
+    } else if (outcomeTier == 'HARMONIC AETHER' || bgLower.contains('essence') || bgLower.contains('reward')) {
+      type = BuffType.questRewardBoost;
+      mult = 1.10;
+      duration = const Duration(minutes: 15);
+    } else if (outcomeTier == 'EQUILIBRIUM' || bgLower.contains('shield') || bgLower.contains('vitality')) {
+      type = BuffType.vitalityShield;
+      mult = 1.10;
+      duration = const Duration(minutes: 15);
+    } else if (outcomeTier.contains('TURBULENCE') || bgLower.contains('turbulence')) {
+      type = BuffType.anomalyTurbulence;
+      mult = 0.95;
+      duration = const Duration(minutes: 5);
+    } else {
+      type = BuffType.computeFocus;
+      mult = 1.05;
+      duration = const Duration(minutes: 15);
+    }
+
+    final expiresAt = timestamp.add(duration);
+    return ActiveBuff(
+      id: 'buff_$id',
+      type: type,
+      title: buffGranted!,
+      multiplier: mult,
+      startedAt: timestamp,
+      expiresAt: expiresAt,
+    );
+  }
+
+  /// Maps a D20 roll deterministically to its canonical outcome tier, blessing text, and buff.
+  static OracleRecord createCalibratedRecord({
+    required String userId,
+    required int d20Roll,
+    DateTime? timestamp,
+  }) {
+    final time = timestamp ?? DateTime.now();
+    final String outcomeTier;
+    final String blessingText;
+    final String? buffGranted;
+
+    if (d20Roll >= 20) {
+      outcomeTier = 'CRITICAL CONSENSUS';
+      blessingText = 'NATURAL 20: World Arbiter grants +15% Aether Multiplier to all Sanctuary travelers!';
+      buffGranted = '+15% Aether Multiplier (15m)';
+    } else if (d20Roll >= 15) {
+      outcomeTier = 'HARMONIC AETHER';
+      blessingText = 'GREAT FORTUNE: Celestial Leylines resonate. +10% Quest Essence Affinity.';
+      buffGranted = '+10% Quest Essence Boost (15m)';
+    } else if (d20Roll >= 10) {
+      outcomeTier = 'EQUILIBRIUM';
+      blessingText = 'SACRED SHIELD: Divine Pentelic Aura protects your squad against shadow corruption.';
+      buffGranted = '+10% Vitality Shield (15m)';
+    } else if (d20Roll >= 2) {
+      outcomeTier = 'CONVERGENCE';
+      blessingText = 'ARBITER HARMONY: The Cardinal Scribes canonize your soul vessel rank.';
+      buffGranted = '+5% Compute Focus (15m)';
+    } else {
+      outcomeTier = 'ANOMALY TURBULENCE';
+      blessingText = 'CRITICAL ANOMALY: Dimensional residue causes minor turbulence in resonance matrix.';
+      buffGranted = '-5% Aether Turbulence (5m)';
+    }
+
+    return OracleRecord(
+      id: 'oracle_${time.millisecondsSinceEpoch}_$d20Roll',
+      userId: userId,
+      d20Roll: d20Roll,
+      outcomeTier: outcomeTier,
+      blessingText: blessingText,
+      buffGranted: buffGranted,
+      timestamp: time,
+    );
+  }
 }
+

@@ -1,45 +1,71 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/models/oracle_record.dart';
+import '../../data/repositories/sovereign_repository.dart';
+import '../providers/sovereign_provider.dart';
+import '../providers/utrcs_provider.dart';
 import 'celestial_panel.dart';
+import 'oracle_chronicle_sheet.dart';
 
-/// Celestial Astrolabe Aether Resonance Oracle Widget with D20 Divination Mechanics.
-class AetherResonanceOracleWidget extends StatefulWidget {
+/// Celestial Astrolabe Aether Resonance Oracle Widget wired to persistent SQLite history and active buffs.
+class AetherResonanceOracleWidget extends ConsumerStatefulWidget {
   const AetherResonanceOracleWidget({super.key});
 
   @override
-  State<AetherResonanceOracleWidget> createState() => _AetherResonanceOracleWidgetState();
+  ConsumerState<AetherResonanceOracleWidget> createState() => _AetherResonanceOracleWidgetState();
 }
 
-class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidget> {
-  int _lastRoll = 20;
-  String _divineBlessing = 'NATURAL 20: World Arbiter grants +15% Aether Multiplier to all Sanctuary travelers!';
+class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOracleWidget> {
   bool _isCommuning = false;
 
-  final List<String> _blessings = [
-    'NATURAL 20: World Arbiter grants +15% Aether Multiplier to all Sanctuary travelers!',
-    'GREAT FORTUNE: Celestial Leylines resonate. +10% Essence Affinity across Sector 4.',
-    'ARBITER HARMONY: The Cardinal Scribes canonize your soul vessel rank.',
-    'SACRED SHIELD: Divine Pentelic Aura protects your squad against shadow corruption.',
-    'CELESTIAL TIDE: Sovereign Guild treasury taxes reduced by 2% for 24 hours.',
-  ];
-
-  void _communeWithArbiter() {
+  Future<void> _communeWithArbiter(String userId) async {
     setState(() => _isCommuning = true);
-    Future.delayed(const Duration(milliseconds: 400), () {
-      if (!mounted) return;
-      final rng = Random();
-      final roll = rng.nextInt(20) + 1;
-      final index = rng.nextInt(_blessings.length);
-      setState(() {
-        _lastRoll = roll;
-        _divineBlessing = 'D20 ROLL: [$roll] — ${_blessings[index]}';
-        _isCommuning = false;
-      });
-    });
+    try {
+      final record = await ref.read(oracleBuffProvider(userId).notifier).commune(
+        costEssence: 25,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Divination complete: D20 [${record.d20Roll}] — ${record.outcomeTier}',
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+            ),
+            backgroundColor: const Color(0xFF6E473B),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Divination failed: $e',
+              style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+            ),
+            backgroundColor: Colors.red.shade800,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCommuning = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final character = ref.watch(utrcsCharacterProvider);
+    final userId = character?.id ?? 'utrcs_default_player';
+    final oracleStateAsync = ref.watch(activeOracleBuffProvider);
+
+    final oracleState = oracleStateAsync.valueOrNull;
+    final latestRecord = oracleState?.latestRecord ?? SovereignRepository.defaultStarterRoll(userId);
+    final primaryBuff = oracleState?.primaryBuff;
+
     return RepaintBoundary(
       child: CelestialPanel(
         margin: const EdgeInsets.only(bottom: 16),
@@ -47,54 +73,145 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Responsive Header with Flex-Safety (Fixes Defect 2)
+            // Responsive Header with Flex-Safety & Chronicle action
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 16),
-                      const SizedBox(width: 8),
-                      const Expanded(
-                        child: Text(
-                          'AETHER RESONANCE ORACLE',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: false,
-                          style: TextStyle(
-                            color: Color(0xFF6E473B),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'serif',
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ),
-                    ],
+                const Icon(Icons.auto_awesome, color: Color(0xFF6E473B), size: 16),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'AETHER RESONANCE ORACLE',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    style: TextStyle(
+                      color: Color(0xFF6E473B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'serif',
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6E473B).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: const Color(0xFF6E473B)),
+                const SizedBox(width: 6),
+
+                // Chronicle ↗ action
+                InkWell(
+                  key: const Key('open_oracle_chronicle_sheet'),
+                  onTap: () => OracleChronicleSheet.show(context),
+                  borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
+                    ),
+                    child: const Text(
+                      'CHRONICLE ↗',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6E473B),
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    'D20 ORACLE: $_lastRoll',
-                    style: const TextStyle(
-                      color: Color(0xFF6E473B),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'monospace',
+                ),
+                const SizedBox(width: 6),
+
+                // D20 Badge
+                InkWell(
+                  key: const Key('oracle_badge_button'),
+                  onTap: () => OracleChronicleSheet.show(context),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF6E473B)),
+                    ),
+                    child: Text(
+                      'D20 ORACLE: ${latestRecord.d20Roll}',
+                      style: const TextStyle(
+                        color: Color(0xFF6E473B),
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
+
+            // Tier & Active Buff Indicators (Flex-safe Wrap)
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                // Outcome Tier
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFBEB5A9).withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFFA78D78), width: 0.8),
+                  ),
+                  child: Text(
+                    latestRecord.outcomeTier,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF291C0E),
+                    ),
+                  ),
+                ),
+
+                // Active Buff Badge
+                if (primaryBuff != null) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6E473B).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: const Color(0xFF6E473B), width: 0.8),
+                    ),
+                    child: Text(
+                      'BUFF: ${primaryBuff.title} (${primaryBuff.remainingSeconds}s)',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6E473B),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF7F0),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: const Color(0xFFBEB5A9), width: 0.8),
+                    ),
+                    child: const Text(
+                      'NO ACTIVE BLESSING',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFA78D78),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
 
             // Prophecy Parchment Scroll
             Container(
@@ -106,7 +223,7 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
                 border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.6)),
               ),
               child: Text(
-                _isCommuning ? 'Communing with the Cardinal Scribes...' : '“$_divineBlessing”',
+                _isCommuning ? 'Communing with the Cardinal Scribes...' : '“${latestRecord.blessingText}”',
                 style: const TextStyle(
                   color: Color(0xFF291C0E),
                   fontSize: 11,
@@ -117,12 +234,13 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // CTA Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
+                key: const Key('oracle_commune_button'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6E473B),
                   foregroundColor: const Color(0xFFE1D4C2),
@@ -146,7 +264,7 @@ class _AetherResonanceOracleWidgetState extends State<AetherResonanceOracleWidge
                     letterSpacing: 0.8,
                   ),
                 ),
-                onPressed: _isCommuning ? null : _communeWithArbiter,
+                onPressed: _isCommuning ? null : () => _communeWithArbiter(userId),
               ),
             ),
           ],

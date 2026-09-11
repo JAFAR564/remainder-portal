@@ -14,33 +14,85 @@ final sovereignRepositoryProvider = Provider<SovereignRepository>((ref) {
   return SovereignRepository(db);
 });
 
-/// State for active temporal buffs granted by the Oracle
+/// State for active temporal buffs and divination chronicle
 class OracleBuffState {
   final List<ActiveBuff> activeBuffs;
-  final OracleRecord? latestRecord;
+  final List<OracleRecord> history;
 
   const OracleBuffState({
     this.activeBuffs = const [],
-    this.latestRecord,
+    this.history = const [],
   });
+
+  OracleRecord? get latestRecord => history.isNotEmpty ? history.first : null;
+
+  ActiveBuff? get primaryBuff => activeBuffs.isNotEmpty ? activeBuffs.first : null;
 
   OracleBuffState copyWith({
     List<ActiveBuff>? activeBuffs,
-    OracleRecord? latestRecord,
+    List<OracleRecord>? history,
   }) {
     return OracleBuffState(
       activeBuffs: activeBuffs ?? this.activeBuffs,
-      latestRecord: latestRecord ?? this.latestRecord,
+      history: history ?? this.history,
     );
   }
 }
 
-/// Manages active temporal Oracle buffs and divination chronicle history
-class OracleBuffNotifier extends StateNotifier<OracleBuffState> {
+/// Reactive StateNotifier managing Oracle divination chronicle and active temporal buffs
+class OracleBuffNotifier extends StateNotifier<AsyncValue<OracleBuffState>> {
   final SovereignRepository _repo;
+  final Ref _ref;
+  final String _userId;
 
-  OracleBuffNotifier(this._repo) : super(const OracleBuffState());
+  OracleBuffNotifier(this._repo, this._ref, this._userId)
+      : super(AsyncValue.data(OracleBuffState(
+          history: [SovereignRepository.defaultStarterRoll(_userId)],
+          activeBuffs: [
+            if (SovereignRepository.defaultStarterRoll(_userId).activeBuff != null)
+              SovereignRepository.defaultStarterRoll(_userId).activeBuff!
+          ],
+        ))) {
+    loadOracleState();
+  }
 
+  Future<void> loadOracleState() async {
+    try {
+      final history = await _repo.getHistory(_userId, limit: 20);
+      final activeBuffs = await _repo.getActiveBuffs(_userId);
+      if (mounted) {
+        state = AsyncValue.data(OracleBuffState(
+          history: history,
+          activeBuffs: activeBuffs,
+        ));
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  /// Executes atomic divination communion with Essence debit and roll persistence
+  Future<OracleRecord> commune({
+    int costEssence = 25,
+    int? rollOverride,
+    DateTime? timestamp,
+  }) async {
+    final record = await _repo.communeWithOracle(
+      userId: _userId,
+      costEssence: costEssence,
+      rollOverride: rollOverride,
+      timestamp: timestamp,
+    );
+
+    // Refresh player wallet reactively so Essence deduction is reflected on Dashboard
+    await _ref.read(playerWalletProvider(_userId).notifier).loadWallet();
+    await loadOracleState();
+    return record;
+  }
+
+  /// Direct roll recording for testing
   Future<void> logDivinationRoll({
     required String userId,
     required int d20Roll,
@@ -62,32 +114,21 @@ class OracleBuffNotifier extends StateNotifier<OracleBuffState> {
     );
 
     await _repo.recordRoll(record);
-
-    List<ActiveBuff> updatedBuffs = List.from(state.activeBuffs);
-    if (buffGranted != null && buffType != null) {
-      final now = DateTime.now();
-      final newBuff = ActiveBuff(
-        id: 'buff_${now.millisecondsSinceEpoch}',
-        type: buffType,
-        title: buffGranted,
-        multiplier: multiplier,
-        startedAt: now,
-        expiresAt: now.add(duration),
-      );
-      // Clean expired buffs and add new buff
-      updatedBuffs = updatedBuffs.where((b) => !b.isExpired).toList()..add(newBuff);
-    }
-
-    state = state.copyWith(
-      activeBuffs: updatedBuffs,
-      latestRecord: record,
-    );
+    await loadOracleState();
   }
 }
 
-final oracleBuffProvider = StateNotifierProvider<OracleBuffNotifier, OracleBuffState>((ref) {
+/// Family provider for specific operator's Oracle & Buff state
+final oracleBuffProvider = StateNotifierProvider.family<OracleBuffNotifier, AsyncValue<OracleBuffState>, String>((ref, userId) {
   final repo = ref.watch(sovereignRepositoryProvider);
-  return OracleBuffNotifier(repo);
+  return OracleBuffNotifier(repo, ref, userId);
+});
+
+/// Reactive provider for the active operator's Oracle & Buff state
+final activeOracleBuffProvider = Provider<AsyncValue<OracleBuffState>>((ref) {
+  final character = ref.watch(utrcsCharacterProvider);
+  final userId = character?.id ?? 'utrcs_default_player';
+  return ref.watch(oracleBuffProvider(userId));
 });
 
 /// Manages player wallet and progression state reactively
