@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/native.dart';
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:remainder_portal/data/services/database_service.dart';
 import 'package:remainder_portal/data/models/player_wallet.dart';
 import 'package:remainder_portal/data/models/oracle_record.dart';
@@ -14,11 +15,15 @@ import 'package:remainder_portal/presentation/widgets/oracle_chronicle_sheet.dar
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  setUpAll(() {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  });
+
   late AppDatabase db;
   const defaultUser = 'test_operator_b4';
 
   setUp(() async {
-    db = AppDatabase.forTesting(NativeDatabase.memory());
+    db = AppDatabase(NativeDatabase.memory());
     await db.savePlayerWallet(PlayerWallet(
       userId: defaultUser,
       essenceBalance: 500,
@@ -145,7 +150,7 @@ void main() {
 
       // Close and reopen DB (simulating app restart)
       await db.close();
-      final reopenedDb = AppDatabase.forTesting(NativeDatabase.memory());
+      final reopenedDb = AppDatabase(NativeDatabase.memory());
       final reopenedRepo = SovereignRepository(reopenedDb);
 
       // Hydrate starter state on reopened DB and verify

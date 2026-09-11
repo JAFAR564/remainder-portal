@@ -95,34 +95,9 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
                 ),
                 const SizedBox(width: 6),
 
-                // Chronicle ↗ action
+                // D20 Badge with Chronicle Sheet trigger
                 InkWell(
                   key: const Key('open_oracle_chronicle_sheet'),
-                  onTap: () => OracleChronicleSheet.show(context),
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6E473B).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
-                    ),
-                    child: const Text(
-                      'CHRONICLE ↗',
-                      style: TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF6E473B),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-
-                // D20 Badge
-                InkWell(
-                  key: const Key('oracle_badge_button'),
                   onTap: () => OracleChronicleSheet.show(context),
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
@@ -239,32 +214,44 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
             // CTA Button
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              child: ElevatedButton(
                 key: const Key('oracle_commune_button'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6E473B),
                   foregroundColor: const Color(0xFFE1D4C2),
-                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 8),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   elevation: 1,
                 ),
-                icon: _isCommuning
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFE1D4C2)),
-                      )
-                    : const Icon(Icons.casino_outlined, size: 16),
-                label: Text(
-                  _isCommuning ? 'DIVINING...' : 'COMMUNE WITH WORLD ARBITER (ROLL D20)',
-                  style: const TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
-                  ),
-                ),
                 onPressed: _isCommuning ? null : () => _communeWithArbiter(userId),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _isCommuning
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFE1D4C2)),
+                          )
+                        : const Icon(Icons.casino_outlined, size: 16),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        _isCommuning ? 'DIVINING...' : 'COMMUNE WITH WORLD ARBITER (ROLL D20)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
