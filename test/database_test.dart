@@ -536,9 +536,10 @@ void main() {
     expect(quests.length, 2);
     expect(quests.any((q) => q.id == 'quest_sanctuary_outpost'), true);
 
-    // 4. Social feed seeding
+    // 4. Social feed seeding (single calibrated starter post per Sovereign mandate)
     final feed = await repository.getFeed();
-    expect(feed.length, 2);
-    expect(feed.first.authorName, isNotEmpty);
+    expect(feed.length, 1);
+    expect(feed.first.id, 'post_vane_001');
+    expect(feed.first.authorName, 'Lord Commander Vane');
   });
 }

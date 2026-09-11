@@ -7,6 +7,12 @@ import '../../data/models/social_bulletin_model.dart';
 import '../../data/repositories/sovereign_repository.dart';
 import 'game_provider.dart';
 import 'utrcs_provider.dart';
+import 'economy_provider.dart';
+import 'chrono_loom_provider.dart';
+import 'expedition_provider.dart';
+import 'guild_provider.dart';
+import 'trust_provider.dart';
+import '../../data/services/p2p_squad_relay_service.dart';
 
 /// Sovereign Command Deck domain repository provider
 final sovereignRepositoryProvider = Provider<SovereignRepository>((ref) {
@@ -377,6 +383,159 @@ final activeQuestDecreeProvider = Provider<AsyncValue<QuestDecreeState>>((ref) {
   final character = ref.watch(utrcsCharacterProvider);
   final userId = character?.id ?? 'utrcs_default_player';
   return ref.watch(questDecreeProvider(userId));
+});
+
+// ==========================================
+// Phase 5: Sanctuary Social Bulletin (Thread B-5)
+// ==========================================
+
+class SocialBulletinNotifier extends StateNotifier<AsyncValue<List<SocialPostEntry>>> {
+  final SovereignRepository _repo;
+
+  SocialBulletinNotifier(this._repo) : super(const AsyncValue.loading()) {
+    loadFeed();
+  }
+
+  Future<void> loadFeed() async {
+    try {
+      final posts = await _repo.getFeed();
+      if (mounted) {
+        state = AsyncValue.data(posts);
+      }
+    } catch (e, st) {
+      if (mounted) {
+        state = AsyncValue.error(e, st);
+      }
+    }
+  }
+
+  Future<void> createPost({
+    required String authorId,
+    required String authorName,
+    required String authorTitle,
+    required String content,
+    bool isIC = true,
+  }) async {
+    final newPost = SocialPostEntry(
+      id: 'post_${DateTime.now().millisecondsSinceEpoch}',
+      authorId: authorId,
+      authorName: authorName,
+      authorTitle: authorTitle,
+      avatarPath: 'assets/icon/app_icon.png',
+      content: content,
+      isIC: isIC,
+      laurelsCount: 0,
+      commentsCount: 0,
+      createdAt: DateTime.now(),
+    );
+    await _repo.createPost(newPost);
+    await loadFeed();
+  }
+
+  Future<void> endorsePost({required String postId, required String userId}) async {
+    await _repo.endorsePost(postId: postId, userId: userId);
+    await loadFeed();
+  }
+
+  Future<void> addComment({
+    required String postId,
+    required String authorName,
+    required String content,
+  }) async {
+    final comment = SocialCommentEntry(
+      id: 'comment_${DateTime.now().millisecondsSinceEpoch}',
+      postId: postId,
+      authorName: authorName,
+      content: content,
+      createdAt: DateTime.now(),
+    );
+    await _repo.addComment(comment);
+    await loadFeed();
+  }
+
+  Future<List<SocialCommentEntry>> getComments(String postId) async {
+    return await _repo.getComments(postId);
+  }
+}
+
+final socialBulletinProvider = StateNotifierProvider<SocialBulletinNotifier, AsyncValue<List<SocialPostEntry>>>((ref) {
+  final repo = ref.watch(sovereignRepositoryProvider);
+  return SocialBulletinNotifier(repo);
+});
+
+// ==========================================
+// Phase 5: Waygate Telemetry Engine (Thread B-5)
+// ==========================================
+
+class WaygateTelemetryState {
+  final int tradePendingCount;
+  final int canonActiveProposalsCount;
+  final int squadMemberCount;
+  final bool isSquadActive;
+  final String? guildTag;
+  final int relayQueuedCount;
+  final bool isRelayOnline;
+  final double overallTrustScore;
+  final double vanguardScore;
+  final double arbiterScore;
+  final double merchantScore;
+  final double hackerScore;
+  final String p2pMeshStatus;
+  final int connectedPeersCount;
+  final String syncEngineStatus;
+  final String architecturalNotice;
+
+  const WaygateTelemetryState({
+    required this.tradePendingCount,
+    required this.canonActiveProposalsCount,
+    required this.squadMemberCount,
+    required this.isSquadActive,
+    this.guildTag,
+    required this.relayQueuedCount,
+    required this.isRelayOnline,
+    required this.overallTrustScore,
+    required this.vanguardScore,
+    required this.arbiterScore,
+    required this.merchantScore,
+    required this.hackerScore,
+    required this.p2pMeshStatus,
+    required this.connectedPeersCount,
+    required this.syncEngineStatus,
+    required this.architecturalNotice,
+  });
+}
+
+final waygateTelemetryProvider = Provider<WaygateTelemetryState>((ref) {
+  final tradeState = ref.watch(tradeProvider);
+  final chronoState = ref.watch(chronoLoomProvider);
+  final expeditionState = ref.watch(expeditionProvider);
+  final guildState = ref.watch(guildProvider);
+  final relay = ref.watch(p2pSquadRelayProvider);
+  final trust = ref.watch(trustProvider);
+
+  final tradePending = tradeState.activeTrades.where((t) => t.status == TradeStatus.pending).length;
+  final canonActive = chronoState.proposals.where((p) => p.status == 0).length;
+  final squadCount = expeditionState?.members.length ?? 0;
+  final hasSquad = expeditionState != null;
+
+  return WaygateTelemetryState(
+    tradePendingCount: tradePending,
+    canonActiveProposalsCount: canonActive,
+    squadMemberCount: squadCount,
+    isSquadActive: hasSquad,
+    guildTag: guildState?.tag,
+    relayQueuedCount: relay.queuedEventCount,
+    isRelayOnline: relay.isOnline,
+    overallTrustScore: trust.overallTrustScore,
+    vanguardScore: trust.vanguardScore,
+    arbiterScore: trust.arbiterScore,
+    merchantScore: trust.merchantScore,
+    hackerScore: trust.hackerScore,
+    p2pMeshStatus: 'LOCAL STANDBY (P2P TRANSPORT DEFERRED)',
+    connectedPeersCount: 0,
+    syncEngineStatus: 'LOCAL-FIRST ISOLATION',
+    architecturalNotice: 'Multi-device P2P mesh discovery and physical peer transports are explicitly DEFERRED. Telemetry reflects authenticated local node state and verified Phase 2/3 domain providers.',
+  );
 });
 
 

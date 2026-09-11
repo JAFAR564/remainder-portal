@@ -17,6 +17,8 @@ import 'package:remainder_portal/presentation/widgets/social_post_card.dart';
 import 'package:remainder_portal/presentation/widgets/relic_vault_sheet.dart';
 import 'package:remainder_portal/presentation/widgets/quest_decree_sheet.dart';
 import 'package:remainder_portal/presentation/widgets/oracle_chronicle_sheet.dart';
+import 'package:remainder_portal/presentation/widgets/waygate_telemetry_sheet.dart';
+import 'package:remainder_portal/presentation/widgets/social_post_creation_sheet.dart';
 
 class _MockUtrcsNotifier extends UtrcsCharacterNotifier {
   _MockUtrcsNotifier(super.ref, super.db, UtrcsCharacterModel initial) {
@@ -509,6 +511,53 @@ void main() {
       // Verify Divination Chronicle sheet opened
       expect(find.byType(OracleChronicleSheet), findsOneWidget);
       expect(find.text('CHRONICLE OF DIVINATION'), findsOneWidget);
+    });
+
+    testWidgets('Dashboard allows opening Waygate Telemetry Sheet (Thread B-5)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap on WAYGATE ℹ header action
+      final waygateFinder = find.byKey(const Key('open_waygate_telemetry_sheet'));
+      expect(waygateFinder, findsOneWidget);
+      await tester.ensureVisible(waygateFinder);
+      await tester.tap(waygateFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Waygate Telemetry sheet opened
+      expect(find.byType(WaygateTelemetrySheet), findsOneWidget);
+      expect(find.text('WAYGATE SUBSYSTEM TELEMETRY'), findsOneWidget);
+      expect(find.text('LOCAL STANDBY (P2P TRANSPORT DEFERRED)'), findsOneWidget);
+    });
+
+    testWidgets('Dashboard allows opening Social Post Creation Sheet (Thread B-5)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: DashboardScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap on TRANSMIT ↗ header action
+      final transmitFinder = find.byKey(const Key('open_create_post_sheet'));
+      expect(transmitFinder, findsOneWidget);
+      await tester.ensureVisible(transmitFinder);
+      await tester.tap(transmitFinder);
+      await tester.pumpAndSettle();
+
+      // Verify Social Post Creation sheet opened
+      expect(find.byType(SocialPostCreationSheet), findsOneWidget);
+      expect(find.text('TRANSMIT TO SANCTUARY LEYLINES'), findsOneWidget);
     });
   });
 }

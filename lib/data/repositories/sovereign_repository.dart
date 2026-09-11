@@ -305,42 +305,28 @@ class SovereignRepository {
   // 5. Sanctuary Social Bulletin
   // ==========================================
 
+  static SocialPostEntry defaultStarterPost() {
+    return SocialPostEntry(
+      id: 'post_vane_001',
+      authorId: 'operator_vane',
+      authorName: 'Lord Commander Vane',
+      authorTitle: 'Imperial Vanguard Marshal',
+      avatarPath: 'assets/icon/app_icon.png',
+      content: 'Resonance levels in Sector 4 are stabilizing after planetary calibration. All operators report to Astrolabe stations.',
+      isIC: true,
+      laurelsCount: 14,
+      commentsCount: 0,
+      createdAt: DateTime.now().subtract(const Duration(minutes: 42)),
+    );
+  }
+
   Future<List<SocialPostEntry>> getFeed({int limit = 20}) async {
     final posts = await _db.getSocialPosts(limit: limit);
     if (posts.isNotEmpty) return posts;
 
-    // Seed default bulletin posts
-    final now = DateTime.now();
-    final seedPosts = [
-      SocialPostEntry(
-        id: 'post_vane_001',
-        authorId: 'operator_vane',
-        authorName: 'Lord Commander Vane',
-        authorTitle: 'Imperial Vanguard Marshal',
-        avatarPath: 'assets/icon/app_icon.png',
-        content: 'Resonance levels in Sector 4 are stabilizing after planetary calibration. All operators report to Astrolabe stations.',
-        isIC: true,
-        laurelsCount: 14,
-        commentsCount: 2,
-        createdAt: now.subtract(const Duration(minutes: 42)),
-      ),
-      SocialPostEntry(
-        id: 'post_lyra_002',
-        authorId: 'operator_lyra',
-        authorName: 'Arbiter Lyra',
-        authorTitle: 'Chief Lore Scribe',
-        avatarPath: 'assets/icon/app_icon.png',
-        content: 'New canonization decree submitted for the Outer Rim beacon. Cast your endorsements before the celestial cycle resets.',
-        isIC: true,
-        laurelsCount: 8,
-        commentsCount: 1,
-        createdAt: now.subtract(const Duration(hours: 3)),
-      ),
-    ];
-
-    for (final post in seedPosts) {
-      await _db.createSocialPost(post);
-    }
+    // Seed single calibrated starter post (seed-not-bypass pattern)
+    final starter = defaultStarterPost();
+    await _db.createSocialPost(starter);
     return await _db.getSocialPosts(limit: limit);
   }
 

@@ -3,6 +3,7 @@ import 'celestial_panel.dart';
 
 /// Imperial Parchment Social Post Card with Responsive Reaction Bar.
 class SocialPostCard extends StatefulWidget {
+  final String? postId;
   final String authorName;
   final String authorTitle;
   final String avatarPath;
@@ -11,9 +12,13 @@ class SocialPostCard extends StatefulWidget {
   final bool isIC;
   final int initialLaurels;
   final int initialComments;
+  final VoidCallback? onLaurel;
+  final VoidCallback? onComment;
+  final double? authorTrustScore;
 
   const SocialPostCard({
     super.key,
+    this.postId,
     required this.authorName,
     required this.authorTitle,
     required this.avatarPath,
@@ -22,6 +27,9 @@ class SocialPostCard extends StatefulWidget {
     this.isIC = true,
     this.initialLaurels = 12,
     this.initialComments = 3,
+    this.onLaurel,
+    this.onComment,
+    this.authorTrustScore,
   });
 
   @override
@@ -40,7 +48,22 @@ class _SocialPostCardState extends State<SocialPostCard> {
     _comments = widget.initialComments;
   }
 
+  @override
+  void didUpdateWidget(SocialPostCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialLaurels != widget.initialLaurels) {
+      _laurels = widget.initialLaurels;
+    }
+    if (oldWidget.initialComments != widget.initialComments) {
+      _comments = widget.initialComments;
+    }
+  }
+
   void _toggleLaurel() {
+    if (widget.onLaurel != null) {
+      widget.onLaurel!();
+      return;
+    }
     setState(() {
       if (_hasLaureled) {
         _laurels--;
@@ -166,6 +189,7 @@ class _SocialPostCardState extends State<SocialPostCard> {
               // Laurel Like Button
               Expanded(
                 child: InkWell(
+                  key: Key('post_laurel_button_${widget.postId ?? widget.authorName}'),
                   onTap: _toggleLaurel,
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
@@ -201,7 +225,8 @@ class _SocialPostCardState extends State<SocialPostCard> {
               // Comment Button
               Expanded(
                 child: InkWell(
-                  onTap: () {},
+                  key: Key('post_comment_button_${widget.postId ?? widget.authorName}'),
+                  onTap: widget.onComment ?? () {},
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),

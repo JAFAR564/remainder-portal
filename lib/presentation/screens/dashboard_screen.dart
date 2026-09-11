@@ -9,6 +9,9 @@ import '../widgets/aether_resonance_oracle_widget.dart';
 import '../widgets/quest_decree_widget.dart';
 import '../widgets/celestial_panel.dart';
 import '../widgets/astrolabe_section_header.dart';
+import '../widgets/waygate_telemetry_sheet.dart';
+import '../widgets/social_post_creation_sheet.dart';
+import '../widgets/social_comments_sheet.dart';
 import 'descent_screen.dart';
 import 'terminal_screen.dart';
 import 'expedition_screen.dart';
@@ -150,7 +153,8 @@ class DashboardScreen extends ConsumerWidget {
     final profile = ref.watch(playerProfileProvider);
     final character = ref.watch(utrcsCharacterProvider);
     final walletAsync = ref.watch(activeWalletProvider);
-    final socialPosts = ref.watch(socialFeedProvider);
+    final socialBulletinAsync = ref.watch(socialBulletinProvider);
+    final telemetry = ref.watch(waygateTelemetryProvider);
 
     // Canonical identity resolution:
     // Prefer active UTRCS character, fallback to legacy playerProfile, fallback to default
@@ -178,7 +182,7 @@ class DashboardScreen extends ConsumerWidget {
           color: const Color(0xFF6E473B),
           backgroundColor: const Color(0xFFFAF7F0),
           onRefresh: () async {
-            await ref.read(socialFeedProvider.notifier).refreshFeed();
+            await ref.read(socialBulletinProvider.notifier).loadFeed();
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -428,11 +432,30 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
 
                 // 6. Adaptive Sovereign Realms & Hubs (Section 8.6)
-                const AstrolabeSectionHeader(
+                AstrolabeSectionHeader(
                   title: 'SOVEREIGN REALMS & COMMUNION HUBS',
                   glyph: '✦',
                   fontSize: 12,
                   letterSpacing: 1.4,
+                  trailing: TextButton.icon(
+                    key: const Key('open_waygate_telemetry_sheet'),
+                    onPressed: () => WaygateTelemetrySheet.show(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    icon: const Icon(Icons.hub_outlined, size: 12, color: Color(0xFF6E473B)),
+                    label: const Text(
+                      'WAYGATE ℹ',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6E473B),
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
 
@@ -468,7 +491,7 @@ class DashboardScreen extends ConsumerWidget {
                         _buildSubsystemCard(
                           context,
                           title: 'Squads',
-                          subtitle: 'Co-op P2P',
+                          subtitle: telemetry.isSquadActive ? '${telemetry.squadMemberCount} Members' : 'Co-op P2P',
                           icon: Icons.shield_outlined,
                           color: const Color(0xFF291C0E),
                           targetScreen: const ExpeditionScreen(),
@@ -476,7 +499,7 @@ class DashboardScreen extends ConsumerWidget {
                         _buildSubsystemCard(
                           context,
                           title: 'Guilds',
-                          subtitle: 'Halls & Vault',
+                          subtitle: telemetry.guildTag != null ? '[${telemetry.guildTag}] Vault' : 'Halls & Vault',
                           icon: Icons.fort_outlined,
                           color: const Color(0xFF6E473B),
                           targetScreen: const GuildScreen(),
@@ -484,7 +507,7 @@ class DashboardScreen extends ConsumerWidget {
                         _buildSubsystemCard(
                           context,
                           title: 'Canon',
-                          subtitle: 'Lore Votes',
+                          subtitle: '${telemetry.canonActiveProposalsCount} Proposals',
                           icon: Icons.auto_stories_outlined,
                           color: const Color(0xFFA78D78),
                           targetScreen: const ChronoLoomScreen(),
@@ -492,7 +515,7 @@ class DashboardScreen extends ConsumerWidget {
                         _buildSubsystemCard(
                           context,
                           title: 'Market',
-                          subtitle: 'Trading',
+                          subtitle: '${telemetry.tradePendingCount} Pending',
                           icon: Icons.swap_horiz_outlined,
                           color: const Color(0xFF291C0E),
                           targetScreen: const TradeScreen(),
@@ -509,30 +532,115 @@ class DashboardScreen extends ConsumerWidget {
                   glyph: '✦',
                   fontSize: 12,
                   letterSpacing: 1.4,
-                  trailing: Text(
-                    '${socialPosts.length} POSTS',
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFA78D78),
-                    ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${socialBulletinAsync.valueOrNull?.length ?? 0} POSTS',
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFA78D78),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        key: const Key('open_create_post_sheet'),
+                        onPressed: () => SocialPostCreationSheet.show(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.campaign_outlined, size: 12, color: Color(0xFF6E473B)),
+                        label: const Text(
+                          'TRANSMIT ↗',
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6E473B),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),
 
-                ...socialPosts.map(
-                  (post) => SocialPostCard(
-                    key: ValueKey(post.id),
-                    authorName: post.authorName,
-                    authorTitle: post.authorTitle,
-                    avatarPath: post.avatarPath,
-                    timeAgo: post.timeAgo,
-                    content: post.content,
-                    isIC: post.isIC,
-                    initialLaurels: post.laurels,
-                    initialComments: post.comments,
+                socialBulletinAsync.when(
+                  loading: () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF6E473B),
+                        strokeWidth: 2,
+                      ),
+                    ),
                   ),
+                  error: (err, stack) => CelestialPanel(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      'SOVEREIGN BULLETIN OFFLINE: $err',
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 10,
+                        color: Color(0xFF6E473B),
+                      ),
+                    ),
+                  ),
+                  data: (posts) {
+                    if (posts.isEmpty) {
+                      return const CelestialPanel(
+                        padding: EdgeInsets.all(16),
+                        child: Center(
+                          child: Text(
+                            'NO IMPERIAL DISPATCHES RECORDED',
+                            style: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFA78D78),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: posts.map((post) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: SocialPostCard(
+                            key: ValueKey(post.id),
+                            postId: post.id,
+                            authorName: post.authorName,
+                            authorTitle: post.authorTitle,
+                            avatarPath: post.avatarPath,
+                            timeAgo: post.timeAgo,
+                            content: post.content,
+                            isIC: post.isIC,
+                            initialLaurels: post.laurelsCount,
+                            initialComments: post.commentsCount,
+                            onLaurel: () {
+                              ref.read(socialBulletinProvider.notifier).endorsePost(
+                                    postId: post.id,
+                                    userId: 'user_operator_001',
+                                  );
+                            },
+                            onComment: () {
+                              SocialCommentsSheet.show(
+                                context,
+                                postId: post.id,
+                                postAuthor: post.authorName,
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
               ],
             ),
