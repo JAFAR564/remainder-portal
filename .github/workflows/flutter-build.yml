@@ -46,8 +46,12 @@ jobs:
 
     - name: Build ABI-Split Fast APKs
       run: |
-        flutter build apk --split-per-abi --debug
-        cp build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk ./remainder-portal-arm64.apk
+        flutter build apk --target-platform android-arm64 --split-per-abi --debug
+        if [ -f build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk ]; then
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk ./remainder-portal-arm64.apk
+        else
+          cp build/app/outputs/flutter-apk/app-debug.apk ./remainder-portal-arm64.apk
+        fi
 
     - name: Shorebird Cloud Code Push (Optional OTA Patch)
       if: env.SHOREBIRD_TOKEN != ''
