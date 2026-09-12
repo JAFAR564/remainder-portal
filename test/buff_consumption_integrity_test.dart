@@ -79,7 +79,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_s_critical', rewardEssence: 750, rewardLaurels: 50));
 
       // Record D20=20 Critical Consensus divination
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 20,
         timestamp: now,
@@ -118,7 +118,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_a_harmonic', rewardEssence: 500, rewardLaurels: 35));
 
       // Record D20=16 Harmonic Aether divination
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 16,
         timestamp: now,
@@ -156,7 +156,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_s_focus', rewardEssence: 750, rewardLaurels: 50));
 
       // Record D20=5 Convergence (Compute Focus +5%)
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 5,
         timestamp: now,
@@ -194,7 +194,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_s_turbulence', rewardEssence: 750, rewardLaurels: 50));
 
       // Record D20=1 Anomaly Turbulence (raw basis points: 950)
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 1,
         timestamp: now,
@@ -232,7 +232,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_s_expired', rewardEssence: 750, rewardLaurels: 50));
 
       // Record D20=20 at 12:00:00 (expires at 12:15:00)
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 20,
         timestamp: rollTime,
@@ -270,7 +270,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_fresh_player', rewardEssence: 500, rewardLaurels: 35));
 
       // No oracle divination records exist in DB
-      final history = await repo.getDivinationHistory(testUser);
+      final history = await db.getOracleHistoryForUser(testUser);
       expect(history.isEmpty, true);
 
       final result = await repo.claimReward(
@@ -325,7 +325,7 @@ void main() {
       await db.upsertQuestDecree(createQuest(id: 'quest_laurel_check', rewardEssence: 750, rewardLaurels: 50));
 
       // Active Critical Consensus (1150 bps)
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 20,
         timestamp: now,
@@ -359,7 +359,7 @@ void main() {
       await seedInitialWallet(db, essence: 1000, laurels: 150);
       await db.upsertQuestDecree(createQuest(id: 'quest_double_claim', rewardEssence: 750, rewardLaurels: 50));
 
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 20,
         timestamp: now,
@@ -414,7 +414,7 @@ void main() {
         progress: 0.75,
       ));
 
-      await repo.recordDivination(OracleRecord.createCalibratedRecord(
+      await repo.recordRoll(OracleRecord.createCalibratedRecord(
         userId: testUser,
         d20Roll: 20,
         timestamp: now,
@@ -458,7 +458,7 @@ void main() {
           rewardLaurels: 50,
         ));
 
-        await session1Repo.recordDivination(OracleRecord.createCalibratedRecord(
+        await session1Repo.recordRoll(OracleRecord.createCalibratedRecord(
           userId: testUser,
           d20Roll: 20,
           timestamp: now,

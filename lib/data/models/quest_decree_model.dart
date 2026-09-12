@@ -124,5 +124,6 @@ class QuestClaimResult {
   });
 
   bool get hadBuffBoost => multiplierBasisPoints > 1000;
+  int get bonusEssence => creditedEssence > baseEssence ? creditedEssence - baseEssence : 0;
 }
 
