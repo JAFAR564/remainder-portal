@@ -108,11 +108,15 @@ class OracleRecord {
     Duration duration = const Duration(minutes: 15);
 
     final bgLower = buffGranted!.toLowerCase();
-    if (outcomeTier == 'CRITICAL CONSENSUS' || bgLower.contains('aether')) {
+    if (outcomeTier == 'ANOMALY TURBULENCE' || outcomeTier.contains('TURBULENCE') || bgLower.contains('turbulence')) {
+      type = BuffType.anomalyTurbulence;
+      mult = 0.95;
+      duration = const Duration(minutes: 5);
+    } else if (outcomeTier == 'CRITICAL CONSENSUS' || bgLower.contains('critical') || bgLower.contains('aether multiplier')) {
       type = BuffType.aetherMultiplier;
       mult = 1.15;
       duration = const Duration(minutes: 15);
-    } else if (outcomeTier == 'HARMONIC AETHER' || bgLower.contains('essence') || bgLower.contains('reward')) {
+    } else if (outcomeTier == 'HARMONIC AETHER' || bgLower.contains('harmonic') || bgLower.contains('essence') || bgLower.contains('reward')) {
       type = BuffType.questRewardBoost;
       mult = 1.10;
       duration = const Duration(minutes: 15);
@@ -120,10 +124,6 @@ class OracleRecord {
       type = BuffType.vitalityShield;
       mult = 1.10;
       duration = const Duration(minutes: 15);
-    } else if (outcomeTier.contains('TURBULENCE') || bgLower.contains('turbulence')) {
-      type = BuffType.anomalyTurbulence;
-      mult = 0.95;
-      duration = const Duration(minutes: 5);
     } else {
       type = BuffType.computeFocus;
       mult = 1.05;
