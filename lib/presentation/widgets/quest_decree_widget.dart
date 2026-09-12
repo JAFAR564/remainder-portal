@@ -362,24 +362,57 @@ class QuestDecreeWidget extends ConsumerWidget {
                   },
                 ),
               ] else if (quest.isClaimed) ...[
-                OutlinedButton.icon(
-                  key: const Key('quest_fulfilled_button'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6E473B),
-                    side: const BorderSide(color: Color(0xFF6E473B)),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  icon: const Icon(Icons.check_circle_outline, size: 14),
-                  label: const Text(
-                    'FULFILLED',
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.bold,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    OutlinedButton.icon(
+                      key: const Key('quest_fulfilled_button'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF6E473B),
+                        side: const BorderSide(color: Color(0xFF6E473B)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.check_circle_outline, size: 14),
+                      label: const Text(
+                        'FULFILLED',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () => QuestDecreeSheet.show(context),
                     ),
-                  ),
-                  onPressed: () => QuestDecreeSheet.show(context),
+                    ElevatedButton.icon(
+                      key: const Key('generate_new_decree_button'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6E473B),
+                        foregroundColor: const Color(0xFFE1D4C2),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.auto_awesome, size: 14),
+                      label: const Text(
+                        'WEAVE DECREE',
+                        style: TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () async {
+                        final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
+                        await ref.read(questDecreeProvider(userId).notifier).generateNewDecree(
+                          sectorId: 'sector_celestial_abyss_12',
+                          sectorName: 'Celestial Abyss (Sector 12)',
+                          difficulty: 'A-RANK',
+                          operatorClass: operatorClass,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ] else ...[
                 ElevatedButton.icon(
