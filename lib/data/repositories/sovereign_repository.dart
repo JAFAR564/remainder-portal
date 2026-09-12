@@ -275,10 +275,11 @@ class SovereignRepository {
     // Deterministic Sovereign reward calculation (untouched by LLM)
     final int rewardEssence;
     final int rewardLaurels;
-    if (difficulty.toUpperCase().contains('S')) {
+    final diffUpper = difficulty.toUpperCase().trim();
+    if (diffUpper.startsWith('S')) {
       rewardEssence = 750;
       rewardLaurels = 50;
-    } else if (difficulty.toUpperCase().contains('A')) {
+    } else if (diffUpper.startsWith('A')) {
       rewardEssence = 500;
       rewardLaurels = 35;
     } else {

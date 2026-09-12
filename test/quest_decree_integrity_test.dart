@@ -284,6 +284,7 @@ void main() {
       // 3. Claim completed quest (quest_aether_conduit) directly from the sheet
       final sheetClaimBtn = find.byKey(const Key('sheet_claim_quest_aether_conduit'));
       expect(sheetClaimBtn, findsOneWidget);
+      await tester.ensureVisible(sheetClaimBtn);
       await tester.tap(sheetClaimBtn);
       await tester.pumpAndSettle();
 
