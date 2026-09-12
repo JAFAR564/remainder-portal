@@ -79,17 +79,21 @@ class OracleBuffNotifier extends StateNotifier<AsyncValue<OracleBuffState>> {
     }
   }
 
-  /// Executes atomic divination communion with Essence debit and roll persistence
+  /// Executes atomic divination communion with Essence debit, optional LLM synthesis, and roll persistence
   Future<OracleRecord> commune({
     int costEssence = 25,
     int? rollOverride,
     DateTime? timestamp,
+    String? operatorClass,
+    String? sector,
   }) async {
     final record = await _repo.communeWithOracle(
       userId: _userId,
       costEssence: costEssence,
       rollOverride: rollOverride,
       timestamp: timestamp,
+      operatorClass: operatorClass,
+      sector: sector,
     );
 
     // Refresh player wallet reactively so Essence deduction is reflected on Dashboard
@@ -280,10 +284,12 @@ final activeRelicVaultProvider = Provider<AsyncValue<RelicVaultState>>((ref) {
 class QuestDecreeState {
   final List<QuestDecreeModel> decrees;
   final String? selectedQuestId;
+  final bool isWeaving;
 
   const QuestDecreeState({
     required this.decrees,
     this.selectedQuestId,
+    this.isWeaving = false,
   });
 
   /// The active primary quest displayed on the dashboard.
@@ -315,10 +321,12 @@ class QuestDecreeState {
   QuestDecreeState copyWith({
     List<QuestDecreeModel>? decrees,
     String? selectedQuestId,
+    bool? isWeaving,
   }) {
     return QuestDecreeState(
       decrees: decrees ?? this.decrees,
       selectedQuestId: selectedQuestId ?? this.selectedQuestId,
+      isWeaving: isWeaving ?? this.isWeaving,
     );
   }
 }
@@ -343,6 +351,7 @@ class QuestDecreeNotifier extends StateNotifier<AsyncValue<QuestDecreeState>> {
         state = AsyncValue.data(QuestDecreeState(
           decrees: decrees,
           selectedQuestId: state.valueOrNull?.selectedQuestId,
+          isWeaving: state.valueOrNull?.isWeaving ?? false,
         ));
       }
     } catch (e, st) {
@@ -369,6 +378,34 @@ class QuestDecreeNotifier extends StateNotifier<AsyncValue<QuestDecreeState>> {
       await loadDecrees();
     }
     return success;
+  }
+
+  /// Triggers World Arbiter on-device LLM generation for a new quest decree.
+  /// Sets isWeaving during inference and fails closed to deterministic calibrated fallback.
+  Future<QuestDecreeModel> generateNewDecree({
+    required String sectorId,
+    required String sectorName,
+    required String difficulty,
+    String? operatorClass,
+    bool isUrgent = false,
+  }) async {
+    state = state.whenData((s) => s.copyWith(isWeaving: true));
+    try {
+      final decree = await _repo.generateDynamicQuestDecree(
+        userId: _userId,
+        sectorId: sectorId,
+        sectorName: sectorName,
+        difficulty: difficulty,
+        operatorClass: operatorClass,
+        isUrgent: isUrgent,
+      );
+      await loadDecrees();
+      return decree;
+    } finally {
+      if (mounted) {
+        state = state.whenData((s) => s.copyWith(isWeaving: false));
+      }
+    }
   }
 }
 

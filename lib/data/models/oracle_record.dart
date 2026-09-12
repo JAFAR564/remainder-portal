@@ -120,35 +120,42 @@ class OracleRecord {
     );
   }
 
+  /// Determines canonical outcome tier from D20 roll deterministically.
+  static String determineOutcomeTier(int d20Roll) {
+    if (d20Roll >= 20) return 'CRITICAL CONSENSUS';
+    if (d20Roll >= 15) return 'HARMONIC AETHER';
+    if (d20Roll >= 10) return 'EQUILIBRIUM';
+    if (d20Roll >= 2) return 'CONVERGENCE';
+    return 'ANOMALY TURBULENCE';
+  }
+
   /// Maps a D20 roll deterministically to its canonical outcome tier, blessing text, and buff.
+  /// An optional [blessingTextOverride] replaces the narrative flavor string while keeping
+  /// all mechanical buffs, tiers, and rolls strictly deterministic.
   static OracleRecord createCalibratedRecord({
     required String userId,
     required int d20Roll,
     DateTime? timestamp,
+    String? blessingTextOverride,
   }) {
     final time = timestamp ?? DateTime.now();
-    final String outcomeTier;
+    final String outcomeTier = determineOutcomeTier(d20Roll);
     final String blessingText;
     final String? buffGranted;
 
     if (d20Roll >= 20) {
-      outcomeTier = 'CRITICAL CONSENSUS';
       blessingText = 'NATURAL 20: World Arbiter grants +15% Aether Multiplier to all Sanctuary travelers!';
       buffGranted = '+15% Aether Multiplier (15m)';
     } else if (d20Roll >= 15) {
-      outcomeTier = 'HARMONIC AETHER';
       blessingText = 'GREAT FORTUNE: Celestial Leylines resonate. +10% Quest Essence Affinity.';
       buffGranted = '+10% Quest Essence Boost (15m)';
     } else if (d20Roll >= 10) {
-      outcomeTier = 'EQUILIBRIUM';
       blessingText = 'SACRED SHIELD: Divine Pentelic Aura protects your squad against shadow corruption.';
       buffGranted = '+10% Vitality Shield (15m)';
     } else if (d20Roll >= 2) {
-      outcomeTier = 'CONVERGENCE';
       blessingText = 'ARBITER HARMONY: The Cardinal Scribes canonize your soul vessel rank.';
       buffGranted = '+5% Compute Focus (15m)';
     } else {
-      outcomeTier = 'ANOMALY TURBULENCE';
       blessingText = 'CRITICAL ANOMALY: Dimensional residue causes minor turbulence in resonance matrix.';
       buffGranted = '-5% Aether Turbulence (5m)';
     }
@@ -158,7 +165,7 @@ class OracleRecord {
       userId: userId,
       d20Roll: d20Roll,
       outcomeTier: outcomeTier,
-      blessingText: blessingText,
+      blessingText: blessingTextOverride ?? blessingText,
       buffGranted: buffGranted,
       timestamp: time,
     );

@@ -21,8 +21,12 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
   Future<void> _communeWithArbiter(String userId) async {
     setState(() => _isCommuning = true);
     try {
+      final character = ref.read(utrcsCharacterProvider);
+      final operatorClass = character?.roleLayer.roleArchetype ?? 'Vanguard';
       final record = await ref.read(oracleBuffProvider(userId).notifier).commune(
         costEssence: 25,
+        operatorClass: operatorClass,
+        sector: 'Sanctuary 4 (Aether Spire)',
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -198,7 +202,7 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
                 border: Border.all(color: const Color(0xFFA78D78).withValues(alpha: 0.6)),
               ),
               child: Text(
-                _isCommuning ? 'Communing with the Cardinal Scribes...' : '“${latestRecord.blessingText}”',
+                _isCommuning ? 'Consulting celestial planes (Llama 3.2)...' : '“${latestRecord.blessingText}”',
                 style: const TextStyle(
                   color: Color(0xFF291C0E),
                   fontSize: 11,
@@ -238,7 +242,7 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        _isCommuning ? 'DIVINING...' : 'COMMUNE WITH WORLD ARBITER (ROLL D20)',
+                        _isCommuning ? 'CONSULTING CELESTIAL PLANES...' : 'COMMUNE WITH WORLD ARBITER (ROLL D20)',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,

@@ -5,12 +5,15 @@ import '../models/player_wallet.dart';
 import '../models/quest_decree_model.dart';
 import '../models/social_bulletin_model.dart';
 import '../services/database_service.dart' hide PlayerWallet;
+import '../services/local_llm_sidecar_service.dart';
 
 /// Repository coordinating persistent domain state for the Sovereign Command Deck.
 class SovereignRepository {
   final AppDatabase _db;
+  final LocalLlmSidecarService _llmService;
 
-  SovereignRepository(this._db);
+  SovereignRepository(this._db, [LocalLlmSidecarService? llmService])
+      : _llmService = llmService ?? LocalLlmSidecarService();
 
   // ==========================================
   // 1. Player Wallet & Currency Engine
@@ -245,6 +248,65 @@ class SovereignRepository {
     return await _db.claimQuestReward(questId: questId, userId: userId);
   }
 
+  /// Generates a dynamic World Arbiter quest decree with validated LLM flavor text.
+  /// Mechanical variables (rewardEssence, rewardLaurels, difficulty, progress, isClaimed)
+  /// remain strictly deterministic and governed exclusively by Sovereign rules.
+  /// If the LLM call times out, fails validation, or the daemon is offline, it fails
+  /// closed to deterministic calibrated fallback content.
+  Future<QuestDecreeModel> generateDynamicQuestDecree({
+    required String userId,
+    required String sectorId,
+    required String sectorName,
+    required String difficulty,
+    String? operatorClass,
+    bool isUrgent = false,
+  }) async {
+    ArbiterDecreeFlavor? flavor;
+    try {
+      flavor = await _llmService.generateDecreeFlavor(
+        operatorClass: operatorClass ?? 'Vanguard',
+        sectorName: sectorName,
+        difficulty: difficulty,
+      );
+    } catch (_) {
+      flavor = null; // Fails closed
+    }
+
+    // Deterministic Sovereign reward calculation (untouched by LLM)
+    final int rewardEssence;
+    final int rewardLaurels;
+    if (difficulty.toUpperCase().contains('S')) {
+      rewardEssence = 750;
+      rewardLaurels = 50;
+    } else if (difficulty.toUpperCase().contains('A')) {
+      rewardEssence = 500;
+      rewardLaurels = 35;
+    } else {
+      rewardEssence = 300;
+      rewardLaurels = 20;
+    }
+
+    final decree = QuestDecreeModel(
+      id: 'quest_arbiter_${DateTime.now().millisecondsSinceEpoch}',
+      userId: userId,
+      title: flavor?.title ?? 'Reconnaissance in $sectorName',
+      sectorId: sectorId,
+      sectorName: sectorName,
+      decreeText: flavor?.description ??
+          'The World Arbiter decrees systematic purge and stabilization of anomalous energy traces.',
+      rewardEssence: rewardEssence,
+      rewardLaurels: rewardLaurels,
+      progress: 0.0,
+      isUrgent: isUrgent,
+      isClaimed: false,
+      difficulty: difficulty,
+      createdAt: DateTime.now(),
+    );
+
+    await _db.upsertQuestDecree(decree);
+    return decree;
+  }
+
   // ==========================================
   // 4. Oracle Divination Chronicle & Buff Engine
   // ==========================================
@@ -272,19 +334,40 @@ class SovereignRepository {
   }
 
   /// Atomically executes a divination communion: checks and debits Essence from player_wallets,
-  /// maps D20 roll to calibrated blessing & buff, and persists to oracle_histories.
+  /// queries LLM sidecar for celestial prophecy flavor, and persists to oracle_histories.
+  /// If the LLM times out or is offline, fails closed to calibrated template text.
   Future<OracleRecord> communeWithOracle({
     required String userId,
     int costEssence = 25,
     int? rollOverride,
     DateTime? timestamp,
+    String? operatorClass,
+    String? sector,
   }) async {
     final roll = rollOverride ?? (Random().nextInt(20) + 1);
+    final outcomeTier = OracleRecord.determineOutcomeTier(roll);
+
+    String? prophecyOverride;
+    try {
+      final flavor = await _llmService.generateOracleProphecy(
+        d20Roll: roll,
+        outcomeTier: outcomeTier,
+        operatorClass: operatorClass ?? 'Vanguard',
+        sector: sector,
+      );
+      if (flavor != null && flavor.prophecyText.isNotEmpty) {
+        prophecyOverride = flavor.prophecyText;
+      }
+    } catch (_) {
+      prophecyOverride = null; // Fails closed to calibrated template
+    }
+
     return await _db.performDivinationRoll(
       userId: userId,
       costEssence: costEssence,
       d20Roll: roll,
       timestamp: timestamp,
+      blessingTextOverride: prophecyOverride,
     );
   }
 

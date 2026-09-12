@@ -988,6 +988,7 @@ class AppDatabase extends _$AppDatabase {
     required int costEssence,
     required int d20Roll,
     DateTime? timestamp,
+    String? blessingTextOverride,
   }) async {
     return await transaction(() async {
       if (costEssence > 0) {
@@ -1010,6 +1011,7 @@ class AppDatabase extends _$AppDatabase {
         userId: userId,
         d20Roll: d20Roll,
         timestamp: timestamp,
+        blessingTextOverride: blessingTextOverride,
       );
 
       await recordOracleDivination(record);

@@ -76,6 +76,40 @@ class QuestDecreeWidget extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
 
+          // Weaving status banner
+          if (questStateAsync.valueOrNull?.isWeaving == true) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.4)),
+              ),
+              child: const Row(
+                children: [
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6E473B)),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'World Arbiter is weaving celestial decree (Llama 3.2)...',
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 9,
+                        color: Color(0xFF6E473B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
           // Status & Difficulty Badges Wrap (Responsive and Flex-Safe)
           Wrap(
             spacing: 6,
