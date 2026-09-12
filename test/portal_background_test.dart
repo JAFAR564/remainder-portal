@@ -51,8 +51,11 @@ void main() {
       final opacityWidget = tester.widget<Opacity>(opacityFinder);
       expect(opacityWidget.opacity, equals(0.75));
 
-      // Verify ColoredBox exists (one for base fallback, one for overlay)
-      final coloredBoxes = find.byType(ColoredBox);
+      // Verify ColoredBox exists inside PortalBackground (one for base fallback, one for overlay)
+      final coloredBoxes = find.descendant(
+        of: find.byType(PortalBackground),
+        matching: find.byType(ColoredBox),
+      );
       expect(coloredBoxes, findsNWidgets(2));
     });
 
