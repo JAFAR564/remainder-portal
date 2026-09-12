@@ -236,6 +236,11 @@ void main() {
     // 7. Widget Reactivity: In-Progress vs Claim Flow & Decree Sheet
     // =========================================================================
     testWidgets('7. Widget Reactivity: displays in-progress action, claim button on completed quest, and opens decree sheet', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final db = AppDatabase(NativeDatabase(dbFile));
       final repo = SovereignRepository(db);
 
@@ -284,7 +289,6 @@ void main() {
       // 3. Claim completed quest (quest_aether_conduit) directly from the sheet
       final sheetClaimBtn = find.byKey(const Key('sheet_claim_quest_aether_conduit'));
       expect(sheetClaimBtn, findsOneWidget);
-      await tester.ensureVisible(sheetClaimBtn);
       await tester.tap(sheetClaimBtn);
       await tester.pumpAndSettle();
 

@@ -116,47 +116,6 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                         ),
                       ),
                     ),
-                    if (decreeState.isWeaving)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6E473B)),
-                        ),
-                      )
-                    else
-                      InkWell(
-                        key: const Key('generate_new_decree_button'),
-                        onTap: () async {
-                          final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
-                          await ref.read(questDecreeProvider(userId).notifier).generateNewDecree(
-                            sectorId: 'sector_celestial_abyss_12',
-                            sectorName: 'Celestial Abyss (Sector 12)',
-                            difficulty: 'A-RANK',
-                            operatorClass: operatorClass,
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(4),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF6E473B).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
-                          ),
-                          child: const Text(
-                            '+ WEAVE',
-                            style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF6E473B),
-                            ),
-                          ),
-                        ),
-                      ),
-                    const SizedBox(width: 8),
                     Text(
                       '${filteredDecrees.length} PROCLAMATIONS',
                       style: const TextStyle(
