@@ -116,6 +116,47 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                         ),
                       ),
                     ),
+                    if (decreeState.isWeaving)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 4),
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6E473B)),
+                        ),
+                      )
+                    else
+                      InkWell(
+                        key: const Key('generate_new_decree_button'),
+                        onTap: () async {
+                          final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
+                          await ref.read(questDecreeProvider(userId).notifier).generateNewDecree(
+                            sectorId: 'sector_celestial_abyss_12',
+                            sectorName: 'Celestial Abyss (Sector 12)',
+                            difficulty: 'A-RANK',
+                            operatorClass: operatorClass,
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6E473B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
+                          ),
+                          child: const Text(
+                            '+ WEAVE',
+                            style: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF6E473B),
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 8),
                     Text(
                       '${filteredDecrees.length} PROCLAMATIONS',
                       style: const TextStyle(
@@ -174,75 +215,7 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 8),
-
-                // Weave New Decree Button / Weaving Banner
-                if (decreeState.isWeaving) ...[
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6E473B).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF6E473B).withValues(alpha: 0.5)),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF6E473B)),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Arbiter is weaving celestial decree (Llama 3.2)...',
-                            style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 10,
-                              color: Color(0xFF6E473B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ] else ...[
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: TextButton.icon(
-                        key: const Key('generate_new_decree_button'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF6E473B),
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        icon: const Icon(Icons.auto_awesome, size: 14),
-                        label: const Text(
-                          'WEAVE ARBITER DECREE',
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
-                          await ref.read(questDecreeProvider(userId).notifier).generateNewDecree(
-                            sectorId: 'sector_celestial_abyss_12',
-                            sectorName: 'Celestial Abyss (Sector 12)',
-                            difficulty: 'A-RANK',
-                            operatorClass: operatorClass,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+                const SizedBox(height: 12),
 
                 // Decrees List
                 Expanded(
