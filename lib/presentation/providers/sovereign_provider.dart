@@ -370,14 +370,14 @@ class QuestDecreeNotifier extends StateNotifier<AsyncValue<QuestDecreeState>> {
     await loadDecrees();
   }
 
-  Future<bool> claimReward({required String questId}) async {
-    final success = await _repo.claimReward(questId: questId, userId: _userId);
-    if (success) {
+  Future<QuestClaimResult> claimReward({required String questId}) async {
+    final result = await _repo.claimReward(questId: questId, userId: _userId);
+    if (result.success) {
       // Reload wallet so live Essence & Laurels meters reactively reflect the reward
       await _ref.read(playerWalletProvider(_userId).notifier).loadWallet();
       await loadDecrees();
     }
-    return success;
+    return result;
   }
 
   /// Triggers World Arbiter on-device LLM generation for a new quest decree.

@@ -30,6 +30,27 @@ class ActiveBuff {
     final diff = expiresAt.difference(DateTime.now()).inSeconds;
     return diff > 0 ? diff : 0;
   }
+
+  /// Integer basis points for multiplier calculations (1000 = 1.0x baseline, 1150 = 1.15x).
+  /// Pure integer arithmetic avoids all cross-platform floating-point boundary anomalies.
+  int get basisPoints {
+    switch (type) {
+      case BuffType.aetherMultiplier:
+        return 1150; // +15%
+      case BuffType.questRewardBoost:
+        return 1100; // +10%
+      case BuffType.computeFocus:
+        return 1050; // +5%
+      case BuffType.vitalityShield:
+        return 1000; // 1.0x baseline (shield affects defenses)
+      case BuffType.anomalyTurbulence:
+        return 950;  // -5% (combat drag effect)
+    }
+  }
+
+  /// Quest decree Essence multiplier basis points with guaranteed 1000 floor (1.0x baseline).
+  /// Under World Arbiter sovereign law, negative anomaly turbulence does not penalize decree rewards below baseline.
+  int get questEssenceBasisPoints => basisPoints >= 1000 ? basisPoints : 1000;
 }
 
 /// Persistent record of a D20 divination roll from the Aether Resonance Oracle.

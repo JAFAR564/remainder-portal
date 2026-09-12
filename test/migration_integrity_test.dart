@@ -233,7 +233,7 @@ void main() {
 
     // Claim reward first time
     final firstClaim = await session1Db.claimQuestReward(questId: questId, userId: userId);
-    expect(firstClaim, true);
+    expect(firstClaim.success, true);
 
     var wallet1 = await session1Db.getPlayerWallet(userId);
     expect(wallet1!.essenceBalance, 1500);
@@ -257,7 +257,7 @@ void main() {
 
     // Attempt second claim in new session: MUST return false and preserve balances
     final secondClaim = await session2Db.claimQuestReward(questId: questId, userId: userId);
-    expect(secondClaim, false);
+    expect(secondClaim.success, false);
 
     final walletAfterSecondClaim = await session2Db.getPlayerWallet(userId);
     expect(walletAfterSecondClaim!.essenceBalance, 1500);

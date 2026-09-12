@@ -342,15 +342,18 @@ class QuestDecreeWidget extends ConsumerWidget {
                     ),
                   ),
                   onPressed: () async {
-                    final success = await ref
+                    final result = await ref
                         .read(questDecreeProvider(userId).notifier)
                         .claimReward(questId: quest.id);
                     if (context.mounted) {
+                      final boostText = result.hadBuffBoost
+                          ? ' (+${((result.multiplierBasisPoints - 1000) / 10).toStringAsFixed(0)}% Oracle Boost)'
+                          : '';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            success
-                                ? 'Decree Fulfilled! Credited +${quest.rewardEssence} Essence & +${quest.rewardLaurels} Laurels.'
+                            result.success
+                                ? 'Decree Fulfilled! Credited +${result.creditedEssence} Essence$boostText & +${result.creditedLaurels} Laurels.'
                                 : 'Decree rewards already claimed.',
                             style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
                           ),

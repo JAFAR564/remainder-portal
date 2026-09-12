@@ -102,3 +102,27 @@ class QuestDecreeModel {
     );
   }
 }
+
+/// Represents the deterministic outcome of an authoritative quest decree claim transaction.
+class QuestClaimResult {
+  final bool success;
+  final String questId;
+  final int baseEssence;
+  final int creditedEssence;
+  final int creditedLaurels;
+  final int multiplierBasisPoints;
+  final String? activeBuffTitle;
+
+  const QuestClaimResult({
+    required this.success,
+    required this.questId,
+    required this.baseEssence,
+    required this.creditedEssence,
+    required this.creditedLaurels,
+    required this.multiplierBasisPoints,
+    this.activeBuffTitle,
+  });
+
+  bool get hadBuffBoost => multiplierBasisPoints > 1000;
+}
+

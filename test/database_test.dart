@@ -385,7 +385,7 @@ void main() {
       questId: 'decree_complete_01',
       userId: 'operator_quest_hero',
     );
-    expect(firstClaim, true);
+    expect(firstClaim.success, true);
 
     // Wallet balances must reflect payout
     final walletAfterPayout = await database.getPlayerWallet('operator_quest_hero');
@@ -397,7 +397,7 @@ void main() {
       questId: 'decree_complete_01',
       userId: 'operator_quest_hero',
     );
-    expect(secondClaim, false);
+    expect(secondClaim.success, false);
 
     // Balance must remain strictly unchanged
     final walletAfterSecondClaim = await database.getPlayerWallet('operator_quest_hero');

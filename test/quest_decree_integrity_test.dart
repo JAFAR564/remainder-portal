@@ -100,7 +100,10 @@ void main() {
 
       // quest_aether_conduit is completed (progress: 1.0, reward: 500 Essence, 35 Laurels)
       final success = await repo.claimReward(questId: 'quest_aether_conduit', userId: defaultUser);
-      expect(success, true);
+      expect(success.success, true);
+      expect(success.creditedEssence, 500);
+      expect(success.creditedLaurels, 35);
+      expect(success.hadBuffBoost, false);
 
       // Verify decree is marked claimed in SQLite
       final decree = await db.getQuestDecreeById('quest_aether_conduit');
@@ -134,11 +137,11 @@ void main() {
 
       // First claim succeeds
       final firstAttempt = await repo.claimReward(questId: 'quest_aether_conduit', userId: defaultUser);
-      expect(firstAttempt, true);
+      expect(firstAttempt.success, true);
 
       // Second claim attempt MUST return false (double-claim prevented)
       final secondAttempt = await repo.claimReward(questId: 'quest_aether_conduit', userId: defaultUser);
-      expect(secondAttempt, false);
+      expect(secondAttempt.success, false);
 
       // Verify wallet was credited EXACTLY ONCE
       final wallet = await db.getPlayerWallet(defaultUser);

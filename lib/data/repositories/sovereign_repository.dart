@@ -241,11 +241,12 @@ class SovereignRepository {
     await _db.updateQuestProgress(questId: questId, progress: progress);
   }
 
-  Future<bool> claimReward({
+  Future<QuestClaimResult> claimReward({
     required String questId,
     required String userId,
+    DateTime? nowOverride,
   }) async {
-    return await _db.claimQuestReward(questId: questId, userId: userId);
+    return await _db.claimQuestReward(questId: questId, userId: userId, nowOverride: nowOverride);
   }
 
   /// Generates a dynamic World Arbiter quest decree with validated LLM flavor text.

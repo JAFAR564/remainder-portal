@@ -331,15 +331,18 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                                           ),
                                           onPressed: () async {
-                                            final success = await ref
+                                            final result = await ref
                                                 .read(questDecreeProvider(userId).notifier)
                                                 .claimReward(questId: decree.id);
                                             if (context.mounted) {
+                                              final boostText = result.hadBuffBoost
+                                                  ? ' (+${((result.multiplierBasisPoints - 1000) / 10).toStringAsFixed(0)}% Oracle Boost)'
+                                                  : '';
                                               ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                    success
-                                                        ? 'Decree Fulfilled! Credited +${decree.rewardEssence} Essence & +${decree.rewardLaurels} Laurels.'
+                                                    result.success
+                                                        ? 'Decree Fulfilled! Credited +${result.creditedEssence} Essence$boostText & +${result.creditedLaurels} Laurels.'
                                                         : 'Rewards already claimed.',
                                                     style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
                                                   ),

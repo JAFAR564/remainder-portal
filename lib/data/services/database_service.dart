@@ -919,9 +919,10 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<bool> claimQuestReward({
+  Future<QuestClaimResult> claimQuestReward({
     required String questId,
     required String userId,
+    DateTime? nowOverride,
   }) async {
     return await transaction(() async {
       final rows = await customSelect(
@@ -935,7 +936,7 @@ class AppDatabase extends _$AppDatabase {
       }
 
       final row = rows.first.data;
-      final isClaimed = row['is_claimed'] == 1;
+      final isClaimed = row['is_claimed'] == 1 || row['is_claimed'] == true;
       final progress = (row['progress'] as num).toDouble();
       final rewardEssence = (row['reward_essence'] as num).toInt();
       final rewardLaurels = (row['reward_laurels'] as num).toInt();
@@ -945,8 +946,49 @@ class AppDatabase extends _$AppDatabase {
       }
 
       if (isClaimed) {
-        return false;
+        return QuestClaimResult(
+          success: false,
+          questId: questId,
+          baseEssence: rewardEssence,
+          creditedEssence: 0,
+          creditedLaurels: 0,
+          multiplierBasisPoints: 1000,
+        );
       }
+
+      // Query latest Oracle divination to resolve active celestial resonance buffs
+      final oracleRows = await customSelect(
+        'SELECT id, user_id, d20_roll, outcome_tier, blessing_text, buff_granted, timestamp '
+        'FROM oracle_histories WHERE user_id = ? ORDER BY timestamp DESC LIMIT 1;',
+        variables: [Variable.withString(userId)],
+      ).get();
+
+      int multiplierBasisPoints = 1000;
+      String? activeBuffTitle;
+
+      if (oracleRows.isNotEmpty) {
+        final oData = oracleRows.first.data;
+        final oRecord = OracleRecord(
+          id: oData['id'] as String,
+          userId: oData['user_id'] as String,
+          d20Roll: (oData['d20_roll'] as num).toInt(),
+          outcomeTier: oData['outcome_tier'] as String,
+          blessingText: oData['blessing_text'] as String,
+          buffGranted: oData['buff_granted'] as String?,
+          timestamp: DateTime.fromMillisecondsSinceEpoch(oData['timestamp'] as int),
+        );
+
+        final buff = oRecord.activeBuff;
+        final currentTime = nowOverride ?? DateTime.now();
+        if (buff != null && !currentTime.isAfter(buff.expiresAt)) {
+          multiplierBasisPoints = buff.questEssenceBasisPoints;
+          activeBuffTitle = buff.title;
+        }
+      }
+
+      // Pure integer basis points arithmetic (1000 = 1.0x baseline, 1150 = 1.15x)
+      // Bit-identical across ARM64 and x86_64, eliminates floating-point drift.
+      final effectiveEssence = (rewardEssence * multiplierBasisPoints) ~/ 1000;
 
       await customStatement(
         'UPDATE quest_decrees SET is_claimed = 1 WHERE id = ?;',
@@ -955,11 +997,19 @@ class AppDatabase extends _$AppDatabase {
 
       await adjustWalletBalance(
         userId: userId,
-        essenceDelta: rewardEssence,
+        essenceDelta: effectiveEssence,
         laurelDelta: rewardLaurels,
       );
 
-      return true;
+      return QuestClaimResult(
+        success: true,
+        questId: questId,
+        baseEssence: rewardEssence,
+        creditedEssence: effectiveEssence,
+        creditedLaurels: rewardLaurels,
+        multiplierBasisPoints: multiplierBasisPoints,
+        activeBuffTitle: activeBuffTitle,
+      );
     });
   }
 
