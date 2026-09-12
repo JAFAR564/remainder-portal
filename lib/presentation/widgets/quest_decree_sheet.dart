@@ -231,7 +231,7 @@ class _QuestDecreeSheetState extends ConsumerState<QuestDecreeSheet> {
                           ),
                         ),
                         onPressed: () async {
-                          final operatorClass = character?.roleLayer.roleArchetype ?? 'Vanguard';
+                          final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
                           await ref.read(questDecreeProvider(userId).notifier).generateNewDecree(
                             sectorId: 'sector_celestial_abyss_12',
                             sectorName: 'Celestial Abyss (Sector 12)',

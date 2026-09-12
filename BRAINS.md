@@ -389,6 +389,50 @@ This document serves as the persistent memory of the AI agents ("brains") that w
 * **Artifact Delivery:** `/sdcard/Download/remainder-portal.apk` (Size: 98,087,010 bytes, SHA256: `626cce0fe6cf4791d41ac3d4faf652ad89af2fe332787fb091834d7eaf654b71`)
 * **On-Device Installation:** Triggered on Honor X8 via `termux-open /sdcard/Download/remainder-portal.apk`.
 
+---
+
+## 14. Brain Session 14 (Thread C-0: Local LLM Sidecar Integration)
+* **Brain ID:** `e640b8d9-619f-466f-9d48-54880b6f8a6c` (Active Session)
+* **Session Date:** September 12, 2026
+
+### Core Objectives & Accomplishments:
+* **Pre-Flight Hardware & Infrastructure Verification (Honor X8 / Snapdragon 680):**
+  - Verified `llama-server` running as detached background daemon via `setsid` (`? Ssl`), persistent across sessions with single-slot configuration (`-np 1`, `-c 1024`, `-t 4 --threads-batch 4`).
+  - Measured concurrent memory footprint: `llama-server` resident at 833.6 MB RSS alongside active Remainder Portal foreground app, leaving ~1.85 GB available physical RAM (0 LMK kills, 0 swap thrashing).
+  - Verified local-only socket binding: strictly bound to `127.0.0.1:8080` (connection refused on WiFi LAN IP `192.168.0.4`).
+  - Verified battery-optimization protection via `termux-wake-lock`.
+* **Hard Contract Enforcement (Content Only, Never Mechanics):**
+  - The local LLM engine (`Llama-3.2-1B-Instruct-Q4_K_M.gguf`) is strictly constrained to narrative flavor strings (`title`, `description`, `prophecy_text`).
+  - All game mechanics (`rewardEssence`, `rewardLaurels`, `progress = 0.0`, `isClaimed = false`, `d20Roll`, `outcomeTier`, `buffGranted`, `duration`) remain 100% deterministic inside `SovereignRepository`.
+  - Hallucinated reward/progress fields in LLM responses are strictly dropped and discarded.
+* **Local LLM Sidecar Service (`LocalLlmSidecarService`):**
+  - Built OpenAI-compatible HTTP client connecting to `http://127.0.0.1:8080/v1/chat/completions` with a 22-second hard timeout.
+  - Implemented strict markdown code fence stripping and JSON schema validation with sanity length bounding (title 3..80 chars, description 5..250 chars, prophecy 5..250 chars; reject script tags; fail-closed on malformed or empty payloads).
+* **World Arbiter Dynamic Decrees:**
+  - Implemented `SovereignRepository.generateDynamicQuestDecree` synthesizing context-aware quest titles and descriptions via LLM with deterministic fallback to calibrated seed.
+  - Added `QuestDecreeState.isWeaving` and `QuestDecreeNotifier.generateNewDecree`.
+  - Upgraded `QuestDecreeSheet` with "WEAVE ARBITER DECREE" action and live weaving progress card.
+  - Upgraded `QuestDecreeWidget` with inline weaving status banner.
+* **Aether Resonance Oracle Prophecy Synthesis:**
+  - Updated `OracleRecord` with `determineOutcomeTier` and `createCalibratedRecord(blessingTextOverride: ...)`.
+  - Updated `SovereignRepository.communeWithOracle` and `DatabaseService.performDivinationRoll` to persist live LLM-generated celestial prophecy text with atomic Essence debit and fail-closed fallback.
+  - Upgraded `AetherResonanceOracleWidget` with explicit async loading state (`"Consulting celestial planes (Llama 3.2)..."`).
+* **Integrity Test Suite Expansion:**
+  - Authored `test/llm_sidecar_integration_test.dart` (8 tests): Happy Path Oracle, Happy Path Arbiter, Timeout Fail-Closed, Malformed JSON Fail-Closed, Hallucinated Keys Dropped, Sanity Bounds Defense, DB Restart Persistence, and 320dp narrow viewport zero-overflow.
+  - Total test suite expanded to 110 tests.
+
+### Modified & Created Assets:
+* [lib/data/services/local_llm_sidecar_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/local_llm_sidecar_service.dart)
+* [lib/data/models/oracle_record.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/models/oracle_record.dart)
+* [lib/data/services/database_service.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/services/database_service.dart)
+* [lib/data/repositories/sovereign_repository.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/data/repositories/sovereign_repository.dart)
+* [lib/presentation/providers/sovereign_provider.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/providers/sovereign_provider.dart)
+* [lib/presentation/widgets/aether_resonance_oracle_widget.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/aether_resonance_oracle_widget.dart)
+* [lib/presentation/widgets/quest_decree_sheet.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_sheet.dart)
+* [lib/presentation/widgets/quest_decree_widget.dart](file:///data/data/com.termux/files/home/remainder-portal/lib/presentation/widgets/quest_decree_widget.dart)
+* [test/llm_sidecar_integration_test.dart](file:///data/data/com.termux/files/home/remainder-portal/test/llm_sidecar_integration_test.dart)
+
+
 
 
 

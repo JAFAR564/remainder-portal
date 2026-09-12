@@ -22,7 +22,7 @@ class _AetherResonanceOracleWidgetState extends ConsumerState<AetherResonanceOra
     setState(() => _isCommuning = true);
     try {
       final character = ref.read(utrcsCharacterProvider);
-      final operatorClass = character?.roleLayer.roleArchetype ?? 'Vanguard';
+      final operatorClass = character?.role.tacticalArchetype ?? 'Vanguard';
       final record = await ref.read(oracleBuffProvider(userId).notifier).commune(
         costEssence: 25,
         operatorClass: operatorClass,
