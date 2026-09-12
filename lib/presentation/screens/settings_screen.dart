@@ -27,7 +27,7 @@ class SettingsScreen extends ConsumerWidget {
     final bool isModelInstalled = progress.status == ModelDownloadState.ready;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(
           'SOVEREIGN REALM & WORLD SETTINGS',

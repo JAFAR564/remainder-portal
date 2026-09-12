@@ -103,7 +103,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,

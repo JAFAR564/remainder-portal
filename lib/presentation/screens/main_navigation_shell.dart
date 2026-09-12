@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/portal_background.dart';
 import '../widgets/celestial_bottom_navbar.dart';
 import 'dashboard_screen.dart';
 import 'terminal_screen.dart';
@@ -26,20 +27,22 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
-      extendBody: true,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: CelestialBottomNavbar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    return PortalBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: CelestialBottomNavbar(
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }

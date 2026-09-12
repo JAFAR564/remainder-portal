@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/portal_background.dart';
 import 'loading_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -55,9 +56,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
-      body: GestureDetector(
+    return PortalBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
           if (mounted) {
@@ -145,6 +147,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             },
           ),
         ),
+      ),
       ),
     );
   }

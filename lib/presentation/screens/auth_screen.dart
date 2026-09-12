@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/portal_background.dart';
 import '../providers/game_provider.dart';
 import 'main_navigation_shell.dart';
 import 'story_prologue_screen.dart';
@@ -49,9 +50,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
-      body: SafeArea(
+    return PortalBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
@@ -264,6 +266,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -176,7 +176,7 @@ class DashboardScreen extends ConsumerWidget {
     final bool isWalletLoading = walletAsync.isLoading;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: RefreshIndicator(
           color: const Color(0xFF6E473B),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/portal_background.dart';
 import '../providers/game_provider.dart';
 import 'main_navigation_shell.dart';
 
@@ -58,9 +59,10 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
     final slide = _slides[_currentStep];
     final profile = ref.watch(playerProfileProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
-      body: SafeArea(
+    return PortalBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -222,6 +224,7 @@ class _StoryPrologueScreenState extends ConsumerState<StoryPrologueScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -50,7 +50,7 @@ class _GuildScreenState extends ConsumerState<GuildScreen> {
     final sectorGov = governance['sectors_neon_bastion_4'];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE1D4C2),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(
           'SOVEREIGN GUILDS & GOVERNANCE',
